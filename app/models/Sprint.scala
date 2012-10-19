@@ -4,8 +4,8 @@ import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 
 class Sprint(val id: Long,
-             val title: String,
-             val num: Int) extends KeyedEntity[Long] {
+             var title: String,
+             var num: Int) extends KeyedEntity[Long] {
 
   lazy val stories = WallDeeSchema.sprintToStories.left(this)
 
@@ -26,6 +26,10 @@ class Sprint(val id: Long,
 
 object Sprint {
   def findAll(): Seq[Sprint] = inTransaction {
-    from(WallDeeSchema.sprints)(a => select(a) orderBy (a.num desc)).toList
+    from(WallDeeSchema.sprints)(s => select(s) orderBy (s.num desc)).toList
+  }
+
+  def findById(sprintId: Long) = inTransaction {
+    WallDeeSchema.sprints.lookup(sprintId)
   }
 }

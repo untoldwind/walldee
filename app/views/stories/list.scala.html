@@ -1,0 +1,8 @@
+@(stories: Seq[Story])
+
+@stories.map { story =>
+<li>
+    @story.tag
+    @story.points
+</li>
+}

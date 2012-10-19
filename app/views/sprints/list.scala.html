@@ -1,8 +1,8 @@
-@(sprints: Seq[models.Sprint])
+@(sprints: Seq[Sprint])
 
 @sprints.map { sprint =>
 <li>
-    @sprint.title
+    <a href="@routes.Sprints.show(sprint.id)">@sprint.title</a>
     @sprint.num
 </li>
 }

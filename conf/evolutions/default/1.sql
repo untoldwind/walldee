@@ -10,8 +10,13 @@ create table SPRINT (
 );
 
 create table STORY (
-  id bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (id)
+  ID bigint(20) NOT NULL AUTO_INCREMENT,
+  TAG varchar(50) NOT NULL,
+  DESCRIPTION varchar(1000) NOT NULL,
+  POINTS int(10) NOT NULL,
+  SPRINTID bigint(20) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (SPRINTID) REFERENCES SPRINT(ID)
 );
 
 

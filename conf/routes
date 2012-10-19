@@ -10,3 +10,5 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 GET     /sprints                    controllers.Sprints.index
 POST    /sprints                    controllers.Sprints.create
+GET     /sprints/:sprintId          controllers.Sprints.show(sprintId:Long)
+POST    /sprints/:sprintId/stories  controllers.Stories.create(sprintId:Long)

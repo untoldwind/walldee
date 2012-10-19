@@ -1,0 +1,21 @@
+@(sprint: Sprint, stories:Seq[Story], form:Form[Story])
+
+@main("Sprint " + sprint.title) {
+<h1>Sprint @sprint.num: @sprint.title</h1>
+<ul id="story-list">
+    @views.html.stories.list(stories)
+</ul>
+
+@helper.form(action = routes.Stories.create(sprint.id), 'id -> "story-form") {
+<fieldset>
+    <legend>Story</legend>
+    @helper.inputText(form("tag"))
+    @helper.inputText(form("description"))
+    @helper.inputText(form("points"))
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+}
