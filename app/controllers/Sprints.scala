@@ -14,7 +14,7 @@ object Sprints extends Controller {
   def create = Action {
     implicit request =>
       sprintForm().bindFromRequest.fold(
-      formWithErrors => BadRequest, {
+      formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll(), formWithErrors)), {
         sprint =>
           sprint.save
           Ok(views.html.sprints.index(Sprint.findAll(), sprintForm()))
@@ -31,14 +31,18 @@ object Sprints extends Controller {
   private def sprintForm(sprint: Sprint = new Sprint): Form[Sprint] = Form(
     mapping(
       "title" -> text(maxLength = 255),
-      "num" -> number(min = 1, max = 10000)
+      "num" -> number(min = 1, max = 10000),
+      "sprintStart" -> date("dd-MM-yyyy"),
+      "sprintEnd" -> date("dd-MM-yyyy")
     ) {
-      (title, num) =>
+      (title, num, sprintStart, sprintEnd) =>
         sprint.title = title
         sprint.num = num
+        sprint.sprintStart = sprintStart
+        sprint.sprintEnd = sprintEnd
         sprint
     } {
-      sprint => Some((sprint.title, sprint.num))
+      sprint => Some((sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd))
     }
   ).fill(sprint)
 }
