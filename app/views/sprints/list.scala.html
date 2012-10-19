@@ -1,0 +1,8 @@
+@(sprints: Seq[models.Sprint])
+
+@sprints.map { sprint =>
+<li>
+    @sprint.title
+    @sprint.num
+</li>
+}

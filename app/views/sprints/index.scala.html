@@ -1,0 +1,21 @@
+@(sprints: Seq[models.Sprint], form:Form[_])
+
+@main("Sprints") {
+
+<ul id="sprint-list">
+    @list(sprints)
+</ul>
+
+@helper.form(action = routes.Sprints.create, 'id -> "sprint-form") {
+<fieldset>
+    <legend>Sprint</legend>
+    @helper.inputText(form("title"))
+    @helper.inputText(form("num"))
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+}
+
