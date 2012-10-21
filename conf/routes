@@ -3,12 +3,13 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                                  controllers.Application.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file                      controllers.Assets.at(path="/public", file)
 
-GET     /sprints                    controllers.Sprints.index
-POST    /sprints                    controllers.Sprints.create
-GET     /sprints/:sprintId          controllers.Sprints.show(sprintId:Long)
-POST    /sprints/:sprintId/stories  controllers.Stories.create(sprintId:Long)
+GET     /sprints                           controllers.Sprints.index
+POST    /sprints                           controllers.Sprints.create
+GET     /sprints/:sprintId                 controllers.Sprints.show(sprintId:Long)
+POST    /sprints/:sprintId/stories         controllers.Stories.create(sprintId:Long)
+POST    /sprints/:sprintId/dayCounts       controllers.DayCounts.create(sprintId:Long)

@@ -5,6 +5,7 @@ import models.{Story, Sprint}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
+import models.json.SprintCounter
 
 object Sprints extends Controller {
   def index = Action {
@@ -33,16 +34,27 @@ object Sprints extends Controller {
       "title" -> text(maxLength = 255),
       "num" -> number(min = 1, max = 10000),
       "sprintStart" -> date("dd-MM-yyyy"),
-      "sprintEnd" -> date("dd-MM-yyyy")
+      "sprintEnd" -> date("dd-MM-yyyy"),
+      "counters" -> list(
+        mapping(
+          "name" -> text,
+          "color" -> text
+        ) {
+          (name, color) => SprintCounter(name, color)
+        } {
+          counter => Some(counter.name, counter.color)
+        }
+      )
     ) {
-      (title, num, sprintStart, sprintEnd) =>
+      (title, num, sprintStart, sprintEnd, counter) =>
         sprint.title = title
         sprint.num = num
         sprint.sprintStart = sprintStart
         sprint.sprintEnd = sprintEnd
+        sprint.counters = counter
         sprint
     } {
-      sprint => Some((sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd))
+      sprint => Some((sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd, sprint.counters.toList))
     }
   ).fill(sprint)
 }
