@@ -13,10 +13,11 @@
     @helper.inputText(form("num"))
     @helper.inputText(form("sprintStart"))
     @helper.inputText(form("sprintEnd"))
-    @helper.repeat(form("counter"), min = 4) { counter =>
+    @helper.repeat(form("counters"), min = 4) { counter =>
         @helper.inputText(counter("name"))
         @helper.inputText(counter("color"))
-    }</fieldset>
+    }
+</fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Create">
 </div>

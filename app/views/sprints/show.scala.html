@@ -1,7 +1,39 @@
-@(sprint: Sprint, stories:Seq[Story], form:Form[Story])
+@(sprint: Sprint, stories:Seq[Story], storyForm:Form[Story], dayCounts:Seq[DayCount], dayCountForm:Form[DayCount])
 
 @main("Sprint " + sprint.title) {
 <h1>Sprint @sprint.num: @sprint.title</h1>
+<ul id="counter-list">
+    @sprint.counters.map { counter =>
+        <li>@counter.name @counter.color</li>
+    }
+</ul>
+
+<ul id="daycount-list">
+    @dayCounts.map { dayCount =>
+        <li>@dayCount.dayNum
+        <dl>
+            @dayCount.counterValues.map { counterValue =>
+                <dt>@counterValue.name</dt>
+                <dd>@counterValue.value</dd>
+            }
+        </dl></li>
+    }
+</ul>
+
+@helper.form(action = routes.DayCounts.create(sprint.id), 'id -> "dayCount-form") {
+<fieldset>
+    <legend>Day counts</legend>
+    @helper.inputText(dayCountForm("dayNum"))
+    @helper.repeat(dayCountForm("counterValues")) { counterValue =>
+        @helper.inputText(counterValue("name"))
+        @helper.inputText(counterValue("value"))
+    }
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
 <ul id="story-list">
     @views.html.stories.list(stories)
 </ul>
@@ -9,9 +41,9 @@
 @helper.form(action = routes.Stories.create(sprint.id), 'id -> "story-form") {
 <fieldset>
     <legend>Story</legend>
-    @helper.inputText(form("tag"))
-    @helper.inputText(form("description"))
-    @helper.inputText(form("points"))
+    @helper.inputText(storyForm("tag"))
+    @helper.inputText(storyForm("description"))
+    @helper.inputText(storyForm("points"))
 </fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Create">

@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{DayCount, Story}
+import models.{Sprint, DayCount, Story}
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
@@ -10,16 +10,26 @@ import models.json.SprintCounterValue
 object DayCounts extends Controller {
   def create(sprintId: Long) = Action {
     implicit request =>
-      storyForm(sprintId).bindFromRequest.fold(
-      formWithErrors => BadRequest, {
-        story =>
-          story.save
-          Redirect(routes.Sprints.show(sprintId))
-      })
+      Sprint.findById(sprintId).map {
+        sprint =>
+          dayCountForm(sprint).bindFromRequest.fold(
+          formWithErrors => BadRequest, {
+            dayCount =>
+              dayCount.save
+              Redirect(routes.Sprints.show(sprintId))
+          })
+      }.getOrElse(NotFound)
   }
 
-  def storyForm(sprintId: Long): Form[DayCount] =
-    dayCountForm(new DayCount(dayNum = 0, sprintId = sprintId))
+  def dayCountForm(sprint: Sprint): Form[DayCount] = {
+    val dayCount = new DayCount(dayNum = 0, sprintId = sprint.id)
+
+    dayCount.counterValues = sprint.counters.map {
+      counter =>
+        SprintCounterValue(counter.name, 0)
+    }
+    dayCountForm(dayCount)
+  }
 
   def dayCountForm(dayCount: DayCount): Form[DayCount] = Form(
     mapping(
@@ -31,7 +41,9 @@ object DayCounts extends Controller {
         ) {
           (name, value) => SprintCounterValue(name, value)
         } {
-          counterValue => Some(counterValue.name, counterValue.value)
+          counterValue =>
+            println(">>>>>>>>>>>" + counterValue)
+            Some(counterValue.name, counterValue.value)
         }
       )
     ) {
@@ -40,7 +52,9 @@ object DayCounts extends Controller {
         dayCount.counterValues = counterValues
         dayCount
     } {
-      dayCount => Some(dayCount.dayNum, dayCount.counterValues.toList)
+      dayCount =>
+        println(">>>>>>>>>>>" + dayCount.counterValues)
+        Some(dayCount.dayNum, dayCount.counterValues.toList)
     }
   ).fill(dayCount)
 

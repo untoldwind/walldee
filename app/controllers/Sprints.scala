@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Story, Sprint}
+import models.{DayCount, Story, Sprint}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
@@ -25,7 +25,9 @@ object Sprints extends Controller {
   def show(sprintId: Long) = Action {
     Sprint.findById(sprintId).map {
       sprint =>
-        Ok(views.html.sprints.show(sprint, Story.findAllForSprint(sprintId), Stories.storyForm(sprintId)))
+        Ok(views.html.sprints.show(sprint,
+          Story.findAllForSprint(sprintId), Stories.storyForm(sprint),
+          DayCount.findAllForSprint(sprintId), DayCounts.dayCountForm(sprint)))
     }.getOrElse(NotFound)
   }
 
@@ -46,12 +48,12 @@ object Sprints extends Controller {
         }
       )
     ) {
-      (title, num, sprintStart, sprintEnd, counter) =>
+      (title, num, sprintStart, sprintEnd, counters) =>
         sprint.title = title
         sprint.num = num
         sprint.sprintStart = sprintStart
         sprint.sprintEnd = sprintEnd
-        sprint.counters = counter
+        sprint.counters = counters.filter(!_.name.isEmpty)
         sprint
     } {
       sprint => Some((sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd, sprint.counters.toList))

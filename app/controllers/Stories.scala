@@ -8,16 +8,19 @@ import play.api.data.Forms._
 object Stories extends Controller {
   def create(sprintId: Long) = Action {
     implicit request =>
-      storyForm(sprintId).bindFromRequest.fold(
-      formWithErrors => BadRequest, {
-        story =>
-          story.save
-          Redirect(routes.Sprints.show(sprintId))
-      })
+      Sprint.findById(sprintId).map {
+        sprint =>
+          storyForm(sprint).bindFromRequest.fold(
+          formWithErrors => BadRequest, {
+            story =>
+              story.save
+              Redirect(routes.Sprints.show(sprintId))
+          })
+      }.getOrElse(NotFound)
   }
 
-  def storyForm(sprintId: Long): Form[Story] =
-    storyForm(new Story(id = 0, tag = "", description = "", points = 0, sprintId = sprintId))
+  def storyForm(sprint: Sprint): Form[Story] =
+    storyForm(new Story(id = 0, tag = "", description = "", points = 0, sprintId = sprint.id))
 
   def storyForm(story: Story): Form[Story] = Form(
     mapping(
