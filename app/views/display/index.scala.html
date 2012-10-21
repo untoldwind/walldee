@@ -1,0 +1,20 @@
+@(displays: Seq[Display], sprints: Seq[Sprint], form: Form[Display])
+
+@main("Displays") {
+<ul id="display-list">
+    @list(displays)
+</ul>
+
+@helper.form(action = routes.Displays.create, 'id -> "display-form") {
+<fieldset>
+    <legend>Display</legend>
+    @helper.inputText(form("name"))
+    @helper.select(form("sprintId"), sprints.map(sprint => (sprint.id.toString, "Sprint: " + sprint.num + ": " + sprint.title)))
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+}
+

@@ -1,0 +1,7 @@
+@(displays: Seq[Display])
+
+@displays.map { display =>
+<li>
+    <a href="@routes.Displays.showWall(display.id)">@display.name</a>
+</li>
+}

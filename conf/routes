@@ -13,3 +13,9 @@ POST    /sprints                           controllers.Sprints.create
 GET     /sprints/:sprintId                 controllers.Sprints.show(sprintId:Long)
 POST    /sprints/:sprintId/stories         controllers.Stories.create(sprintId:Long)
 POST    /sprints/:sprintId/dayCounts       controllers.DayCounts.create(sprintId:Long)
+
+GET     /displays                          controllers.Displays.index
+POST    /displays                          controllers.Displays.create
+GET     /displays/:displayId               controllers.Displays.showWall(displayId:Long)
+
+GET     /plugins/burndownChart/:sprintId   controllers.plugins.BurndownChart.getPng(sprintId:Long)

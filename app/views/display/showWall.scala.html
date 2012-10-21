@@ -1,0 +1,6 @@
+@(display: Display)
+
+@main(display.name) {
+    <img src="@plugins.routes.BurndownChart.getPng(display.sprintId)"/>
+}
+
