@@ -1,5 +1,7 @@
-@(displayItems:Seq[DisplayItem])
+@(display:Display, displayItems:Seq[DisplayItem])
 
 @displayItems.map { displayItem =>
-<li>@displayItem.widget @displayItem.posx @displayItem.posy @displayItem.width @displayItem.height</li>
+<li>@displayItem.widget @displayItem.posx @displayItem.posy @displayItem.width @displayItem.height
+<a href="@routes.DisplayItems.edit(display.id, displayItem.id)">Edit</a>
+</li>
 }

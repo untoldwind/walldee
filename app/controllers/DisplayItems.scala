@@ -19,6 +19,26 @@ object DisplayItems extends Controller {
       }.getOrElse(NotFound)
   }
 
+  def edit(displayId:Long, displayItemId:Long) = Action {
+    DisplayItem.findById(displayItemId).map {
+      displayItem =>
+        Ok(views.html.displayItem.edit(displayItem, displayItemForm(displayItem)))
+    }.getOrElse(NotFound)
+  }
+
+  def update(displayId:Long, displayItemId:Long) = Action {
+    implicit request =>
+    DisplayItem.findById(displayItemId).map {
+      displayItem =>
+        displayItemForm(displayItem).bindFromRequest.fold(
+        formWithErrors => BadRequest(views.html.displayItem.edit(displayItem, formWithErrors)), {
+          displayItem =>
+            displayItem.save
+            Redirect(routes.Displays.showConfig(displayId))
+        })
+    }.getOrElse(NotFound)
+  }
+
   def displayItemFrom(display: Display) =
     displayItemForm(new DisplayItem(0, display.id, 0, 0, 0, 0, 0, "{}"))
 

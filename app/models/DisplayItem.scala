@@ -47,4 +47,8 @@ object DisplayItem {
     from(WallDeeSchema.displayItems)(d => where(d.displayId === displayId) select (d) orderBy (d.id asc)).toList
   }
 
+  def findById(displayId: Long) = inTransaction {
+    WallDeeSchema.displayItems.lookup(displayId)
+  }
+
 }

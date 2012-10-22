@@ -1,0 +1,19 @@
+@(displayItem:DisplayItem, displayItemForm:Form[DisplayItem])
+
+@main(displayItem.widget.toString) {
+
+@helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id), 'id -> "displayItem-form") {
+<fieldset>
+    <legend>Display item</legend>
+    @helper.select(displayItemForm("widget"), DisplayWidgets.values.toSeq.map(widget => widget.id.toString -> widget.toString ))
+    @helper.inputText(displayItemForm("posx"))
+    @helper.inputText(displayItemForm("posy"))
+    @helper.inputText(displayItemForm("width"))
+    @helper.inputText(displayItemForm("height"))
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+}

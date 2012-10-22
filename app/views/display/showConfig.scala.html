@@ -1,8 +1,21 @@
-@(display: Display, displayItems:Seq[DisplayItem], displayItemForm:Form[DisplayItem])
+@(display: Display, sprints: Seq[Sprint], form: Form[Display], displayItems:Seq[DisplayItem], displayItemForm:Form[DisplayItem])
 
 @main("Config: " + display.name) {
+
+@helper.form(action = routes.Displays.update(display.id), 'id -> "display-form") {
+<fieldset>
+    <legend>Display</legend>
+    @helper.inputText(form("name"))
+    @helper.select(form("sprintId"), sprints.map(sprint => sprint.id.toString -> "Sprint %d: %s".format(sprint.num, sprint.title)))
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+
 <ul id="displayItem-list">
-    @views.html.displayItem.list(displayItems)
+    @views.html.displayItem.list(display, displayItems)
 </ul>
 
 @helper.form(action = routes.DisplayItems.create(display.id), 'id -> "displayItem-form") {

@@ -26,6 +26,8 @@ object Displays extends Controller {
     Display.findById(displayId).map {
       display =>
         Ok(views.html.display.showConfig(display,
+          Sprint.findAll(),
+          displayForm(display),
           DisplayItem.findAllForDisplay(displayId),
           DisplayItems.displayItemFrom(display)))
     }.getOrElse(NotFound)
@@ -36,6 +38,23 @@ object Displays extends Controller {
       display =>
         Ok(views.html.display.showWall(display, DisplayItem.findAllForDisplay(displayId)))
     }.getOrElse(NotFound)
+  }
+
+  def update(displayId: Long) = Action {
+    implicit request =>
+      Display.findById(displayId).map {
+        display =>
+          displayForm(display).bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.display.showConfig(display,
+            Sprint.findAll(),
+            formWithErrors,
+            DisplayItem.findAllForDisplay(displayId),
+            DisplayItems.displayItemFrom(display))), {
+            display =>
+              display.save
+              Redirect(routes.Displays.showConfig(displayId))
+          })
+      }.getOrElse(NotFound)
   }
 
   private def displayForm(display: Display = new Display): Form[Display] = Form(
