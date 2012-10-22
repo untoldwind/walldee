@@ -17,5 +17,8 @@ POST    /sprints/:sprintId/dayCounts       controllers.DayCounts.create(sprintId
 GET     /displays                          controllers.Displays.index
 POST    /displays                          controllers.Displays.create
 GET     /displays/:displayId               controllers.Displays.showWall(displayId:Long)
+GET     /displays/:displayId/config        controllers.Displays.showConfig(displayId:Long)
+POST    /displays/:displayId/items         controllers.DisplayItems.create(displayId:Long)
 
 GET     /plugins/burndownChart/:sprintId   controllers.plugins.BurndownChart.getPng(sprintId:Long)
+

@@ -1,0 +1,5 @@
+@(displayItems:Seq[DisplayItem])
+
+@displayItems.map { displayItem =>
+<li>@displayItem.widget @displayItem.posx @displayItem.posy @displayItem.width @displayItem.height</li>
+}

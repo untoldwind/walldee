@@ -3,5 +3,6 @@
 @displays.map { display =>
 <li>
     <a href="@routes.Displays.showWall(display.id)">@display.name</a>
+    <a href="@routes.Displays.showConfig(display.id)">Config</a>
 </li>
 }

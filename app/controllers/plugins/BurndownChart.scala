@@ -5,12 +5,9 @@ import org.jfree.data.category.{CategoryDataset, DefaultCategoryDataset}
 import org.jfree.chart.{JFreeChart, StandardChartTheme, ChartFactory}
 import org.jfree.chart.plot.{CategoryPlot, PlotOrientation}
 import java.awt.{Color, GradientPaint}
-import org.jfree.chart.renderer.category.BarRenderer
 import org.jfree.chart.axis.{CategoryLabelPositions, NumberAxis}
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
-import play.api.libs.iteratee.Enumeratee
-import java.awt.image.{RenderedImage, BufferedImage}
 
 object BurndownChart extends Controller {
   def getPng(sprintId: Long) = Action {
@@ -20,9 +17,7 @@ object BurndownChart extends Controller {
     val out = new ByteArrayOutputStream()
 
     ImageIO.write(image, "png", out)
-    out.flush()
 
-    println(">>> " + out.toByteArray.length)
     Ok(content = out.toByteArray)
   }
 
@@ -75,7 +70,7 @@ object BurndownChart extends Controller {
       true));
 
     // create the chart...
-    val chart = ChartFactory.createBarChart(
+    val chart = ChartFactory.createLineChart(
       "Bar Chart Demo 1", // chart title
       "Category", // domain axis label
       "Value", // range axis label
@@ -107,8 +102,8 @@ object BurndownChart extends Controller {
     rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
     // disable bar outlines...
-    def renderer = plot.getRenderer().asInstanceOf[BarRenderer];
-    renderer.setDrawBarOutline(false);
+//    def renderer = plot.getRenderer().asInstanceOf[BarRenderer];
+//    renderer.setDrawBarOutline(false);
 
     // set up gradient paints for series...
     def gp0 = new GradientPaint(0.0f, 0.0f, Color.blue,
@@ -117,9 +112,9 @@ object BurndownChart extends Controller {
       0.0f, 0.0f, new Color(0, 64, 0));
     def gp2 = new GradientPaint(0.0f, 0.0f, Color.red,
       0.0f, 0.0f, new Color(64, 0, 0));
-    renderer.setSeriesPaint(0, gp0);
-    renderer.setSeriesPaint(1, gp1);
-    renderer.setSeriesPaint(2, gp2);
+//    renderer.setSeriesPaint(0, gp0);
+//    renderer.setSeriesPaint(1, gp1);
+//    renderer.setSeriesPaint(2, gp2);
 
     def domainAxis = plot.getDomainAxis();
     domainAxis.setCategoryLabelPositions(

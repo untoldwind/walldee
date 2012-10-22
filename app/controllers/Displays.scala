@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Sprint, Display}
+import models.{DisplayItem, Sprint, Display}
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
@@ -20,6 +20,15 @@ object Displays extends Controller {
           display.save
           Ok(views.html.display.index(Display.findAll(), Sprint.findAll(), displayForm()))
       })
+  }
+
+  def showConfig(displayId: Long) = Action {
+    Display.findById(displayId).map {
+      display =>
+        Ok(views.html.display.showConfig(display,
+          DisplayItem.findAllForDisplay(displayId),
+          DisplayItems.displayItemFrom(display)))
+    }.getOrElse(NotFound)
   }
 
   def showWall(displayId: Long) = Action {
