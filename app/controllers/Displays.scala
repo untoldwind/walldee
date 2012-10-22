@@ -34,7 +34,7 @@ object Displays extends Controller {
   def showWall(displayId: Long) = Action {
     Display.findById(displayId).map {
       display =>
-        Ok(views.html.display.showWall(display))
+        Ok(views.html.display.showWall(display, DisplayItem.findAllForDisplay(displayId)))
     }.getOrElse(NotFound)
   }
 

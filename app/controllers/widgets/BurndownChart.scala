@@ -1,4 +1,4 @@
-package controllers.plugins
+package controllers.widgets
 
 import play.api.mvc.{Action, Controller}
 import org.jfree.data.category.{CategoryDataset, DefaultCategoryDataset}
@@ -10,10 +10,10 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
 object BurndownChart extends Controller {
-  def getPng(sprintId: Long) = Action {
+  def getPng(sprintId: Long, width: Int, height: Int) = Action {
     val chart = createChart(createDataset)
 
-    val image = chart.createBufferedImage(400, 400)
+    val image = chart.createBufferedImage(width, height)
     val out = new ByteArrayOutputStream()
 
     ImageIO.write(image, "png", out)
@@ -102,8 +102,8 @@ object BurndownChart extends Controller {
     rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
     // disable bar outlines...
-//    def renderer = plot.getRenderer().asInstanceOf[BarRenderer];
-//    renderer.setDrawBarOutline(false);
+    //    def renderer = plot.getRenderer().asInstanceOf[BarRenderer];
+    //    renderer.setDrawBarOutline(false);
 
     // set up gradient paints for series...
     def gp0 = new GradientPaint(0.0f, 0.0f, Color.blue,
@@ -112,9 +112,9 @@ object BurndownChart extends Controller {
       0.0f, 0.0f, new Color(0, 64, 0));
     def gp2 = new GradientPaint(0.0f, 0.0f, Color.red,
       0.0f, 0.0f, new Color(64, 0, 0));
-//    renderer.setSeriesPaint(0, gp0);
-//    renderer.setSeriesPaint(1, gp1);
-//    renderer.setSeriesPaint(2, gp2);
+    //    renderer.setSeriesPaint(0, gp0);
+    //    renderer.setSeriesPaint(1, gp1);
+    //    renderer.setSeriesPaint(2, gp2);
 
     def domainAxis = plot.getDomainAxis();
     domainAxis.setCategoryLabelPositions(

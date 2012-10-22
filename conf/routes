@@ -20,5 +20,4 @@ GET     /displays/:displayId               controllers.Displays.showWall(display
 GET     /displays/:displayId/config        controllers.Displays.showConfig(displayId:Long)
 POST    /displays/:displayId/items         controllers.DisplayItems.create(displayId:Long)
 
-GET     /plugins/burndownChart/:sprintId   controllers.plugins.BurndownChart.getPng(sprintId:Long)
-
+GET     /plugins/burndownChart/:sprintId   controllers.widgets.BurndownChart.getPng(sprintId:Long, width:Int ?= 400, height:Int ?= 300)
