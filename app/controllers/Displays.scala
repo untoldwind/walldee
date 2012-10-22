@@ -60,14 +60,16 @@ object Displays extends Controller {
   private def displayForm(display: Display = new Display): Form[Display] = Form(
     mapping(
       "name" -> text(maxLength = 255),
-      "sprintId" -> longNumber
+      "sprintId" -> longNumber,
+      "backgroundColor" -> text
     ) {
-      (name, sprintId) =>
+      (name, sprintId, backgroundColor) =>
         display.name = name
         display.sprintId = sprintId
+        display.backgroundColor = backgroundColor
         display
     } {
-      display => Some((display.name, display.sprintId))
+      display => Some((display.name, display.sprintId, display.backgroundColor))
     }
   ).fill(display)
 }

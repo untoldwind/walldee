@@ -5,10 +5,11 @@ import org.squeryl.PrimitiveTypeMode._
 
 class Display(val id: Long,
               var name: String,
-              var sprintId: Long) extends KeyedEntity[Long] {
+              var sprintId: Long,
+              var backgroundColor: String) extends KeyedEntity[Long] {
   lazy val sprint = WallDeeSchema.sprintToDisplays.right(this)
 
-  def this() = this(0, "", 0)
+  def this() = this(0, "", 0, "#000000")
 
   def save = inTransaction {
     WallDeeSchema.displays.insertOrUpdate(this)
