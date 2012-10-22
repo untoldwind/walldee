@@ -5,7 +5,7 @@ import models.{DayCount, Story, Sprint}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
-import models.json.SprintCounter
+import models.json.{SprintCounterSide, SprintCounter}
 
 object Sprints extends Controller {
   def index = Action {
@@ -40,11 +40,12 @@ object Sprints extends Controller {
       "counters" -> list(
         mapping(
           "name" -> text,
-          "color" -> text
+          "color" -> text,
+          "side" -> number
         ) {
-          (name, color) => SprintCounter(name, color)
+          (name, color, side) => SprintCounter(name, color, SprintCounterSide(side))
         } {
-          counter => Some(counter.name, counter.color)
+          counter => Some(counter.name, counter.color, counter.side.id)
         }
       )
     ) {

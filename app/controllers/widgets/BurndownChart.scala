@@ -4,14 +4,16 @@ import play.api.mvc.{Action, Controller}
 import org.jfree.data.category.{CategoryDataset, DefaultCategoryDataset}
 import org.jfree.chart.{JFreeChart, StandardChartTheme, ChartFactory}
 import org.jfree.chart.plot.{CategoryPlot, PlotOrientation}
-import java.awt.{Color, GradientPaint}
-import org.jfree.chart.axis.{CategoryLabelPositions, NumberAxis}
+import java.awt.{Color, GradientPaint, Font}
+import org.jfree.chart.axis.{CategoryAxis, CategoryLabelPositions, NumberAxis}
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
+import org.jfree.chart.renderer.category.{LineAndShapeRenderer, BarRenderer}
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator
 
 object BurndownChart extends Controller {
   def getPng(sprintId: Long, width: Int, height: Int) = Action {
-    val chart = createChart(createDataset)
+    val chart = createChart(createLeftDataset, createRightDataset)
 
     val image = chart.createBufferedImage(width, height)
     val out = new ByteArrayOutputStream()
@@ -26,7 +28,7 @@ object BurndownChart extends Controller {
    *
    * @return The dataset.
    */
-  private def createDataset: CategoryDataset = {
+  private def createLeftDataset: CategoryDataset = {
 
     // row keys...
     val series1 = "First";
@@ -55,74 +57,68 @@ object BurndownChart extends Controller {
     dataset.addValue(8.0, series2, category4);
     dataset.addValue(4.0, series2, category5);
 
+    dataset
+  }
+
+  private def createRightDataset: CategoryDataset = {
+
+    // row keys...
+    val series1 = "First";
+    val series2 = "Second";
+    val series3 = "Third";
+
+    // column keys...
+    val category1 = "Category 1";
+    val category2 = "Category 2";
+    val category3 = "Category 3";
+    val category4 = "Category 4";
+    val category5 = "Category 5";
+
+    // create the dataset...
+    val dataset = new DefaultCategoryDataset();
+
     dataset.addValue(4.0, series3, category1);
-    dataset.addValue(3.0, series3, category2);
+    dataset.addValue(6.0, series3, category2);
     dataset.addValue(2.0, series3, category3);
     dataset.addValue(3.0, series3, category4);
-    dataset.addValue(6.0, series3, category5);
+    dataset.addValue(null, series3, category5);
 
     dataset
   }
 
-  private def createChart(dataset: CategoryDataset): JFreeChart = {
+  private def createChart(leftDataset: CategoryDataset, rightDataset: CategoryDataset): JFreeChart = {
 
-    ChartFactory.setChartTheme(new StandardChartTheme("JFree/Shadow",
-      true));
+    val plot = new CategoryPlot
+    val rangeAxisLeft = new NumberAxis("Points");
+    rangeAxisLeft.setStandardTickUnits(
+      NumberAxis.createIntegerTickUnits());
+    val rendererLeft = new LineAndShapeRenderer();
+    rendererLeft.setSeriesPaint(0, Color.blue);
+    rendererLeft.setBaseToolTipGenerator(
+      new StandardCategoryToolTipGenerator());
+    plot.setDataset(0, leftDataset)
+    plot.setRangeAxis(0, rangeAxisLeft)
+    plot.setDomainGridlinesVisible(true);
 
-    // create the chart...
-    val chart = ChartFactory.createLineChart(
-      "Bar Chart Demo 1", // chart title
-      "Category", // domain axis label
-      "Value", // range axis label
-      dataset, // data
-      PlotOrientation.VERTICAL, // orientation
-      true, // include legend
-      true, // tooltips?
-      false // URLs?
-    );
+    val rangeAxisRight = new NumberAxis("Tasks");
+    rangeAxisRight.setStandardTickUnits(
+      NumberAxis.createIntegerTickUnits());
+    plot.setRangeAxis(1, rangeAxisRight);
+    plot.setDataset(1, rightDataset);
+    plot.mapDatasetToRangeAxis(1, 1);
+    val rendererRight = new LineAndShapeRenderer();
+    rendererRight.setSeriesPaint(0, Color.red);
 
-    // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+    plot.setRenderer(0, rendererLeft);
+    plot.setRenderer(1, rendererRight);
 
-    // set the background color for the chart...
-    chart.setBackgroundPaint(Color.white);
-
-    // get a reference to the plot for further customisation...
-    def plot = chart.getPlot().asInstanceOf[CategoryPlot];
-
-    // ******************************************************************
-    //  More than 150 demo applications are included with the JFreeChart
-    //  Developer Guide...for more information, see:
-    //
-    //  >   http://www.object-refinery.com/jfreechart/guide.html
-    //
-    // ******************************************************************
-
-    // set the range axis to display integers only...
-    def rangeAxis = plot.getRangeAxis().asInstanceOf[NumberAxis];
-    rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-    // disable bar outlines...
-    //    def renderer = plot.getRenderer().asInstanceOf[BarRenderer];
-    //    renderer.setDrawBarOutline(false);
-
-    // set up gradient paints for series...
-    def gp0 = new GradientPaint(0.0f, 0.0f, Color.blue,
-      0.0f, 0.0f, new Color(0, 0, 64));
-    def gp1 = new GradientPaint(0.0f, 0.0f, Color.green,
-      0.0f, 0.0f, new Color(0, 64, 0));
-    def gp2 = new GradientPaint(0.0f, 0.0f, Color.red,
-      0.0f, 0.0f, new Color(64, 0, 0));
-    //    renderer.setSeriesPaint(0, gp0);
-    //    renderer.setSeriesPaint(1, gp1);
-    //    renderer.setSeriesPaint(2, gp2);
-
-    def domainAxis = plot.getDomainAxis();
+    def domainAxis = new CategoryAxis("Over")
+    plot.setDomainAxis(domainAxis)
     domainAxis.setCategoryLabelPositions(
       CategoryLabelPositions.createUpRotationLabelPositions(
         scala.math.Pi / 6.0));
-    // OPTIONAL CUSTOMISATION COMPLETED.
 
-    return chart;
-
+    new JFreeChart("Score Bord", new Font("SansSerif", Font.BOLD, 12),
+      plot, true)
   }
 }
