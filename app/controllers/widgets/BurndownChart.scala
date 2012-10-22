@@ -12,60 +12,26 @@ import org.jfree.chart.renderer.category.{LineAndShapeRenderer, BarRenderer}
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset, DefaultXYDataset, XYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
+import models.{DayCount, Sprint}
+import models.json.SprintCounterSide
 
 object BurndownChart extends Controller {
   def getPng(sprintId: Long, width: Int, height: Int) = Action {
-    val chart = createChart(createLeftDataset, createRightDataset)
+    Sprint.findById(sprintId).map {
+      sprint =>
+        val chart = createChart(sprint)
 
-    val image = chart.createBufferedImage(width, height)
-    val out = new ByteArrayOutputStream()
+        val image = chart.createBufferedImage(width, height)
+        val out = new ByteArrayOutputStream()
 
-    ImageIO.write(image, "png", out)
+        ImageIO.write(image, "png", out)
 
-    Ok(content = out.toByteArray)
+        Ok(content = out.toByteArray)
+    }.getOrElse(NotFound)
   }
 
-  /**
-   * Returns a sample dataset.
-   *
-   * @return The dataset.
-   */
-  private def createLeftDataset: XYDataset = {
-
-    // create the dataset...
-    val dataset = new DefaultTableXYDataset();
-    val series1 = new XYSeries("Series 1", false, false);
-    series1.add(1.0, 20.0);
-    series1.add(2.0, 50.0);
-    series1.add(3.0, 40.0);
-    series1.add(4.0, 70.0);
-    dataset.addSeries(series1);
-    val series2 = new XYSeries("Series 1", false, false);
-    series2.add(1.0, 25.0);
-    series2.add(2.0, 23.0);
-    series2.add(3.0, 19.0);
-    series2.add(4.0, 1.0);
-    dataset.addSeries(series2);
-
-    dataset
-  }
-
-  private def createRightDataset: XYDataset = {
-
-    // create the dataset...
-    val dataset = new DefaultTableXYDataset();
-    val series3 = new XYSeries("Series 3", false, false);
-    series3.add(1.0, 1.0);
-    series3.add(2.0, 2.0);
-    series3.add(3.0, 3.0);
-    series3.add(4.0, 2.0);
-    dataset.addSeries(series3);
-
-    dataset
-  }
-
-  private def createChart(leftDataset: XYDataset, rightDataset: XYDataset): JFreeChart = {
-
+  private def createChart(sprint: Sprint): JFreeChart = {
+    val (leftDataset, rightDataset) = createDatasets(sprint)
     val plot = new XYPlot
     val rangeAxisLeft = new NumberAxis("Points");
     rangeAxisLeft.setStandardTickUnits(
@@ -86,6 +52,7 @@ object BurndownChart extends Controller {
     plot.mapDatasetToRangeAxis(1, 1);
     val rendererRight = new XYLineAndShapeRenderer();
     rendererRight.setSeriesPaint(0, Color.red);
+    rendererRight.setSeriesPaint(1, Color.yellow);
 
     plot.setRenderer(0, rendererLeft);
     plot.setRenderer(1, rendererRight);
@@ -93,10 +60,40 @@ object BurndownChart extends Controller {
     val domainAxis = new NumberAxis("Days");
     domainAxis.setStandardTickUnits(
       NumberAxis.createIntegerTickUnits());
-    domainAxis.setRange(0, 10.0)
+    domainAxis.setRange(0, sprint.numberOfDays)
     plot.setDomainAxis(domainAxis)
 
     new JFreeChart("Score Bord", new Font("SansSerif", Font.BOLD, 12),
       plot, true)
+  }
+
+  private def createDatasets(sprint: Sprint) = {
+    val seriesByName = sprint.counters.map {
+      counter =>
+        val series = new XYSeries(counter.name, false, false)
+        counter.name -> series
+    }.toMap
+    DayCount.findAllForSprint(sprint.id).foreach {
+      dayCount =>
+        dayCount.counterValues.foreach {
+          counterValue =>
+            seriesByName.get(counterValue.name).map {
+              series =>
+                series.add(dayCount.dayNum, counterValue.value)
+            }
+        }
+    }
+    val leftDataset = new DefaultTableXYDataset
+    val rightDataset = new DefaultTableXYDataset
+    sprint.counters.foreach {
+      counter =>
+        seriesByName(counter.name)
+        counter.side match {
+          case SprintCounterSide.Left => leftDataset.addSeries(seriesByName(counter.name))
+          case SprintCounterSide.Right => rightDataset.addSeries(seriesByName(counter.name))
+        }
+    }
+
+    (leftDataset, rightDataset)
   }
 }
