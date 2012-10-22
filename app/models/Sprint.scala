@@ -6,6 +6,7 @@ import org.squeryl.PrimitiveTypeMode._
 import java.util.Date
 import org.squeryl.annotations.Transient
 import play.api.libs.json.Json
+import org.joda.time.{DateTimeConstants, DateMidnight, LocalDate}
 
 class Sprint(val id: Long,
              var title: String,
@@ -23,6 +24,23 @@ class Sprint(val id: Long,
 
   def counters_=(counters: Seq[SprintCounter]) = {
     countersJson = Json.stringify(Json.toJson(counters))
+  }
+
+  @Transient
+  lazy val numberOfDays = {
+    var current = new DateMidnight(sprintStart.getTime)
+    val end = new DateMidnight(sprintEnd.getTime)
+    var numberOfDays = 0
+
+    while (current.compareTo(end) < 0) {
+      if (current.getDayOfWeek != DateTimeConstants.SATURDAY && current.getDayOfWeek != DateTimeConstants.SUNDAY)
+        numberOfDays += 1
+      println(current)
+      println(end)
+      println(current.compareTo(end))
+      current = current.plusDays(1)
+    }
+    numberOfDays
   }
 
   def save = inTransaction {

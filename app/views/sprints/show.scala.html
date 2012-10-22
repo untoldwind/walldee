@@ -2,11 +2,15 @@
 
 @main("Sprint " + sprint.title) {
 <h1>Sprint @sprint.num: @sprint.title</h1>
+<a href="@routes.Sprints.edit(sprint.id)">Edit</a>
+
 <ul id="counter-list">
     @sprint.counters.map { counter =>
         <li>@counter.name @counter.color @counter.side</li>
     }
 </ul>
+
+Number of days: @sprint.numberOfDays
 
 <ul id="daycount-list">
     @dayCounts.map { dayCount =>

@@ -31,6 +31,26 @@ object Sprints extends Controller {
     }.getOrElse(NotFound)
   }
 
+  def edit(sprintId: Long) = Action {
+    Sprint.findById(sprintId).map {
+      sprint =>
+        Ok(views.html.sprints.edit(sprint, sprintForm(sprint)))
+    }.getOrElse(NotFound)
+  }
+
+  def update(sprintId: Long) = Action {
+    implicit request =>
+      Sprint.findById(sprintId).map {
+        sprint =>
+          sprintForm(sprint).bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.sprints.edit(sprint, sprintForm(sprint))), {
+            sprint =>
+              sprint.save
+              Redirect(routes.Sprints.show(sprintId))
+          })
+      }.getOrElse(NotFound)
+  }
+
   private def sprintForm(sprint: Sprint = new Sprint): Form[Sprint] = Form(
     mapping(
       "title" -> text(maxLength = 255),

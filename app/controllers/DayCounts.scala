@@ -42,7 +42,6 @@ object DayCounts extends Controller {
           (name, value) => SprintCounterValue(name, value)
         } {
           counterValue =>
-            println(">>>>>>>>>>>" + counterValue)
             Some(counterValue.name, counterValue.value)
         }
       )
@@ -53,7 +52,6 @@ object DayCounts extends Controller {
         dayCount
     } {
       dayCount =>
-        println(">>>>>>>>>>>" + dayCount.counterValues)
         Some(dayCount.dayNum, dayCount.counterValues.toList)
     }
   ).fill(dayCount)
