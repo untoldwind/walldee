@@ -13,7 +13,7 @@ import org.jfree.chart.labels.StandardCategoryToolTipGenerator
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset, DefaultXYDataset, XYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import models.{DayCount, Sprint}
-import models.json.SprintCounterSide
+import models.json.{SprintCounter, SprintCounterSide}
 
 object BurndownChart extends Controller {
   def getPng(sprintId: Long, width: Int, height: Int) = Action {
@@ -31,28 +31,46 @@ object BurndownChart extends Controller {
   }
 
   private def createChart(sprint: Sprint): JFreeChart = {
-    val (leftDataset, rightDataset) = createDatasets(sprint)
-    val plot = new XYPlot
-    val rangeAxisLeft = new NumberAxis("Points");
+    val seriesByName = getSeriesByName(sprint)
+    fillValues(sprint, seriesByName)
+    val (leftSeries, rightSeries) = splitLeftRight(sprint, seriesByName)
+
+    val leftDataset = new DefaultTableXYDataset
+    val rendererLeft = new XYLineAndShapeRenderer
+    val rangeAxisLeft = new NumberAxis(leftSeries.map(_._1.name).mkString(", "));
     rangeAxisLeft.setStandardTickUnits(
       NumberAxis.createIntegerTickUnits());
-    val rendererLeft = new XYLineAndShapeRenderer();
-    rendererLeft.setSeriesPaint(0, Color.blue);
-    rendererLeft.setSeriesPaint(1, Color.green)
+    leftSeries.foreach {
+      case (counter, series) =>
+        val idx = leftDataset.getSeriesCount
+        leftDataset.addSeries(series)
+        rendererLeft.setSeriesPaint(idx, Color.decode(counter.color))
+    }
+
+    val rightDataset = new DefaultTableXYDataset
+    val rendererRight = new XYLineAndShapeRenderer
+    val rangeAxisRight = new NumberAxis(rightSeries.map(_._1.name).mkString(", "))
+    var maxY = 0.0
+    rangeAxisRight.setStandardTickUnits(
+      NumberAxis.createIntegerTickUnits());
+    rightSeries.foreach {
+      case (counter, series) =>
+        val idx = leftDataset.getSeriesCount
+        rightDataset.addSeries(series)
+        rendererRight.setSeriesPaint(idx, Color.decode(counter.color))
+        maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
+    }
+    rangeAxisRight.setRange(0.0, maxY * 1.1)
+
+    val plot = new XYPlot
     plot.setDataset(0, leftDataset)
     plot.setRangeAxis(0, rangeAxisLeft)
     plot.setDomainGridlinesVisible(true);
     plot.mapDatasetToRangeAxis(0, 0)
 
-    val rangeAxisRight = new NumberAxis("Tasks");
-    rangeAxisRight.setStandardTickUnits(
-      NumberAxis.createIntegerTickUnits());
     plot.setRangeAxis(1, rangeAxisRight);
     plot.setDataset(1, rightDataset);
     plot.mapDatasetToRangeAxis(1, 1);
-    val rendererRight = new XYLineAndShapeRenderer();
-    rendererRight.setSeriesPaint(0, Color.red);
-    rendererRight.setSeriesPaint(1, Color.yellow);
 
     plot.setRenderer(0, rendererLeft);
     plot.setRenderer(1, rendererRight);
@@ -60,19 +78,24 @@ object BurndownChart extends Controller {
     val domainAxis = new NumberAxis("Days");
     domainAxis.setStandardTickUnits(
       NumberAxis.createIntegerTickUnits());
-    domainAxis.setRange(0, sprint.numberOfDays)
+    domainAxis.setRange(0, sprint.numberOfDays + 1)
     plot.setDomainAxis(domainAxis)
 
-    new JFreeChart("Score Bord", new Font("SansSerif", Font.BOLD, 12),
+    val chart = new JFreeChart(null, new Font("SansSerif", Font.BOLD, 12),
       plot, true)
+    chart.setBackgroundPaint(null)
+    chart
   }
 
-  private def createDatasets(sprint: Sprint) = {
-    val seriesByName = sprint.counters.map {
+  private def getSeriesByName(sprint: Sprint): Map[String, XYSeries] = {
+    sprint.counters.map {
       counter =>
         val series = new XYSeries(counter.name, false, false)
         counter.name -> series
     }.toMap
+  }
+
+  private def fillValues(sprint: Sprint, seriesByName: Map[String, XYSeries]) {
     DayCount.findAllForSprint(sprint.id).foreach {
       dayCount =>
         dayCount.counterValues.foreach {
@@ -83,17 +106,24 @@ object BurndownChart extends Controller {
             }
         }
     }
-    val leftDataset = new DefaultTableXYDataset
-    val rightDataset = new DefaultTableXYDataset
+  }
+
+  private def splitLeftRight(sprint: Sprint, seriesByName: Map[String, XYSeries]):
+  (Seq[(SprintCounter, XYSeries)], Seq[(SprintCounter, XYSeries)]) = {
+    val leftSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
+    val rightSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
+
     sprint.counters.foreach {
       counter =>
-        seriesByName(counter.name)
+        val series = seriesByName(counter.name)
         counter.side match {
-          case SprintCounterSide.Left => leftDataset.addSeries(seriesByName(counter.name))
-          case SprintCounterSide.Right => rightDataset.addSeries(seriesByName(counter.name))
+          case SprintCounterSide.Left =>
+            leftSeries += counter -> series
+          case SprintCounterSide.Right =>
+            rightSeries += counter -> series
         }
     }
-
-    (leftDataset, rightDataset)
+    (leftSeries.result(), rightSeries.result())
   }
+
 }
