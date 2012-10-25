@@ -3,13 +3,13 @@ package controllers.widgets
 import play.api.mvc.{Action, Controller}
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.XYPlot
-import java.awt.{Color, Font}
+import java.awt.{BasicStroke, Stroke, Color, Font}
 import org.jfree.chart.axis.NumberAxis
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
-import models.{DayCount, Sprint}
+import models.{DisplayItem, DayCount, Sprint}
 import models.json.{SprintCounter, SprintCounterSide}
 import play.api.data.Forms._
 import models.widgetConfigs.BurndownChartConfig
@@ -18,24 +18,35 @@ object BurndownChart extends Controller {
   val configMapping = mapping(
     "chartBackground" -> optional(text),
     "plotBackground" -> optional(text),
-    "fontSize" -> optional(number)
+    "titleSize" -> optional(number),
+    "tickSize" -> optional(number),
+    "labelSize" -> optional(number),
+    "lineWidth" -> optional(number)
   )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
 
-  def getPng(sprintId: Long, width: Int, height: Int) = Action {
-    Sprint.findById(sprintId).map {
-      sprint =>
-        val chart = createChart(sprint)
+  def getPng(displayItemId: Long, sprintId: Long, width: Int, height: Int) = Action {
+    DisplayItem.findById(displayItemId).flatMap {
+      displayItem =>
+        Sprint.findById(sprintId).map {
+          sprint =>
+            val chart = createChart(sprint, displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
 
-        val image = chart.createBufferedImage(width, height)
-        val out = new ByteArrayOutputStream()
+            val image = chart.createBufferedImage(width, height)
+            val out = new ByteArrayOutputStream()
 
-        ImageIO.write(image, "png", out)
+            ImageIO.write(image, "png", out)
 
-        Ok(content = out.toByteArray)
+            Ok(content = out.toByteArray)
+        }
     }.getOrElse(NotFound)
   }
 
-  private def createChart(sprint: Sprint): JFreeChart = {
+  private def createChart(sprint: Sprint, config: BurndownChartConfig): JFreeChart = {
+    val titleFont = new Font("SansSerif", Font.BOLD, config.titleSize.getOrElse(12))
+    val tickFont = new Font("SansSerif", Font.PLAIN, config.tickSize.getOrElse(12))
+    val labelFont = new Font("SansSerif", Font.PLAIN, config.labelSize.getOrElse(12))
+    val lineStroke = new BasicStroke(config.lineWidth.map(_.toFloat).getOrElse(1.0f))
+
     val seriesSeq = createXYSeriesSeq(sprint)
     fillValues(sprint, seriesSeq)
     val (leftSeries, rightSeries) = splitLeftRight(seriesSeq)
@@ -50,7 +61,10 @@ object BurndownChart extends Controller {
         val idx = leftDataset.getSeriesCount
         leftDataset.addSeries(series)
         rendererLeft.setSeriesPaint(idx, Color.decode(counter.color))
+        rendererLeft.setSeriesStroke(idx, lineStroke)
     }
+    rangeAxisLeft.setLabelFont(labelFont)
+    rangeAxisLeft.setTickLabelFont(tickFont)
 
     val rightDataset = new DefaultTableXYDataset
     val rendererRight = new XYLineAndShapeRenderer
@@ -63,9 +77,12 @@ object BurndownChart extends Controller {
         val idx = rightDataset.getSeriesCount
         rightDataset.addSeries(series)
         rendererRight.setSeriesPaint(idx, Color.decode(counter.color))
+        rendererRight.setSeriesStroke(idx, lineStroke)
         maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
     }
     rangeAxisRight.setRange(0.0, maxY * 1.1)
+    rangeAxisRight.setLabelFont(labelFont)
+    rangeAxisRight.setTickLabelFont(tickFont)
 
     val plot = new XYPlot
     plot.setDataset(0, leftDataset)
@@ -84,11 +101,13 @@ object BurndownChart extends Controller {
     domainAxis.setStandardTickUnits(
       NumberAxis.createIntegerTickUnits())
     domainAxis.setRange(0, sprint.numberOfDays + 1)
+    domainAxis.setLabelFont(labelFont)
+    domainAxis.setTickLabelFont(tickFont)
     plot.setDomainAxis(domainAxis)
 
-    val chart = new JFreeChart(null, new Font("SansSerif", Font.BOLD, 12),
-      plot, true)
-    chart.setBackgroundPaint(null)
+    val chart = new JFreeChart(null, titleFont, plot, true)
+
+    chart.setBackgroundPaint(config.chartBackground.map(Color.decode(_)).getOrElse(null))
     chart
   }
 
