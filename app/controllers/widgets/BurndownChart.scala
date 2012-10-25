@@ -31,9 +31,9 @@ object BurndownChart extends Controller {
   }
 
   private def createChart(sprint: Sprint): JFreeChart = {
-    val seriesByName = getSeriesByName(sprint)
-    fillValues(sprint, seriesByName)
-    val (leftSeries, rightSeries) = splitLeftRight(sprint, seriesByName)
+    val series = createXYSeries(sprint)
+    fillValues(sprint, series)
+    val (leftSeries, rightSeries) = splitLeftRight(series)
 
     val leftDataset = new DefaultTableXYDataset
     val rendererLeft = new XYLineAndShapeRenderer
@@ -87,35 +87,31 @@ object BurndownChart extends Controller {
     chart
   }
 
-  private def getSeriesByName(sprint: Sprint): Map[String, XYSeries] = {
+  private def createXYSeries(sprint: Sprint): Seq[(SprintCounter, XYSeries)] = {
     sprint.counters.map {
       counter =>
         val series = new XYSeries(counter.name, false, false)
-        counter.name -> series
-    }.toMap
+        (counter, series)
+    }
   }
 
-  private def fillValues(sprint: Sprint, seriesByName: Map[String, XYSeries]) {
+  private def fillValues(sprint: Sprint, series: Seq[(SprintCounter, XYSeries)]) {
     DayCount.findAllForSprint(sprint.id).foreach {
       dayCount =>
-        dayCount.counterValues.foreach {
-          counterValue =>
-            seriesByName.get(counterValue.name).map {
-              series =>
-                series.add(dayCount.dayNum, counterValue.value)
-            }
+        dayCount.counterValues.zipWithIndex.foreach {
+          case (counterValue, idx) =>
+            series(idx)._2.add(dayCount.dayNum, counterValue.value)
         }
     }
   }
 
-  private def splitLeftRight(sprint: Sprint, seriesByName: Map[String, XYSeries]):
+  private def splitLeftRight(series: Seq[(SprintCounter, XYSeries)]):
   (Seq[(SprintCounter, XYSeries)], Seq[(SprintCounter, XYSeries)]) = {
     val leftSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
     val rightSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
 
-    sprint.counters.foreach {
-      counter =>
-        val series = seriesByName(counter.name)
+    series.foreach {
+      case (counter, series) =>
         counter.side match {
           case SprintCounterSide.Left =>
             leftSeries += counter -> series
