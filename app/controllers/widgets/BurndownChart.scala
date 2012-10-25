@@ -19,12 +19,7 @@ object BurndownChart extends Controller {
     "chartBackground" -> optional(text),
     "plotBackground" -> optional(text),
     "fontSize" -> optional(number)
-  ) {
-    (chartBackground, plotBackground, fontSize) =>
-      BurndownChartConfig(chartBackground, plotBackground, fontSize)
-  } {
-    config => Some(config.chartBackground, config.plotBackground, config.fontSize)
-  }
+  )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
 
   def getPng(sprintId: Long, width: Int, height: Int) = Action {
     Sprint.findById(sprintId).map {
@@ -41,13 +36,13 @@ object BurndownChart extends Controller {
   }
 
   private def createChart(sprint: Sprint): JFreeChart = {
-    val series = createXYSeries(sprint)
-    fillValues(sprint, series)
-    val (leftSeries, rightSeries) = splitLeftRight(series)
+    val seriesSeq = createXYSeriesSeq(sprint)
+    fillValues(sprint, seriesSeq)
+    val (leftSeries, rightSeries) = splitLeftRight(seriesSeq)
 
     val leftDataset = new DefaultTableXYDataset
     val rendererLeft = new XYLineAndShapeRenderer
-    val rangeAxisLeft = new NumberAxis(leftSeries.map(_._1.name).mkString(", "));
+    val rangeAxisLeft = new NumberAxis(leftSeries.map(_._1.name).mkString(", "))
     rangeAxisLeft.setStandardTickUnits(
       NumberAxis.createIntegerTickUnits())
     leftSeries.foreach {
@@ -97,7 +92,7 @@ object BurndownChart extends Controller {
     chart
   }
 
-  private def createXYSeries(sprint: Sprint): Seq[(SprintCounter, XYSeries)] = {
+  private def createXYSeriesSeq(sprint: Sprint): Seq[(SprintCounter, XYSeries)] = {
     sprint.counters.map {
       counter =>
         val series = new XYSeries(counter.name, false, false)
@@ -105,22 +100,22 @@ object BurndownChart extends Controller {
     }
   }
 
-  private def fillValues(sprint: Sprint, series: Seq[(SprintCounter, XYSeries)]) {
+  private def fillValues(sprint: Sprint, seriesSeq: Seq[(SprintCounter, XYSeries)]) {
     DayCount.findAllForSprint(sprint.id).foreach {
       dayCount =>
         dayCount.counterValues.zipWithIndex.foreach {
           case (counterValue, idx) =>
-            series(idx)._2.add(dayCount.dayNum, counterValue.value)
+            seriesSeq(idx)._2.add(dayCount.dayNum, counterValue.value)
         }
     }
   }
 
-  private def splitLeftRight(series: Seq[(SprintCounter, XYSeries)]):
+  private def splitLeftRight(seriesSeq: Seq[(SprintCounter, XYSeries)]):
   (Seq[(SprintCounter, XYSeries)], Seq[(SprintCounter, XYSeries)]) = {
     val leftSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
     val rightSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
 
-    series.foreach {
+    seriesSeq.foreach {
       case (counter, series) =>
         counter.side match {
           case SprintCounterSide.Left =>

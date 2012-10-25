@@ -21,6 +21,7 @@ POST    /displays                          controllers.Displays.create
 GET     /displays/:displayId               controllers.Displays.showWall(displayId:Long)
 GET     /displays/:displayId/config        controllers.Displays.showConfig(displayId:Long)
 POST    /displays/:displayId               controllers.Displays.update(displayId:Long)
+DELETE  /displays/:displayId               controllers.Displays.delete(displayId:Long)
 POST    /displays/:displayId/items         controllers.DisplayItems.create(displayId:Long)
 GET     /displays/:displayId/items/:itemId controllers.DisplayItems.edit(displayId:Long, itemId:Long)
 POST    /displays/:displayId/items/:itemId controllers.DisplayItems.update(displayId:Long, itemId:Long)

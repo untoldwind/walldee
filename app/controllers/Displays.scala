@@ -57,6 +57,12 @@ object Displays extends Controller {
       }.getOrElse(NotFound)
   }
 
+  def delete(displayId: Long) = Action {
+    implicit request =>
+      println(displayId)
+      NoContent
+  }
+
   private def displayForm(display: Display = new Display): Form[Display] = Form(
     mapping(
       "name" -> text(maxLength = 255),

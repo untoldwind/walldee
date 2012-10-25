@@ -3,3 +3,37 @@
     -webkit-border-radius: @radius;
     -moz-border-radius: @radius;
 }
+
+.gradient(@from:#000, @to:#EEE) {
+    background: @from;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(@from), to(@to));
+    background-image: -moz-linear-gradient(top, @from, @to);
+}
+
+.transition(@range: all, @time: 500ms, @ease: ease-in-out) {
+    -moz-transition: @range @time @ease;
+    -webkit-transition: @range @time @ease;
+    -o-transition: @range @time @ease;
+    transition: @range @time @ease;
+}
+
+.transform(@props) {
+    -moz-transform: @arguments;
+    -webkit-transform: @arguments;
+    -o-transform: @arguments;
+    transform: @arguments;
+}
+
+.ellipsis() {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.clear() {
+    &:after {
+        display: block;
+        content: " ";
+        clear: both;
+    }
+}
