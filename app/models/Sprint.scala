@@ -6,7 +6,7 @@ import org.squeryl.PrimitiveTypeMode._
 import java.util.Date
 import org.squeryl.annotations.Transient
 import play.api.libs.json.Json
-import org.joda.time.{DateTimeConstants, DateMidnight, LocalDate}
+import org.joda.time.{DateTimeConstants, DateMidnight}
 
 class Sprint(val id: Long,
              var title: String,
@@ -22,7 +22,7 @@ class Sprint(val id: Long,
   @Transient
   def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson))
 
-  def counters_=(counters: Seq[SprintCounter]) = {
+  def counters_=(counters: Seq[SprintCounter]) {
     countersJson = Json.stringify(Json.toJson(counters))
   }
 

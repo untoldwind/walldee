@@ -1,21 +1,31 @@
 package controllers.widgets
 
 import play.api.mvc.{Action, Controller}
-import org.jfree.data.category.{CategoryDataset, DefaultCategoryDataset}
-import org.jfree.chart.{JFreeChart, StandardChartTheme, ChartFactory}
-import org.jfree.chart.plot.{XYPlot, CategoryPlot, PlotOrientation}
-import java.awt.{Color, GradientPaint, Font}
-import org.jfree.chart.axis.{CategoryAxis, CategoryLabelPositions, NumberAxis}
+import org.jfree.chart.JFreeChart
+import org.jfree.chart.plot.XYPlot
+import java.awt.{Color, Font}
+import org.jfree.chart.axis.NumberAxis
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
-import org.jfree.chart.renderer.category.{LineAndShapeRenderer, BarRenderer}
-import org.jfree.chart.labels.StandardCategoryToolTipGenerator
-import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset, DefaultXYDataset, XYDataset}
+import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import models.{DayCount, Sprint}
 import models.json.{SprintCounter, SprintCounterSide}
+import play.api.data.Forms._
+import models.widgetConfigs.BurndownChartConfig
 
 object BurndownChart extends Controller {
+  val configMapping = mapping(
+    "chartBackground" -> optional(text),
+    "plotBackground" -> optional(text),
+    "fontSize" -> optional(number)
+  ) {
+    (chartBackground, plotBackground, fontSize) =>
+      BurndownChartConfig(chartBackground, plotBackground, fontSize)
+  } {
+    config => Some(config.chartBackground, config.plotBackground, config.fontSize)
+  }
+
   def getPng(sprintId: Long, width: Int, height: Int) = Action {
     Sprint.findById(sprintId).map {
       sprint =>
@@ -39,7 +49,7 @@ object BurndownChart extends Controller {
     val rendererLeft = new XYLineAndShapeRenderer
     val rangeAxisLeft = new NumberAxis(leftSeries.map(_._1.name).mkString(", "));
     rangeAxisLeft.setStandardTickUnits(
-      NumberAxis.createIntegerTickUnits());
+      NumberAxis.createIntegerTickUnits())
     leftSeries.foreach {
       case (counter, series) =>
         val idx = leftDataset.getSeriesCount
@@ -52,7 +62,7 @@ object BurndownChart extends Controller {
     val rangeAxisRight = new NumberAxis(rightSeries.map(_._1.name).mkString(", "))
     var maxY = 0.0
     rangeAxisRight.setStandardTickUnits(
-      NumberAxis.createIntegerTickUnits());
+      NumberAxis.createIntegerTickUnits())
     rightSeries.foreach {
       case (counter, series) =>
         val idx = rightDataset.getSeriesCount
@@ -65,19 +75,19 @@ object BurndownChart extends Controller {
     val plot = new XYPlot
     plot.setDataset(0, leftDataset)
     plot.setRangeAxis(0, rangeAxisLeft)
-    plot.setDomainGridlinesVisible(true);
+    plot.setDomainGridlinesVisible(true)
     plot.mapDatasetToRangeAxis(0, 0)
 
-    plot.setRangeAxis(1, rangeAxisRight);
-    plot.setDataset(1, rightDataset);
-    plot.mapDatasetToRangeAxis(1, 1);
+    plot.setRangeAxis(1, rangeAxisRight)
+    plot.setDataset(1, rightDataset)
+    plot.mapDatasetToRangeAxis(1, 1)
 
-    plot.setRenderer(0, rendererLeft);
-    plot.setRenderer(1, rendererRight);
+    plot.setRenderer(0, rendererLeft)
+    plot.setRenderer(1, rendererRight)
 
-    val domainAxis = new NumberAxis("Days");
+    val domainAxis = new NumberAxis("Days")
     domainAxis.setStandardTickUnits(
-      NumberAxis.createIntegerTickUnits());
+      NumberAxis.createIntegerTickUnits())
     domainAxis.setRange(0, sprint.numberOfDays + 1)
     plot.setDomainAxis(domainAxis)
 

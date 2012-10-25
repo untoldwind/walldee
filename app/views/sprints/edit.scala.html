@@ -10,9 +10,9 @@
     @helper.inputText(form("sprintStart"))
     @helper.inputText(form("sprintEnd"))
     @helper.repeat(form("counters"), min = 4) { counter =>
-    @helper.inputText(counter("name"))
-    @helper.inputText(counter("color"))
-    @helper.select(counter("side"), models.json.SprintCounterSide.values.toSeq.map(side => side.id.toString -> side.toString))
+        @helper.inputText(counter("name"))
+        @helper.inputText(counter("color"))
+        @helper.select(counter("side"), models.json.SprintCounterSide.values.toSeq.map(side => side.id.toString -> side.toString))
     }
 </fieldset>
 <div class="actions">

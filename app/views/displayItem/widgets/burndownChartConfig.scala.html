@@ -1,0 +1,8 @@
+@(configField:play.api.data.Field)
+
+<fieldset>
+    <legend>Burndown chart</legend>
+    @helper.inputText(configField("chartBackground"))
+    @helper.inputText(configField("plotBackground"))
+    @helper.inputText(configField("fontSize"))
+</fieldset>

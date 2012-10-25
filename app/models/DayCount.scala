@@ -14,12 +14,12 @@ class DayCount(val id: Long,
 
   def this() = this(0, 0, 0, "[]")
 
-  def this(dayNum:Int, sprintId:Long) = this(0, dayNum, sprintId, "[]")
+  def this(dayNum: Int, sprintId: Long) = this(0, dayNum, sprintId, "[]")
 
   @Transient
   def counterValues = Json.fromJson[Seq[SprintCounterValue]](Json.parse(counterValuesJson))
 
-  def counterValues_=(counterValues: Seq[SprintCounterValue]) = {
+  def counterValues_=(counterValues: Seq[SprintCounterValue]) {
     counterValuesJson = Json.stringify(Json.toJson(counterValues))
   }
 

@@ -5,6 +5,7 @@ import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.annotations.Transient
 import play.api.libs.json.{JsValue, Json}
+import widgetConfigs.BurndownChartConfig
 
 class DisplayItem(val id: Long,
                   val displayId: Long,
@@ -20,15 +21,30 @@ class DisplayItem(val id: Long,
   @Transient
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
-  def widget_=(displayWidget: DisplayWidgets.Type) = {
+  def widget_=(displayWidget: DisplayWidgets.Type) {
     widgetNum = displayWidget.id
   }
 
   @Transient
   def widgetConfig = Json.parse(widgetConfigJson)
 
-  def widgetConfig_=(widgetConfig: JsValue) = {
+  def widgetConfig_=(widgetConfig: JsValue) {
     widgetConfigJson = Json.stringify(widgetConfig)
+  }
+
+  @Transient
+  def burndownChartConfig = {
+    if (widget == DisplayWidgets.BurndownChart) {
+      Some(Json.fromJson[BurndownChartConfig](widgetConfig))
+    } else {
+      None
+    }
+  }
+
+  def burndownChartConfig_=(burndownChartConfig:Option[BurndownChartConfig])  {
+    if (widget == DisplayWidgets.BurndownChart) {
+      burndownChartConfig.map(config => widgetConfig = Json.toJson(config))
+    }
   }
 
   def save = inTransaction {
