@@ -35,9 +35,6 @@ class Sprint(val id: Long,
     while (current.compareTo(end) < 0) {
       if (current.getDayOfWeek != DateTimeConstants.SATURDAY && current.getDayOfWeek != DateTimeConstants.SUNDAY)
         numberOfDays += 1
-      println(current)
-      println(end)
-      println(current.compareTo(end))
       current = current.plusDays(1)
     }
     numberOfDays

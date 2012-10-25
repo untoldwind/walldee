@@ -55,7 +55,7 @@ object BurndownChart extends Controller {
       NumberAxis.createIntegerTickUnits());
     rightSeries.foreach {
       case (counter, series) =>
-        val idx = leftDataset.getSeriesCount
+        val idx = rightDataset.getSeriesCount
         rightDataset.addSeries(series)
         rendererRight.setSeriesPaint(idx, Color.decode(counter.color))
         maxY = if (series.getMaxY > maxY) series.getMaxY else maxY

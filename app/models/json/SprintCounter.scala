@@ -8,7 +8,7 @@ case class SprintCounter(name: String, color: String, side: SprintCounterSide.Ty
 
 object SprintCounter {
 
-  implicit object CallRecipeCommandFormat extends Format[SprintCounter] {
+  implicit object SprintCounterFormat extends Format[SprintCounter] {
     override def reads(json: JsValue): SprintCounter =
       SprintCounter(
         (json \ "name").as[String],
