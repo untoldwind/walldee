@@ -38,4 +38,8 @@ object DayCount {
   def findAllForSprint(sprintId: Long) = inTransaction {
     from(WallDeeSchema.dayCounts)(d => where(d.sprintId === sprintId) select (d) orderBy (d.dayNum asc)).toList
   }
+
+  def findById(dayCountId: Long) = inTransaction {
+    WallDeeSchema.dayCounts.lookup(dayCountId)
+  }
 }

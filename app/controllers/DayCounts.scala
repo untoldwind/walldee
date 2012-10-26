@@ -21,6 +21,23 @@ object DayCounts extends Controller {
       }.getOrElse(NotFound)
   }
 
+  def update(sprintId: Long, dayCountId: Long) = Action {
+    implicit request =>
+      Sprint.findById(sprintId).flatMap {
+        sprint =>
+          DayCount.findById(dayCountId).map {
+            dayCount =>
+              dayCountForm(dayCount).bindFromRequest.fold(
+              formWithErrors => BadRequest, {
+                dayCount =>
+                  dayCount.save
+                  Redirect(routes.Sprints.show(sprintId))
+
+              })
+          }
+      }.getOrElse(NotFound)
+  }
+
   def dayCountForm(sprint: Sprint): Form[DayCount] = {
     val dayCount = new DayCount(dayNum = 0, sprintId = sprint.id)
 

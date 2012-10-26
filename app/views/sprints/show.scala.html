@@ -6,37 +6,67 @@
 
 <ul id="counter-list">
     @sprint.counters.map { counter =>
-        <li>@counter.name @counter.color @counter.side</li>
+    <li>@counter.name @counter.color @counter.side</li>
     }
 </ul>
 
 Number of days: @sprint.numberOfDays
 
-<ul id="daycount-list">
+<table>
+    <thead>
+    <tr>
+        <th>Day</th>
+        @sprint.counters.map { counter =>
+        <th>@counter.name</th>
+        }
+    </tr>
+    </thead>
+    <tbody>
     @dayCounts.map { dayCount =>
-        <li>@dayCount.dayNum
-        <dl>
-            @dayCount.counterValues.map { counterValue =>
-                <dt>@counterValue.name</dt>
-                <dd>@counterValue.value</dd>
-            }
-        </dl></li>
+    <tr class="dayCount-value" id="dayCount-value-@dayCount.id">
+        <td>@dayCount.dayNum</td>
+        @dayCount.counterValues.map { counterValue =>
+        <td>@counterValue.value</td>
+        }
+        <td><a href="#" dayCountId="@dayCount.id" class="dayCount-update">Update</a></td>
+    </tr>
+    <tr class="dayCount-update" id="dayCount-update-@dayCount.id">
+        @helper.form(action = routes.DayCounts.update(sprint.id, dayCount.id)) {
+        <td><input type="text" name="@dayCountForm("dayNum").name" value="@dayCount.dayNum"></td>
+        @dayCount.counterValues.zipWithIndex.map { case (counterValue, index) =>
+        <td>
+            <input type="text" name="counterValues[@index].value" value="@counterValue.value">
+            <input type="hidden" name="counterValues[@index].name" value="@counterValue.name">
+        </td>
+        }
+        <td><input type="submit" class="btn primary" value="Update"></td>
+        }
+    </tr>
     }
-</ul>
+    </tbody>
+    <tfoot>
+    <tr>
+        @helper.form(action = routes.DayCounts.create(sprint.id), 'id -> "dayCount-form") {
+        <td><input type="text" name="@dayCountForm("dayNum").name"></td>
+        @helper.repeat(dayCountForm("counterValues")) { counterValue =>
+        <td>
+            <input type="text" name="@counterValue("value").name">
+            <input type="hidden" name="@counterValue("name").name" value="@counterValue("name").value">
+        </td>
+        }
+        <td><input type="submit" class="btn primary" value="Add"></td>
+        }
+    </tr>
+    </tfoot>
+</table>
 
-@helper.form(action = routes.DayCounts.create(sprint.id), 'id -> "dayCount-form") {
-<fieldset>
-    <legend>Day counts</legend>
-    @helper.inputText(dayCountForm("dayNum"))
-    @helper.repeat(dayCountForm("counterValues")) { counterValue =>
-        @helper.inputText(counterValue("name"))
-        @helper.inputText(counterValue("value"))
-    }
-</fieldset>
-<div class="actions">
-    <input type="submit" class="btn primary" value="Create">
-</div>
-}
+<script type="text/javascript">
+$("a.dayCount-update").click(function() {
+    var dayCountId = $(this).attr("dayCountId")
+    $("#dayCount-value-" + dayCountId).hide()
+    $("#dayCount-update-" + dayCountId).show()
+})
+</script>
 
 <ul id="story-list">
     @views.html.stories.list(stories)
