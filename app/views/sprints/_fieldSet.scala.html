@@ -1,0 +1,42 @@
+@(form:Form[Sprint])
+
+<fieldset>
+    <legend>Sprint</legend>
+    <div>
+        @helper.inputText(form("num"), '_label -> "Number")
+        @helper.inputText(form("title"), '_label -> "Title")
+    </div>
+    <div>
+        @helper.inputText(form("sprintStart"), '_label -> "Start")
+        @helper.inputText(form("sprintEnd"), '_label -> "End")
+    </div>
+
+    <div id="counters">
+        @helper.repeat(form("counters")) { counter =>
+        <div>
+            @helper.inputText(counter("name"))
+            @helper.inputText(counter("color"))
+            @helper.select(counter("side"), models.json.SprintCounterSide.values.toSeq.map(side => side.id.toString ->
+            side.toString))
+        </div>
+        }
+    </div>
+    <a href="#" id="addCounter">Add</a>
+</fieldset>
+
+<script type="text/html" id="counterTmpl">
+    <div>
+        @helper.inputText(form("counters[{idx}]")("name"))
+        @helper.inputText(form("counters[{idx}]")("color"))
+        @helper.select(form("counters[{idx}]")("side"), models.json.SprintCounterSide.values.toSeq.map(side =>
+        side.id.toString -> side.toString))
+    </div>
+</script>
+
+<script type="text/javascript">
+    $("#addCounter").click(function () {
+        var tmpl = $("#counterTmpl").html();
+        var idx = $("#counters").children().length;
+        $("#counters").append(tmpl.replace(/\{idx\}/g, idx))
+    });
+</script>

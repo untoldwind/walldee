@@ -3,18 +3,7 @@
 @main("Sprint %d: %s".format(sprint.num, sprint.title)) {
 
 @helper.form(action = routes.Sprints.update(sprint.id), 'id -> "sprint-form") {
-<fieldset>
-    <legend>Sprint</legend>
-    @helper.inputText(form("title"))
-    @helper.inputText(form("num"))
-    @helper.inputText(form("sprintStart"))
-    @helper.inputText(form("sprintEnd"))
-    @helper.repeat(form("counters"), min = 4) { counter =>
-        @helper.inputText(counter("name"))
-        @helper.inputText(counter("color"))
-        @helper.select(counter("side"), models.json.SprintCounterSide.values.toSeq.map(side => side.id.toString -> side.toString))
-    }
-</fieldset>
+@_fieldSet(form)
 <div class="actions">
     <input type="submit" class="btn primary" value="Update">
 </div>
