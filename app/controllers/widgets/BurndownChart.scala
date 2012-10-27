@@ -13,6 +13,10 @@ import models.{DisplayItem, DayCount, Sprint}
 import models.json.{SprintCounter, SprintCounterSide}
 import play.api.data.Forms._
 import models.widgetConfigs.BurndownChartConfig
+import org.jfree.chart.title.LegendTitle
+import org.jfree.ui.{RectangleAnchor, RectangleEdge, RectangleInsets}
+import org.jfree.chart.block.LineBorder
+import org.jfree.chart.annotations.XYTitleAnnotation
 
 object BurndownChart extends Controller {
   val configMapping = mapping(
@@ -105,7 +109,14 @@ object BurndownChart extends Controller {
     domainAxis.setTickLabelFont(tickFont)
     plot.setDomainAxis(domainAxis)
 
-    val chart = new JFreeChart(null, titleFont, plot, true)
+    val legend = new LegendTitle(plot);
+    legend.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
+    legend.setFrame(new LineBorder());
+    legend.setBackgroundPaint(Color.white);
+    val annotation = new XYTitleAnnotation(0.01, 0.01, legend, RectangleAnchor.BOTTOM_LEFT)
+    plot.addAnnotation(annotation)
+
+    val chart = new JFreeChart(null, titleFont, plot, false)
 
     chart.setBackgroundPaint(config.chartBackground.map(Color.decode(_)).getOrElse(null))
     chart

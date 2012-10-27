@@ -34,9 +34,12 @@ object Displays extends Controller {
   }
 
   def showWall(displayId: Long) = Action {
-    Display.findById(displayId).map {
+    Display.findById(displayId).flatMap {
       display =>
-        Ok(views.html.display.showWall(display, DisplayItem.findAllForDisplay(displayId)))
+        Sprint.findById(display.sprintId).map {
+          sprint =>
+            Ok(views.html.display.showWall(display, DisplayItem.findAllForDisplay(displayId), sprint))
+        }
     }.getOrElse(NotFound)
   }
 

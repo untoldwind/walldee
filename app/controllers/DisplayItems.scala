@@ -4,7 +4,8 @@ import play.api.mvc.{Action, Controller}
 import models.{Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
-import widgets.BurndownChart
+import widgets.{SprintTitle, BurndownChart}
+import models.widgetConfigs.SprintTitleConfig
 
 object DisplayItems extends Controller {
   def create(displayId: Long) = Action {
@@ -50,15 +51,17 @@ object DisplayItems extends Controller {
       "posy" -> number(min = 0),
       "width" -> number(min = 0),
       "height" -> number(min = 0),
-      "burndownChartConfig" -> optional(BurndownChart.configMapping)
+      "burndownChartConfig" -> optional(BurndownChart.configMapping),
+      "sprintTitleConfig" -> optional(SprintTitle.configMapping)
     ) {
-      (widget, posx, posy, width, height, burndownCharConfig) =>
+      (widget, posx, posy, width, height, burndownCharConfig, sprintTitleConfig) =>
         displayItem.widgetNum = widget
         displayItem.posx = posx
         displayItem.posy = posy
         displayItem.width = width
         displayItem.height = height
         displayItem.burndownChartConfig = burndownCharConfig
+        displayItem.sprintTitleConfig = sprintTitleConfig
         displayItem
     } {
       displayItem =>
@@ -68,7 +71,8 @@ object DisplayItems extends Controller {
           displayItem.posy,
           displayItem.width,
           displayItem.height,
-          displayItem.burndownChartConfig)
+          displayItem.burndownChartConfig,
+          displayItem.sprintTitleConfig)
     }
   ).fill(displayItem)
 }

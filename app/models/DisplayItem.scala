@@ -1,11 +1,10 @@
 package models
 
-import json.SprintCounter
 import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.annotations.Transient
 import play.api.libs.json.{JsValue, Json}
-import widgetConfigs.BurndownChartConfig
+import widgetConfigs.{SprintTitleConfig, BurndownChartConfig}
 
 class DisplayItem(val id: Long,
                   val displayId: Long,
@@ -41,9 +40,24 @@ class DisplayItem(val id: Long,
     }
   }
 
-  def burndownChartConfig_=(burndownChartConfig:Option[BurndownChartConfig])  {
+  def burndownChartConfig_=(burndownChartConfig: Option[BurndownChartConfig]) {
     if (widget == DisplayWidgets.BurndownChart) {
       burndownChartConfig.map(config => widgetConfig = Json.toJson(config))
+    }
+  }
+
+  @Transient
+  def sprintTitleConfig = {
+    if (widget == DisplayWidgets.SprintTitle) {
+      Some(Json.fromJson[SprintTitleConfig](widgetConfig))
+    } else {
+      None
+    }
+  }
+
+  def sprintTitleConfig_=(sprintTitleConfig: Option[SprintTitleConfig]) {
+    if (widget == DisplayWidgets.SprintTitle) {
+      sprintTitleConfig.map(config => widgetConfig = Json.toJson(config))
     }
   }
 

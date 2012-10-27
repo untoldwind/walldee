@@ -1,4 +1,4 @@
-@(display: Display, displayItems:Seq[DisplayItem])
+@(display: Display, displayItems:Seq[DisplayItem], sprint:Sprint)
 <!DOCTYPE html>
 
 <html>
@@ -12,9 +12,10 @@
 <body style="background: @display.backgroundColor;">
     <div style="position: absolute; width: 100%; height: 100%">
     @displayItems.map { displayItem =>
-        <div class="widget" style="position:absolute; overflow: hidden; left: @{displayItem.posx}px;top: @{displayItem.posy}px;width: @{displayItem.width}px;height: @{displayItem.height}px">
+        <div class="widget" style="position:absolute; overflow: hidden; left: @{displayItem.posx + 2}px;top: @{displayItem.posy + 2}px;width: @{displayItem.width - 4}px;height: @{displayItem.height - 4}px">
             @{displayItem.widget match {
-                    case DisplayWidgets.BurndownChart => widgets.burndownChart(display, displayItem)
+                case DisplayWidgets.BurndownChart => widgets.burndownChart(display, displayItem, sprint)
+                case DisplayWidgets.SprintTitle => widgets.sprintTitle(display, displayItem, sprint)
             }}
        </div>
     }
