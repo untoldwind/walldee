@@ -1,0 +1,81 @@
+@(sprint:Sprint, dayCounts:Seq[DayCount])
+
+<table>
+    <thead>
+    <tr>
+        <th>Day</th>
+        @sprint.counters.map { counter =>
+        <th>@counter.name</th>
+        }
+    </tr>
+    </thead>
+    <tbody>
+    @dayCounts.map { dayCount =>
+    <tr class="dayCount-value" id="dayCount-value-@dayCount.id">
+        <td>@dayCount.dayNum</td>
+        @dayCount.counterValues.map { counterValue =>
+        <td>@counterValue.value</td>
+        }
+        <td><a href="#" dayCountId="@dayCount.id" class="dayCount-update">Update</a></td>
+    </tr>
+    <tr class="dayCount-update" id="dayCount-update-@dayCount.id">
+        <td><input type="text" name="dayNum" value="@dayCount.dayNum"></td>
+        @dayCount.counterValues.zipWithIndex.map { case (counterValue, index) =>
+        <td>
+            <input type="text" name="counterValues[@index].value" value="@counterValue.value">
+            <input type="hidden" name="counterValues[@index].name" value="@counterValue.name">
+        </td>
+        }
+        <td><button type="button" ref="@routes.DayCounts.update(sprint.id, dayCount.id)">Update</button></td>
+    </tr>
+    }
+    </tbody>
+    <tfoot>
+    <tr class="dayCount-create">
+        @helper.form(action = routes.DayCounts.create(sprint.id), 'id -> "dayCount-form") {
+        <td><input type="text" name="dayNum"></td>
+        @sprint.counters.zipWithIndex.map { case (counter, index) =>
+        <td>
+            <input type="text" name="counterValues[@index].value">
+            <input type="hidden" name="counterValues[@index].name" value="@counter.name">
+        </td>
+        }
+        <td><button type="button" ref="@routes.DayCounts.create(sprint.id)">Add</button></td>
+        }
+    </tr>
+    </tfoot>
+</table>
+
+<script type="text/javascript">
+    $("a.dayCount-update").click(function() {
+        var dayCountId = $(this).attr("dayCountId")
+        $("#dayCount-value-" + dayCountId).hide()
+        $("#dayCount-update-" + dayCountId).show()
+    })
+    $("tr.dayCount-create button").click(function() {
+        var ref = $(this).attr("ref");
+        var data =$(this).parent().parent().find("*").serialize();
+
+        $.ajax({
+            url: ref,
+            data: data,
+            type: "POST",
+            success: function(result) {
+                $("#dayCount-list").html(result);
+            }
+        });
+    });
+    $("tr.dayCount-update button").click(function() {
+        var ref = $(this).attr("ref");
+        var data =$(this).parent().parent().find("*").serialize();
+
+        $.ajax({
+            url: ref,
+            data: data,
+            type: "PUT",
+            success: function(result) {
+                $("#dayCount-list").html(result);
+            }
+        });
+    });
+</script>

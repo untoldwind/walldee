@@ -12,61 +12,9 @@
 
 Number of days: @sprint.numberOfDays
 
-<table>
-    <thead>
-    <tr>
-        <th>Day</th>
-        @sprint.counters.map { counter =>
-        <th>@counter.name</th>
-        }
-    </tr>
-    </thead>
-    <tbody>
-    @dayCounts.map { dayCount =>
-    <tr class="dayCount-value" id="dayCount-value-@dayCount.id">
-        <td>@dayCount.dayNum</td>
-        @dayCount.counterValues.map { counterValue =>
-        <td>@counterValue.value</td>
-        }
-        <td><a href="#" dayCountId="@dayCount.id" class="dayCount-update">Update</a></td>
-    </tr>
-    <tr class="dayCount-update" id="dayCount-update-@dayCount.id">
-        @helper.form(action = routes.DayCounts.update(sprint.id, dayCount.id)) {
-        <td><input type="text" name="@dayCountForm("dayNum").name" value="@dayCount.dayNum"></td>
-        @dayCount.counterValues.zipWithIndex.map { case (counterValue, index) =>
-        <td>
-            <input type="text" name="counterValues[@index].value" value="@counterValue.value">
-            <input type="hidden" name="counterValues[@index].name" value="@counterValue.name">
-        </td>
-        }
-        <td><input type="submit" class="btn primary" value="Update"></td>
-        }
-    </tr>
-    }
-    </tbody>
-    <tfoot>
-    <tr>
-        @helper.form(action = routes.DayCounts.create(sprint.id), 'id -> "dayCount-form") {
-        <td><input type="text" name="@dayCountForm("dayNum").name"></td>
-        @helper.repeat(dayCountForm("counterValues")) { counterValue =>
-        <td>
-            <input type="text" name="@counterValue("value").name">
-            <input type="hidden" name="@counterValue("name").name" value="@counterValue("name").value">
-        </td>
-        }
-        <td><input type="submit" class="btn primary" value="Add"></td>
-        }
-    </tr>
-    </tfoot>
-</table>
-
-<script type="text/javascript">
-$("a.dayCount-update").click(function() {
-    var dayCountId = $(this).attr("dayCountId")
-    $("#dayCount-value-" + dayCountId).hide()
-    $("#dayCount-update-" + dayCountId).show()
-})
-</script>
+<div id="dayCount-list">
+    @dayCountList(sprint, dayCounts)
+</div>
 
 <ul id="story-list">
     @views.html.stories.list(stories)

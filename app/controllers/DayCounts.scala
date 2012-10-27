@@ -16,7 +16,7 @@ object DayCounts extends Controller {
           formWithErrors => BadRequest, {
             dayCount =>
               dayCount.save
-              Redirect(routes.Sprints.show(sprintId))
+              Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprint.id)))
           })
       }.getOrElse(NotFound)
   }
@@ -31,8 +31,7 @@ object DayCounts extends Controller {
               formWithErrors => BadRequest, {
                 dayCount =>
                   dayCount.save
-                  Redirect(routes.Sprints.show(sprintId))
-
+                  Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprint.id)))
               })
           }
       }.getOrElse(NotFound)
