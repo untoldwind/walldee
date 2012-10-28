@@ -58,8 +58,7 @@ object BurndownChart extends Controller {
     val leftDataset = new DefaultTableXYDataset
     val rendererLeft = new XYLineAndShapeRenderer
     val rangeAxisLeft = new NumberAxis(leftSeries.map(_._1.name).mkString(", "))
-    rangeAxisLeft.setStandardTickUnits(
-      NumberAxis.createIntegerTickUnits())
+    rangeAxisLeft.setStandardTickUnits(NumberAxis.createIntegerTickUnits())
     leftSeries.foreach {
       case (counter, series) =>
         val idx = leftDataset.getSeriesCount
@@ -74,8 +73,7 @@ object BurndownChart extends Controller {
     val rendererRight = new XYLineAndShapeRenderer
     val rangeAxisRight = new NumberAxis(rightSeries.map(_._1.name).mkString(", "))
     var maxY = 0.0
-    rangeAxisRight.setStandardTickUnits(
-      NumberAxis.createIntegerTickUnits())
+    rangeAxisRight.setStandardTickUnits(NumberAxis.createIntegerTickUnits())
     rightSeries.foreach {
       case (counter, series) =>
         val idx = rightDataset.getSeriesCount

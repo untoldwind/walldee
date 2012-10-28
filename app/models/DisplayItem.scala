@@ -4,7 +4,7 @@ import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.annotations.Transient
 import play.api.libs.json.{JsValue, Json}
-import widgetConfigs.{SprintTitleConfig, BurndownChartConfig}
+import widgetConfigs.{ClockConfig, SprintTitleConfig, BurndownChartConfig}
 
 class DisplayItem(val id: Long,
                   val displayId: Long,
@@ -58,6 +58,21 @@ class DisplayItem(val id: Long,
   def sprintTitleConfig_=(sprintTitleConfig: Option[SprintTitleConfig]) {
     if (widget == DisplayWidgets.SprintTitle) {
       sprintTitleConfig.map(config => widgetConfig = Json.toJson(config))
+    }
+  }
+
+  @Transient
+  def clockConfig = {
+    if ( widget == DisplayWidgets.Clock) {
+      Some(Json.fromJson[ClockConfig](widgetConfig))
+    } else {
+      None
+    }
+  }
+
+  def clockConfig_=(clockConfig:Option[ClockConfig]) {
+    if ( widget == DisplayWidgets.Clock) {
+      clockConfig.map(config => widgetConfig = Json.toJson(config))
     }
   }
 
