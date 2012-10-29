@@ -1,7 +1,9 @@
 @(display:Display, displayItem:DisplayItem, sprint:Sprint)
 
-<div style="width: @{displayItem.width - 4}px; height: @{displayItem.height - 4}px; vertical-align: middle; line-height: @{displayItem.height - 4}px; font-size: @{displayItem.clockConfig.flatMap(_.labelSize).getOrElse(20)}px;">
+@defining(displayItem.clockConfig) { config =>
+<div style="width: @{displayItem.width - 4}px; height: @{displayItem.height - 4}px; vertical-align: middle; line-height: @{displayItem.height - 4}px; font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
 @{ val format = org.joda.time.format.DateTimeFormat.forPattern("HH:mm")
    format.print(new org.joda.time.DateTime())
 }
 </div>
+}

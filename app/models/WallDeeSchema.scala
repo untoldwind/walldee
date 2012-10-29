@@ -23,4 +23,6 @@ object WallDeeSchema extends Schema {
 
   val displayToDisplayItems =
     oneToManyRelation(displays, displayItems).via((display, displayItem) => display.id === displayItem.displayId)
+
+  val alarms = table[Alarm]
 }
