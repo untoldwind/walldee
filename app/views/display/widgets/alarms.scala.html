@@ -1,9 +1,11 @@
 @(display:Display, displayItem:DisplayItem, alarms:Seq[Alarm])
 
-<dl>
+@defining(displayItem.alarmsConfig) { config =>
+<dl class="alarms">
     @alarms.map { alarm =>
-        <dt>@alarm.name</dt>
+        <dt style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">@alarm.name</dt>
         <dd>@{ val format = org.joda.time.format.DateTimeFormat.forPattern("HH:mm")
             format.print(new org.joda.time.DateTime(alarm.nextDate))}</dd>
     }
 </dl>
+}
