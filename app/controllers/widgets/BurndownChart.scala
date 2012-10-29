@@ -5,7 +5,7 @@ import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.XYPlot
 import java.awt.{BasicStroke, Stroke, Color, Font}
 import org.jfree.chart.axis.NumberAxis
-import java.io.ByteArrayOutputStream
+import java.io.{DataOutputStream, ByteArrayOutputStream}
 import javax.imageio.ImageIO
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
@@ -18,6 +18,9 @@ import org.jfree.ui.{RectangleAnchor, RectangleEdge, RectangleInsets}
 import org.jfree.chart.block.LineBorder
 import org.jfree.chart.annotations.XYTitleAnnotation
 import play.api.templates.Html
+import java.security.MessageDigest
+import org.bouncycastle.util.encoders.HexEncoder
+import org.apache.commons.codec.digest.DigestUtils
 
 object BurndownChart extends Controller {
   val configMapping = mapping(
@@ -34,20 +37,27 @@ object BurndownChart extends Controller {
   }
 
   def getPng(displayItemId: Long, sprintId: Long, width: Int, height: Int) = Action {
-    DisplayItem.findById(displayItemId).flatMap {
-      displayItem =>
-        Sprint.findById(sprintId).map {
-          sprint =>
-            val chart = createChart(sprint, displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
+    request =>
+      DisplayItem.findById(displayItemId).flatMap {
+        displayItem =>
+          Sprint.findById(sprintId).map {
+            sprint =>
+              val etag = calculateETag(displayItem, sprint, width, height)
 
-            val image = chart.createBufferedImage(width, height)
-            val out = new ByteArrayOutputStream()
+              request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+                val chart = createChart(sprint, displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
 
-            ImageIO.write(image, "png", out)
+                val image = chart.createBufferedImage(width, height)
+                val out = new ByteArrayOutputStream()
 
-            Ok(content = out.toByteArray)
-        }
-    }.getOrElse(NotFound)
+                ImageIO.write(image, "png", out)
+
+                val response = Ok(content = out.toByteArray)
+
+                response.withHeaders(ETAG -> etag)
+              }
+          }
+      }.getOrElse(NotFound)
   }
 
   private def createChart(sprint: Sprint, config: BurndownChartConfig): JFreeChart = {
@@ -160,4 +170,28 @@ object BurndownChart extends Controller {
     (leftSeries.result(), rightSeries.result())
   }
 
+  private def calculateETag(displayItem: DisplayItem, sprint: Sprint, width: Int, height: Int) = {
+    val bos = new ByteArrayOutputStream()
+    val out = new DataOutputStream(bos)
+
+    out.writeLong(displayItem.id)
+    out.writeLong(sprint.id)
+    out.writeInt(sprint.numberOfDays)
+    sprint.counters.foreach {
+      counter =>
+        out.writeUTF(counter.name)
+        out.writeUTF(counter.color)
+    }
+    DayCount.findAllForSprint(sprint.id).foreach {
+      dayCount =>
+        out.writeLong(dayCount.id)
+        out.writeInt(dayCount.dayNum)
+        dayCount.counterValues.foreach {
+          counterValue =>
+            out.writeInt(counterValue.value)
+        }
+    }
+
+    DigestUtils.shaHex(bos.toByteArray)
+  }
 }
