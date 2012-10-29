@@ -16,7 +16,10 @@
         @dayCount.counterValues.map { counterValue =>
         <td>@counterValue.value</td>
         }
-        <td><a href="#" dayCountId="@dayCount.id" class="dayCount-update">Update</a></td>
+        <td>
+            <a href="#" dayCountId="@dayCount.id" class="edit dayCount-update">Update</a>
+            @common.deleteLink(routes.DayCounts.delete(sprint.id, dayCount.id), "dayCount-value-" + dayCount.id)
+        </td>
     </tr>
     <tr class="dayCount-update" id="dayCount-update-@dayCount.id">
         <td><input type="text" name="dayNum" value="@dayCount.dayNum"></td>
@@ -62,6 +65,9 @@
             type: "POST",
             success: function(result) {
                 $("#dayCount-list").html(result);
+            },
+            error: function(request, error, exception) {
+                alert(exception)
             }
         });
     });
@@ -75,6 +81,9 @@
             type: "PUT",
             success: function(result) {
                 $("#dayCount-list").html(result);
+            },
+            error: function(request, error, exception) {
+                alert(exception)
             }
         });
     });

@@ -1,6 +1,11 @@
-@(displayItem:DisplayItem, displayItemForm:Form[DisplayItem])
+@(display:Display, displayItem:DisplayItem, displayItemForm:Form[DisplayItem])
+@import models.utils.Breadcrumb
 
-@main(displayItem.widget.toString) {
+@main(displayItem.widget.toString,
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Displays", routes.Displays.index, false) ::
+    Breadcrumb(display.name, routes.Displays.showConfig(display.id), false) ::
+    Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id, displayItem.id), true) :: Nil) {
 
 @helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id), 'id -> "displayItem-form") {
 <fieldset>

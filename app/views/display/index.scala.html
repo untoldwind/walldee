@@ -1,6 +1,9 @@
 @(displays: Seq[Display], sprints: Seq[Sprint], form: Form[Display])
+@import models.utils.Breadcrumb
 
-@main("Displays") {
+@main("Displays",
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Displays", routes.Displays.index, true) :: Nil) {
 <ul id="display-list">
     @list(displays)
 </ul>

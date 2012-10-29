@@ -22,22 +22,28 @@ object DisplayItems extends Controller {
   }
 
   def edit(displayId: Long, displayItemId: Long) = Action {
-    DisplayItem.findById(displayItemId).map {
-      displayItem =>
-        Ok(views.html.displayItem.edit(displayItem, displayItemForm(displayItem)))
+    Display.findById(displayId).flatMap {
+      display =>
+        DisplayItem.findById(displayItemId).map {
+          displayItem =>
+            Ok(views.html.displayItem.edit(display, displayItem, displayItemForm(displayItem)))
+        }
     }.getOrElse(NotFound)
   }
 
   def update(displayId: Long, displayItemId: Long) = Action {
     implicit request =>
-      DisplayItem.findById(displayItemId).map {
-        displayItem =>
-          displayItemForm(displayItem).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.displayItem.edit(displayItem, formWithErrors)), {
+      Display.findById(displayId).flatMap {
+        display =>
+          DisplayItem.findById(displayItemId).map {
             displayItem =>
-              displayItem.save
-              Redirect(routes.Displays.showConfig(displayId))
-          })
+              displayItemForm(displayItem).bindFromRequest.fold(
+              formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, formWithErrors)), {
+                displayItem =>
+                  displayItem.save
+                  Redirect(routes.Displays.showConfig(displayId))
+              })
+          }
       }.getOrElse(NotFound)
   }
 

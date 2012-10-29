@@ -41,6 +41,7 @@ class Sprint(val id: Long,
   }
 
   def save = inTransaction {
+    stories.deleteAll
     WallDeeSchema.sprints.insertOrUpdate(this)
   }
 

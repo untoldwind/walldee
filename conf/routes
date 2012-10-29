@@ -16,6 +16,7 @@ POST    /sprints/:sprintId                        controllers.Sprints.update(spr
 POST    /sprints/:sprintId/stories                controllers.Stories.create(sprintId:Long)
 POST    /sprints/:sprintId/dayCounts              controllers.DayCounts.create(sprintId:Long)
 PUT     /sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.update(sprintId:Long, dayCountId:Long)
+DELETE  /sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.delete(sprintId:Long, dayCountId:Long)
 
 GET     /displays                          controllers.Displays.index
 POST    /displays                          controllers.Displays.create

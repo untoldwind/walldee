@@ -1,9 +1,9 @@
 @(displays: Seq[Display])
 
 @displays.map { display =>
-<li>
+<li id="display-@display.id">
     <a href="@routes.Displays.showWall(display.id)">@display.name</a>
     <a href="@routes.Displays.showConfig(display.id)">Config</a>
-    @utils.deleteLink(routes.Displays.delete(display.id))
+    @common.deleteLink(routes.Displays.delete(display.id), "display-" + display.id)
 </li>
 }

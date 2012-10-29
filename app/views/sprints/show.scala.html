@@ -1,6 +1,10 @@
 @(sprint: Sprint, stories:Seq[Story], storyForm:Form[Story], dayCounts:Seq[DayCount], dayCountForm:Form[DayCount])
+@import models.utils.Breadcrumb
 
-@main("Sprint " + sprint.title) {
+@main("Sprint " + sprint.title,
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Sprints", routes.Sprints.index, false) ::
+    Breadcrumb(sprint.title, routes.Sprints.show(sprint.id), true) :: Nil) {
 <h1>Sprint @sprint.num: @sprint.title</h1>
 <a href="@routes.Sprints.edit(sprint.id)">Edit</a>
 

@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, breadcrumps:Seq[models.utils.Breadcrumb])(content: Html)
 
 <!DOCTYPE html>
 
@@ -11,6 +11,15 @@
         <script src="@routes.Assets.at("javascripts/main.min.js")" type="text/javascript"></script>
     </head>
     <body>
+        <div id="header">
+            @breadcrumps.map { breadcrump =>
+                @if(breadcrump.current) {
+                    @breadcrump.name
+                } else {
+                    <a href="@breadcrump.link">@breadcrump.name</a>
+                }
+            }.reduce(_ + Html("&gt;") + _)
+        </div>
         <div id="content">
         @content
         </div>

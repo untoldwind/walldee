@@ -19,11 +19,13 @@ $(document).on("click", ".options dt, .delete dt", function(e) {
 
 $(document).on("click", ".delete dd a", function(e) {
 	e.preventDefault();
-	$.ajax({
-		url: e.target.href,
+    var href = e.target.href;
+    var ref = e.target.attributes["ref"].value;
+    $.ajax({
+		url: href,
 		type: "DELETE",
 		success: function(result) {
-			$(e.target).parent().parent().parent().remove()
+			$("#" + ref).remove();
 		},
 		error: function(request, error, exception) {
 			alert(exception)

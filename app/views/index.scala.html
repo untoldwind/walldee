@@ -1,6 +1,7 @@
 @(message: String)
+@import models.utils.Breadcrumb
 
-@main("Walldee") {
+@main("Walldee", Breadcrumb("Home", routes.Application.index, true) :: Nil) {
 <ul>
     <li><a href="@routes.Sprints.index">Sprints</a></li>
     <li><a href="@routes.Displays.index">Displays</a></li>

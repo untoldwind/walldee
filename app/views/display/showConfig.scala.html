@@ -1,6 +1,10 @@
 @(display: Display, sprints: Seq[Sprint], form: Form[Display], displayItems:Seq[DisplayItem], displayItemForm:Form[DisplayItem])
+@import models.utils.Breadcrumb
 
-@main("Config: " + display.name) {
+@main("Config: " + display.name,
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Displays", routes.Displays.index, false) ::
+    Breadcrumb(display.name, routes.Displays.showConfig(display.id), true) :: Nil) {
 
 @helper.form(action = routes.Displays.update(display.id), 'id -> "display-form") {
 <fieldset>

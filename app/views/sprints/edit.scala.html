@@ -1,6 +1,11 @@
 @(sprint: Sprint, form:Form[Sprint])
+@import models.utils.Breadcrumb
 
-@main("Sprint %d: %s".format(sprint.num, sprint.title)) {
+@main("Sprint %d: %s".format(sprint.num, sprint.title),
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Sprints", routes.Sprints.index, false) ::
+    Breadcrumb(sprint.title, routes.Sprints.show(sprint.id), false) ::
+    Breadcrumb("Edit", routes.Sprints.edit(sprint.id), true) :: Nil) {
 
 @helper.form(action = routes.Sprints.update(sprint.id), 'id -> "sprint-form") {
 @_fieldSet(form)

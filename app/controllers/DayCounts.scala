@@ -37,6 +37,14 @@ object DayCounts extends Controller {
       }.getOrElse(NotFound)
   }
 
+  def delete(sprintId: Long, dayCountId: Long) = Action {
+    DayCount.findById(dayCountId).map {
+      dayCount =>
+        dayCount.delete
+        NoContent
+    }.getOrElse(NotFound)
+  }
+
   def dayCountForm(sprint: Sprint): Form[DayCount] = {
     val dayCount = new DayCount(dayNum = 0, sprintId = sprint.id)
 
