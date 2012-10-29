@@ -1,0 +1,22 @@
+@(alarm:Alarm, form:Form[Alarm])
+
+@import models.utils.Breadcrumb
+
+@main("Alarm: " + alarm.name,
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Alarms", routes.Alarms.index, false) ::
+    Breadcrumb(alarm.name, routes.Alarms.edit(alarm.id), true) :: Nil) {
+
+@helper.form(action = routes.Alarms.update(alarm.id), 'id -> "alarm-form") {
+<fieldset>
+    <legend>Alarm</legend>
+    @helper.inputText(form("name"))
+    @helper.inputText(form("nextDate"))
+    @helper.inputText(form("repeatDays"))
+</fieldset>
+<div class="actions">
+    <input type="submit" class="btn primary" value="Update">
+</div>
+}
+
+}

@@ -1,0 +1,8 @@
+@(alarms:Seq[Alarm])
+
+@alarms.map { alarm =>
+    <li id="alarm-@alarm.id">@alarm.name
+        <a href="@routes.Alarms.edit(alarm.id)" class="edit">Edit</a>
+        @common.deleteLink(routes.Alarms.delete(alarm.id), "alarm-" + alarm.id)
+    </li>
+}
