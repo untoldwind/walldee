@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
-import models.{DisplayItem, DayCount, Sprint}
+import models.{Display, DisplayItem, DayCount, Sprint}
 import models.json.{SprintCounter, SprintCounterSide}
 import play.api.data.Forms._
 import models.widgetConfigs.BurndownChartConfig
@@ -17,6 +17,7 @@ import org.jfree.chart.title.LegendTitle
 import org.jfree.ui.{RectangleAnchor, RectangleEdge, RectangleInsets}
 import org.jfree.chart.block.LineBorder
 import org.jfree.chart.annotations.XYTitleAnnotation
+import play.api.templates.Html
 
 object BurndownChart extends Controller {
   val configMapping = mapping(
@@ -27,6 +28,10 @@ object BurndownChart extends Controller {
     "labelSize" -> optional(number),
     "lineWidth" -> optional(number)
   )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
+
+  def render(display: Display, displayItem: DisplayItem): Html = {
+    views.html.display.widgets.burndownChart.render(display, displayItem)
+  }
 
   def getPng(displayItemId: Long, sprintId: Long, width: Int, height: Int) = Action {
     DisplayItem.findById(displayItemId).flatMap {

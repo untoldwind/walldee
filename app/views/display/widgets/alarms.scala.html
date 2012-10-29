@@ -1,3 +1,9 @@
-@(display:Display, displayItem:DisplayItem, sprint:Sprint)
+@(display:Display, displayItem:DisplayItem, alarms:Seq[Alarm])
 
-Hurra
+<dl>
+    @alarms.map { alarm =>
+        <dt>@alarm.name</dt>
+        <dd>@{ val format = org.joda.time.format.DateTimeFormat.forPattern("HH:mm")
+            format.print(new org.joda.time.DateTime(alarm.nextDate))}</dd>
+    }
+</dl>

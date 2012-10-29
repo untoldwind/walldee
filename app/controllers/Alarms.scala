@@ -6,6 +6,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
 import models.json.SprintCounter
+import java.sql.Timestamp
 
 object Alarms extends Controller {
   def index = Action {
@@ -58,7 +59,7 @@ object Alarms extends Controller {
     ) {
       (name, nextDate, repeatDays) =>
         alarm.name = name
-        alarm.nextDate = nextDate
+        alarm.nextDate = new Timestamp(nextDate.getTime)
         alarm.repeatDays = repeatDays
         alarm
     } {

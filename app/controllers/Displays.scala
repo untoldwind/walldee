@@ -1,11 +1,12 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{DisplayItem, Sprint, Display}
+import models.{DisplayWidgets, DisplayItem, Sprint, Display}
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
 import models.json.SprintCounter
+import models.utils.RenderedWidget
 
 object Displays extends Controller {
   def index = Action {
@@ -34,12 +35,23 @@ object Displays extends Controller {
   }
 
   def showWall(displayId: Long) = Action {
-    Display.findById(displayId).flatMap {
+    Display.findById(displayId).map {
       display =>
-        Sprint.findById(display.sprintId).map {
-          sprint =>
-            Ok(views.html.display.showWall(display, DisplayItem.findAllForDisplay(displayId), sprint))
+        val renderedWidgets = DisplayItem.findAllForDisplay(displayId).map {
+          displayItem =>
+            val content = displayItem.widget match {
+              case DisplayWidgets.BurndownChart =>
+                widgets.BurndownChart.render(display, displayItem)
+              case DisplayWidgets.SprintTitle =>
+                widgets.SprintTitle.render(display, displayItem)
+              case DisplayWidgets.Clock =>
+                widgets.Clock.render(display, displayItem)
+              case DisplayWidgets.Alarms =>
+                widgets.Alarms.render(display, displayItem)
+            }
+            RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, content)
         }
+        Ok(views.html.display.showWall(display, renderedWidgets))
     }.getOrElse(NotFound)
   }
 
