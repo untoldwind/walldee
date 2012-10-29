@@ -59,9 +59,10 @@ object DisplayItems extends Controller {
       "height" -> number(min = 0),
       "burndownChartConfig" -> optional(BurndownChart.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
-      "clockConfig" -> optional(Clock.configMapping)
+      "clockConfig" -> optional(Clock.configMapping),
+      "alarmsConfig" -> optional(widgets.Alarms.configMapping)
     ) {
-      (widget, posx, posy, width, height, burndownCharConfig, sprintTitleConfig, clockConfig) =>
+      (widget, posx, posy, width, height, burndownCharConfig, sprintTitleConfig, clockConfig, alarmsConfig) =>
         displayItem.widgetNum = widget
         displayItem.posx = posx
         displayItem.posy = posy
@@ -70,6 +71,7 @@ object DisplayItems extends Controller {
         displayItem.burndownChartConfig = burndownCharConfig
         displayItem.sprintTitleConfig = sprintTitleConfig
         displayItem.clockConfig = clockConfig
+        displayItem.alarmsConfig = alarmsConfig
         displayItem
     } {
       displayItem =>
@@ -81,7 +83,8 @@ object DisplayItems extends Controller {
           displayItem.height,
           displayItem.burndownChartConfig,
           displayItem.sprintTitleConfig,
-          displayItem.clockConfig)
+          displayItem.clockConfig,
+          displayItem.alarmsConfig)
     }
   ).fill(displayItem)
 }

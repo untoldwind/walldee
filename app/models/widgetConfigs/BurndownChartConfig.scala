@@ -1,7 +1,6 @@
 package models.widgetConfigs
 
 import play.api.libs.json._
-import models.json.SprintCounter
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 

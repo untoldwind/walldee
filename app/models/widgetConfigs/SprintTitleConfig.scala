@@ -3,7 +3,7 @@ package models.widgetConfigs
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 
-case class SprintTitleConfig(labelFont: Option[String],
+case class SprintTitleConfig(labelFont: Option[String] = None,
                              labelSize: Option[Int] = None)
 
 object SprintTitleConfig {

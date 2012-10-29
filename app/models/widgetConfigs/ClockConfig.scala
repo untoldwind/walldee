@@ -4,8 +4,8 @@ import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsNumber
 
-case class ClockConfig(labelFont:Option[String],
-                       labelSize:Option[Int])
+case class ClockConfig(labelFont:Option[String] = None,
+                       labelSize:Option[Int] = None)
 
 object ClockConfig {
   implicit object ClockConfigFormat extends Format[ClockConfig] {

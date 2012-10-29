@@ -4,7 +4,7 @@ import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.annotations.Transient
 import play.api.libs.json.{JsValue, Json}
-import widgetConfigs.{ClockConfig, SprintTitleConfig, BurndownChartConfig}
+import widgetConfigs.{AlarmsConfig, ClockConfig, SprintTitleConfig, BurndownChartConfig}
 
 class DisplayItem(val id: Long,
                   val displayId: Long,
@@ -42,7 +42,7 @@ class DisplayItem(val id: Long,
 
   def burndownChartConfig_=(burndownChartConfig: Option[BurndownChartConfig]) {
     if (widget == DisplayWidgets.BurndownChart) {
-      burndownChartConfig.map(config => widgetConfig = Json.toJson(config))
+      widgetConfig = Json.toJson(burndownChartConfig.getOrElse(BurndownChartConfig()))
     }
   }
 
@@ -57,22 +57,37 @@ class DisplayItem(val id: Long,
 
   def sprintTitleConfig_=(sprintTitleConfig: Option[SprintTitleConfig]) {
     if (widget == DisplayWidgets.SprintTitle) {
-      sprintTitleConfig.map(config => widgetConfig = Json.toJson(config))
+      widgetConfig = Json.toJson(sprintTitleConfig.getOrElse(SprintTitleConfig()))
     }
   }
 
   @Transient
   def clockConfig = {
-    if ( widget == DisplayWidgets.Clock) {
+    if (widget == DisplayWidgets.Clock) {
       Some(Json.fromJson[ClockConfig](widgetConfig))
     } else {
       None
     }
   }
 
-  def clockConfig_=(clockConfig:Option[ClockConfig]) {
-    if ( widget == DisplayWidgets.Clock) {
-      clockConfig.map(config => widgetConfig = Json.toJson(config))
+  def clockConfig_=(clockConfig: Option[ClockConfig]) {
+    if (widget == DisplayWidgets.Clock) {
+      widgetConfig = Json.toJson(clockConfig.getOrElse(ClockConfig()))
+    }
+  }
+
+  @Transient
+  def alarmsConfig = {
+    if (widget == DisplayWidgets.Alarms) {
+      Some(Json.fromJson[AlarmsConfig](widgetConfig))
+    } else {
+      None
+    }
+  }
+
+  def alarmsConfig_=(alarmsConfig: Option[AlarmsConfig]) {
+    if (widget == DisplayWidgets.Alarms) {
+      widgetConfig = Json.toJson(alarmsConfig.getOrElse(AlarmsConfig()))
     }
   }
 
