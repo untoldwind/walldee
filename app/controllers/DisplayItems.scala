@@ -15,7 +15,7 @@ object DisplayItems extends Controller {
           displayItemFrom(display).bindFromRequest.fold(
           formWithErrors => BadRequest, {
             displayItem =>
-              displayItem.save
+              displayItem.insert
               Redirect(routes.Displays.showConfig(displayId))
           })
       }.getOrElse(NotFound)
@@ -40,51 +40,40 @@ object DisplayItems extends Controller {
               displayItemForm(displayItem).bindFromRequest.fold(
               formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, formWithErrors)), {
                 displayItem =>
-                  displayItem.save
+                  displayItem.update
                   Redirect(routes.Displays.showConfig(displayId))
               })
           }
       }.getOrElse(NotFound)
   }
 
+  def delete(displayId: Long, displayItemId: Long) = Action {
+    implicit request =>
+      Display.findById(displayId).flatMap {
+        display =>
+          DisplayItem.findById(displayItemId).map {
+            displayItem =>
+              displayItem.delete
+              NoContent
+          }
+      }.getOrElse(NotFound)
+  }
+
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(0, display.id.get, 0, 0, 0, 0, 0, "{}"))
+    displayItemForm(DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
-      "widget" -> number,
+      "id" -> ignored(displayItem.id),
+      "displayId" -> ignored(displayItem.displayId),
       "posx" -> number(min = 0),
       "posy" -> number(min = 0),
       "width" -> number(min = 0),
       "height" -> number(min = 0),
+      "widget" -> number,
       "burndownChartConfig" -> optional(BurndownChart.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
       "clockConfig" -> optional(Clock.configMapping),
       "alarmsConfig" -> optional(widgets.Alarms.configMapping)
-    ) {
-      (widget, posx, posy, width, height, burndownCharConfig, sprintTitleConfig, clockConfig, alarmsConfig) =>
-        displayItem.widgetNum = widget
-        displayItem.posx = posx
-        displayItem.posy = posy
-        displayItem.width = width
-        displayItem.height = height
-        displayItem.burndownChartConfig = burndownCharConfig
-        displayItem.sprintTitleConfig = sprintTitleConfig
-        displayItem.clockConfig = clockConfig
-        displayItem.alarmsConfig = alarmsConfig
-        displayItem
-    } {
-      displayItem =>
-        Some(
-          displayItem.widgetNum,
-          displayItem.posx,
-          displayItem.posy,
-          displayItem.width,
-          displayItem.height,
-          displayItem.burndownChartConfig,
-          displayItem.sprintTitleConfig,
-          displayItem.clockConfig,
-          displayItem.alarmsConfig)
-    }
-  ).fill(displayItem)
+    )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }

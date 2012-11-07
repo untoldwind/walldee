@@ -5,9 +5,9 @@
     Breadcrumb("Home", routes.Application.index, false) ::
     Breadcrumb("Displays", routes.Displays.index, false) ::
     Breadcrumb(display.name, routes.Displays.showConfig(display.id.get), false) ::
-    Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id.get, displayItem.id), true) :: Nil) {
+    Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id.get, displayItem.id.get), true) :: Nil) {
 
-@helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id), 'id -> "displayItem-form") {
+@helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id.get), 'id -> "displayItem-form") {
 <fieldset>
     <legend>Display item</legend>
     @helper.inputText(displayItemForm("posx"))

@@ -174,7 +174,7 @@ object BurndownChart extends Controller {
     val bos = new ByteArrayOutputStream()
     val out = new DataOutputStream(bos)
 
-    out.writeLong(displayItem.id)
+    out.writeLong(displayItem.id.get)
     out.writeLong(sprint.id)
     out.writeInt(sprint.numberOfDays)
     sprint.counters.foreach {
