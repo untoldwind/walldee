@@ -8,18 +8,20 @@ import scala.Some
 import models.json.SprintCounter
 import java.sql.Timestamp
 
+
+
 object Alarms extends Controller {
   def index = Action {
-    Ok(views.html.alarm.index(Alarm.findAll(), alarmForm()))
+    Ok(views.html.alarm.index(Alarm.findAll, alarmForm()))
   }
 
   def create = Action {
     implicit request =>
       alarmForm().bindFromRequest().fold(
-      formWithErrors => BadRequest(views.html.alarm.index(Alarm.findAll(), formWithErrors)), {
+      formWithErrors => BadRequest(views.html.alarm.index(Alarm.findAll, formWithErrors)), {
         alarm =>
-          alarm.save
-          Ok(views.html.alarm.index(Alarm.findAll(), alarmForm()))
+          alarm.insert
+          Ok(views.html.alarm.index(Alarm.findAll, alarmForm()))
       })
   }
 
@@ -35,9 +37,9 @@ object Alarms extends Controller {
       Alarm.findById(alarmId).map {
         alarm =>
           alarmForm(alarm).bindFromRequest().fold(
-          formWithErrors => BadRequest(views.html.alarm.index(Alarm.findAll(), formWithErrors)), {
+          formWithErrors => BadRequest(views.html.alarm.index(Alarm.findAll, formWithErrors)), {
             alarm =>
-              alarm.save
+              alarm.update
               Redirect(routes.Alarms.index)
           })
       }.getOrElse(NotFound)
@@ -51,19 +53,13 @@ object Alarms extends Controller {
     }.getOrElse(NotFound)
   }
 
-  private def alarmForm(alarm: Alarm = new Alarm): Form[Alarm] = Form(
+  private def alarmForm(alarm:Alarm = new Alarm): Form[Alarm] = Form(
     mapping(
+      "id" ->  ignored(alarm.id),
       "name" -> text(maxLength = 255),
       "nextDate" -> date("dd-MM-yyyy HH:mm"),
       "repeatDays" -> optional(number(min = 1))
     ) {
-      (name, nextDate, repeatDays) =>
-        alarm.name = name
-        alarm.nextDate = new Timestamp(nextDate.getTime)
-        alarm.repeatDays = repeatDays
-        alarm
-    } {
-      sprint => Some((alarm.name, alarm.nextDate, sprint.repeatDays))
-    }
-  ).fill(alarm)
+      (id, name, nextDate, repeatDays) => Alarm(id, name, new Timestamp(nextDate.getTime), repeatDays)
+    }(Alarm.unapply)).fill(alarm)
 }

@@ -5,9 +5,9 @@
 @main("Alarm: " + alarm.name,
     Breadcrumb("Home", routes.Application.index, false) ::
     Breadcrumb("Alarms", routes.Alarms.index, false) ::
-    Breadcrumb(alarm.name, routes.Alarms.edit(alarm.id), true) :: Nil) {
+    Breadcrumb(alarm.name, routes.Alarms.edit(alarm.id.get), true) :: Nil) {
 
-@helper.form(action = routes.Alarms.update(alarm.id), 'id -> "alarm-form") {
+@helper.form(action = routes.Alarms.update(alarm.id.get), 'id -> "alarm-form") {
 <fieldset>
     <legend>Alarm</legend>
     @helper.inputText(form("name"))
