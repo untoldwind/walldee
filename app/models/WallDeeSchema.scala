@@ -9,9 +9,4 @@ object WallDeeSchema extends Schema {
   val stories = table[Story]
 
   val sprintToStories = oneToManyRelation(sprints, stories).via((sprint, story) => sprint.id === story.sprintId)
-
-  val dayCounts = table[DayCount]
-
-  val sprintToDayCounts =
-    oneToManyRelation(sprints, dayCounts).via((sprint, dayCount) => sprint.id === dayCount.sprintId)
 }

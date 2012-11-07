@@ -5,41 +5,83 @@ import org.squeryl.KeyedEntity
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl.annotations.Transient
 import play.api.libs.json.Json
+import play.api.db._
+import play.api.Play.current
 
-class DayCount(val id: Long,
-               var dayNum: Int,
-               var sprintId: Long,
-               var counterValuesJson: String) extends KeyedEntity[Long] {
-  lazy val sprint = WallDeeSchema.sprintToDayCounts.right(this)
+import org.scalaquery.ql.TypeMapper._
+import org.scalaquery.ql.extended.{ExtendedTable => Table}
 
-  def this() = this(0, 0, 0, "[]")
+import org.scalaquery.ql.extended.H2Driver.Implicit._
 
-  def this(dayNum: Int, sprintId: Long) = this(0, dayNum, sprintId, "[]")
+import org.scalaquery.session.{Database, Session}
+import org.scalaquery.ql.Query
 
-  @Transient
+case class DayCount(
+  id: Option[Long],
+  sprintId: Long,
+  dayNum: Int,
+  counterValuesJson: String) {
+
+  def this() = this(None, 0, 0, "[]")
+
+  def this(dayNum: Int, sprintId: Long) = this(None, sprintId, dayNum, "[]")
+
   def counterValues = Json.fromJson[Seq[SprintCounterValue]](Json.parse(counterValuesJson))
 
   def counterValues_=(counterValues: Seq[SprintCounterValue]) {
-    counterValuesJson = Json.stringify(Json.toJson(counterValues))
+
+    //    counterValuesJson = Json.stringify(Json.toJson(counterValues))
   }
 
-  def save = inTransaction {
-    WallDeeSchema.dayCounts.insertOrUpdate(this)
+  def insert = DayCount.database.withSession {
+    implicit db: Session =>
+      DayCount.insert(this)
   }
 
-  def delete = inTransaction {
-    if (isPersisted) {
-      WallDeeSchema.dayCounts.delete(id)
-    }
+  def update = DayCount.database.withSession {
+    implicit db: Session =>
+      DayCount.where(_.id === id).update(this)
   }
+
+  def delete = DayCount.database.withSession {
+    implicit db: Session =>
+      DayCount.where(_.id === id).delete
+  }
+
 }
 
-object DayCount {
-  def findAllForSprint(sprintId: Long) = inTransaction {
-    from(WallDeeSchema.dayCounts)(d => where(d.sprintId === sprintId) select (d) orderBy (d.dayNum asc)).toList
+object DayCount extends Table[DayCount]("DAYCOUNT") {
+  lazy val database = Database.forDataSource(DB.getDataSource())
+
+  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+
+  def sprintId = column[Long]("SPRINTID", O NotNull)
+
+  def dayNum = column[Int]("DAYNUM", O NotNull)
+
+  def counterValuesJson = column[String]("COUNTERVALUESJSON", O NotNull)
+
+  def * = id.? ~ sprintId ~ dayNum ~ counterValuesJson <>((apply _).tupled, unapply _)
+
+  def query = Query(this)
+
+  def formApply(
+    id: Option[Long],
+    sprintId: Long,
+    dayNum: Int,
+    counterValues: List[SprintCounterValue]) =
+    DayCount(id, sprintId, dayNum, Json.stringify(Json.toJson(counterValues)))
+
+  def formUnapply(dayCount: DayCount) =
+    Some(dayCount.id, dayCount.sprintId, dayCount.dayNum, dayCount.counterValues.toList)
+
+  def findAllForSprint(sprintId: Long) = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.sprintId === sprintId).orderBy(dayNum.asc).list
   }
 
-  def findById(dayCountId: Long) = inTransaction {
-    WallDeeSchema.dayCounts.lookup(dayCountId)
+  def findById(dayCountId: Long) = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.id === dayCountId).firstOption
   }
 }

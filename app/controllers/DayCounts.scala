@@ -15,7 +15,7 @@ object DayCounts extends Controller {
           dayCountForm(sprint).bindFromRequest.fold(
           formWithErrors => BadRequest, {
             dayCount =>
-              dayCount.save
+              dayCount.insert
               Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprint.id)))
           })
       }.getOrElse(NotFound)
@@ -30,7 +30,7 @@ object DayCounts extends Controller {
               dayCountForm(dayCount).bindFromRequest.fold(
               formWithErrors => BadRequest, {
                 dayCount =>
-                  dayCount.save
+                  dayCount.update
                   Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprint.id)))
               })
           }
@@ -57,6 +57,8 @@ object DayCounts extends Controller {
 
   def dayCountForm(dayCount: DayCount): Form[DayCount] = Form(
     mapping(
+      "id" -> ignored(dayCount.id),
+      "sprintId" -> ignored(dayCount.sprintId),
       "dayNum" -> number(min = 0, max = 100),
       "counterValues" -> list(
         mapping(
@@ -69,15 +71,6 @@ object DayCounts extends Controller {
             Some(counterValue.name, counterValue.value)
         }
       )
-    ) {
-      (dayNum, counterValues) =>
-        dayCount.dayNum = dayNum
-        dayCount.counterValues = counterValues
-        dayCount
-    } {
-      dayCount =>
-        Some(dayCount.dayNum, dayCount.counterValues.toList)
-    }
-  ).fill(dayCount)
+    )(DayCount.formApply)(DayCount.formUnapply)).fill(dayCount)
 
 }

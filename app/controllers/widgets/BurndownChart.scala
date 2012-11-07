@@ -184,7 +184,7 @@ object BurndownChart extends Controller {
     }
     DayCount.findAllForSprint(sprint.id).foreach {
       dayCount =>
-        out.writeLong(dayCount.id)
+        out.writeLong(dayCount.id.get)
         out.writeInt(dayCount.dayNum)
         dayCount.counterValues.foreach {
           counterValue =>

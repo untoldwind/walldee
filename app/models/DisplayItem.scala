@@ -1,9 +1,6 @@
 package models
 
-import org.squeryl.KeyedEntity
-import org.squeryl.PrimitiveTypeMode._
-import org.squeryl.annotations.Transient
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import widgetConfigs.{AlarmsConfig, ClockConfig, SprintTitleConfig, BurndownChartConfig}
 import play.api.db._
 import play.api.Play.current
@@ -30,17 +27,7 @@ case class DisplayItem(
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
-  def widget_=(displayWidget: DisplayWidgets.Type) {
-
-    //    widgetNum = displayWidget.id
-  }
-
   def widgetConfig = Json.parse(widgetConfigJson)
-
-  def widgetConfig_=(widgetConfig: JsValue) {
-
-    //    widgetConfigJson = Json.stringify(widgetConfig)
-  }
 
   def burndownChartConfig = {
 
@@ -48,13 +35,6 @@ case class DisplayItem(
       Some(Json.fromJson[BurndownChartConfig](widgetConfig))
     } else {
       None
-    }
-  }
-
-  def burndownChartConfig_=(burndownChartConfig: Option[BurndownChartConfig]) {
-
-    if (widget == DisplayWidgets.BurndownChart) {
-      widgetConfig = Json.toJson(burndownChartConfig.getOrElse(BurndownChartConfig()))
     }
   }
 
@@ -67,26 +47,12 @@ case class DisplayItem(
     }
   }
 
-  def sprintTitleConfig_=(sprintTitleConfig: Option[SprintTitleConfig]) {
-
-    if (widget == DisplayWidgets.SprintTitle) {
-      widgetConfig = Json.toJson(sprintTitleConfig.getOrElse(SprintTitleConfig()))
-    }
-  }
-
   def clockConfig = {
 
     if (widget == DisplayWidgets.Clock) {
       Some(Json.fromJson[ClockConfig](widgetConfig))
     } else {
       None
-    }
-  }
-
-  def clockConfig_=(clockConfig: Option[ClockConfig]) {
-
-    if (widget == DisplayWidgets.Clock) {
-      widgetConfig = Json.toJson(clockConfig.getOrElse(ClockConfig()))
     }
   }
 
@@ -99,24 +65,17 @@ case class DisplayItem(
     }
   }
 
-  def alarmsConfig_=(alarmsConfig: Option[AlarmsConfig]) {
-
-    if (widget == DisplayWidgets.Alarms) {
-      widgetConfig = Json.toJson(alarmsConfig.getOrElse(AlarmsConfig()))
-    }
-  }
-
-  def insert = Display.database.withSession {
+  def insert = DisplayItem.database.withSession {
     implicit db: Session =>
       DisplayItem.insert(this)
   }
 
-  def update = Display.database.withSession {
+  def update = DisplayItem.database.withSession {
     implicit db: Session =>
       DisplayItem.where(_.id === id).update(this)
   }
 
-  def delete = Display.database.withSession {
+  def delete = DisplayItem.database.withSession {
     implicit db: Session =>
       DisplayItem.where(_.id === id).delete
   }
