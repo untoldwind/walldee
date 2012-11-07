@@ -1,9 +1,6 @@
 package models
 
-import json.{SprintCounterValue, SprintCounter}
-import org.squeryl.KeyedEntity
-import org.squeryl.PrimitiveTypeMode._
-import org.squeryl.annotations.Transient
+import json.SprintCounterValue
 import play.api.libs.json.Json
 import play.api.db._
 import play.api.Play.current
@@ -27,11 +24,6 @@ case class DayCount(
   def this(dayNum: Int, sprintId: Long) = this(None, sprintId, dayNum, "[]")
 
   def counterValues = Json.fromJson[Seq[SprintCounterValue]](Json.parse(counterValuesJson))
-
-  def counterValues_=(counterValues: Seq[SprintCounterValue]) {
-
-    //    counterValuesJson = Json.stringify(Json.toJson(counterValues))
-  }
 
   def insert = DayCount.database.withSession {
     implicit db: Session =>

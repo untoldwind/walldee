@@ -46,12 +46,11 @@ object DayCounts extends Controller {
   }
 
   def dayCountForm(sprint: Sprint): Form[DayCount] = {
-    val dayCount = new DayCount(dayNum = 0, sprintId = sprint.id.get)
-
-    dayCount.counterValues = sprint.counters.map {
+    val dayCount = DayCount.formApply(None, sprint.id.get, 0, sprint.counters.map {
       counter =>
         SprintCounterValue(counter.name, 0)
-    }
+    }.toList)
+
     dayCountForm(dayCount)
   }
 
