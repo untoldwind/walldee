@@ -1,31 +1,60 @@
 package models
 
-import org.squeryl.KeyedEntity
-import org.squeryl.PrimitiveTypeMode._
+import play.api.db._
+import play.api.Play.current
 
-class Story(val id: Long,
-            var tag: String,
-            var description: String,
-            var points: Int,
-            val sprintId: Long) extends KeyedEntity[Long] {
+import org.scalaquery.ql.TypeMapper._
+import org.scalaquery.ql.extended.{ExtendedTable => Table}
 
-  lazy val sprint = WallDeeSchema.sprintToStories.right(this)
+import org.scalaquery.ql.extended.H2Driver.Implicit._
 
-  def this() = this(0, "", "", 0, 0)
+import org.scalaquery.session.{Database, Session}
+import org.scalaquery.ql.Query
 
-  def save = inTransaction {
-    WallDeeSchema.stories.insertOrUpdate(this)
+case class Story(
+  id: Option[Long],
+  sprintId: Long,
+  tag: String,
+  description: String,
+  points: Int) {
+
+  def this() = this(None, 0, "", "",  0)
+
+  def insert = Story.database.withSession {
+    implicit db: Session =>
+      Story.insert(this)
   }
 
-  def delete = inTransaction {
-    if (isPersisted) {
-      WallDeeSchema.stories.delete(id)
-    }
+  def update = Story.database.withSession {
+    implicit db: Session =>
+      Story.where(_.id === id).update(this)
+  }
+
+  def delete = Story.database.withSession {
+    implicit db: Session =>
+      Story.where(_.id === id).delete
   }
 }
 
-object Story {
-  def findAllForSprint(sprintId: Long) = inTransaction {
-    from(WallDeeSchema.stories)(s => where (s.sprintId === sprintId) select(s) orderBy (s.tag asc)).toList
+object Story extends Table[Story]("STORY") {
+  lazy val database = Database.forDataSource(DB.getDataSource())
+
+  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+
+  def sprintId = column[Long]("SPRINTID", O NotNull)
+
+  def tag = column[String]("TAG", O NotNull)
+
+  def description = column[String]("DESCRIPTION", O NotNull)
+
+  def points = column[Int]("POINTS", O NotNull)
+
+  def * = id.? ~ sprintId ~ tag ~ description ~ points <> ((apply _).tupled, unapply _)
+
+  def query = Query(this)
+
+  def findAllForSprint(sprintId: Long) = database.withSession {
+    implicit db:Session =>
+      query.where(s => s.sprintId === sprintId).orderBy(tag.asc).list
   }
 }

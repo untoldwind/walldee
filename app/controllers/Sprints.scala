@@ -19,7 +19,7 @@ object Sprints extends Controller {
       sprintForm().bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll(), formWithErrors)), {
         sprint =>
-          sprint.save
+          sprint.insert
           Ok(views.html.sprints.index(Sprint.findAll(), sprintForm()))
       })
   }
@@ -47,7 +47,7 @@ object Sprints extends Controller {
           sprintForm(sprint).bindFromRequest.fold(
           formWithErrors => BadRequest(views.html.sprints.edit(sprint, sprintForm(sprint))), {
             sprint =>
-              sprint.save
+              sprint.update
               Redirect(routes.Sprints.show(sprintId))
           })
       }.getOrElse(NotFound)
@@ -55,10 +55,11 @@ object Sprints extends Controller {
 
   private def sprintForm(sprint: Sprint = new Sprint): Form[Sprint] = Form(
     mapping(
+      "id" -> ignored(sprint.id),
       "title" -> text(maxLength = 255),
       "num" -> number(min = 1, max = 10000),
-      "sprintStart" -> date("dd-MM-yyyy"),
-      "sprintEnd" -> date("dd-MM-yyyy"),
+      "sprintStart" -> sqlDate("dd-MM-yyyy"),
+      "sprintEnd" -> sqlDate("dd-MM-yyyy"),
       "counters" -> list(
         mapping(
           "name" -> text,
@@ -70,16 +71,5 @@ object Sprints extends Controller {
           counter => Some(counter.name, counter.color, counter.side.id)
         }
       )
-    ) {
-      (title, num, sprintStart, sprintEnd, counters) =>
-        sprint.title = title
-        sprint.num = num
-        sprint.sprintStart = sprintStart
-        sprint.sprintEnd = sprintEnd
-        sprint.counters = counters.filter(!_.name.isEmpty)
-        sprint
-    } {
-      sprint => Some((sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd, sprint.counters.toList))
-    }
-  ).fill(sprint)
+    )(Sprint.formApply)(Sprint.formUnapply)).fill(sprint)
 }

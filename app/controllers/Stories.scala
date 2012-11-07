@@ -13,28 +13,21 @@ object Stories extends Controller {
           storyForm(sprint).bindFromRequest.fold(
           formWithErrors => BadRequest, {
             story =>
-              story.save
+              story.insert
               Redirect(routes.Sprints.show(sprintId))
           })
       }.getOrElse(NotFound)
   }
 
   def storyForm(sprint: Sprint): Form[Story] =
-    storyForm(new Story(id = 0, tag = "", description = "", points = 0, sprintId = sprint.id))
+    storyForm(new Story(id = None, tag = "", description = "", points = 0, sprintId = sprint.id.get))
 
   def storyForm(story: Story): Form[Story] = Form(
     mapping(
+      "id" -> ignored(story.id),
+      "sprintId" -> ignored(story.sprintId),
       "tag" -> text(maxLength = 50),
       "description" -> text(maxLength = 1000),
       "points" -> number(min = 0, max = 100)
-    ) {
-      (tag, description, points) =>
-        story.tag = tag
-        story.description = description
-        story.points = points
-        story
-    } {
-      story => Some(story.tag, story.description, story.points)
-    }
-  ).fill(story)
+    )(Story.apply)(Story.unapply)).fill(story)
 }

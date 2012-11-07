@@ -2,7 +2,7 @@
 
 @sprints.map { sprint =>
 <li>
-    <a href="@routes.Sprints.show(sprint.id)">@sprint.title</a>
+    <a href="@routes.Sprints.show(sprint.id.get)">@sprint.title</a>
     @sprint.num
 </li>
 }

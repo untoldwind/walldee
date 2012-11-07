@@ -144,7 +144,7 @@ object BurndownChart extends Controller {
   }
 
   private def fillValues(sprint: Sprint, seriesSeq: Seq[(SprintCounter, XYSeries)]) {
-    DayCount.findAllForSprint(sprint.id).foreach {
+    DayCount.findAllForSprint(sprint.id.get).foreach {
       dayCount =>
         dayCount.counterValues.zipWithIndex.foreach {
           case (counterValue, idx) =>
@@ -175,14 +175,14 @@ object BurndownChart extends Controller {
     val out = new DataOutputStream(bos)
 
     out.writeLong(displayItem.id.get)
-    out.writeLong(sprint.id)
+    out.writeLong(sprint.id.get)
     out.writeInt(sprint.numberOfDays)
     sprint.counters.foreach {
       counter =>
         out.writeUTF(counter.name)
         out.writeUTF(counter.color)
     }
-    DayCount.findAllForSprint(sprint.id).foreach {
+    DayCount.findAllForSprint(sprint.id.get).foreach {
       dayCount =>
         out.writeLong(dayCount.id.get)
         out.writeInt(dayCount.dayNum)

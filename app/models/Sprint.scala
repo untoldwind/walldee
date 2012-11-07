@@ -1,63 +1,101 @@
 package models
 
 import json.SprintCounter
-import org.squeryl.KeyedEntity
-import org.squeryl.PrimitiveTypeMode._
-import java.util.Date
-import org.squeryl.annotations.Transient
+import java.sql.Date
 import play.api.libs.json.Json
 import org.joda.time.{DateTimeConstants, DateMidnight}
+import play.api.db._
+import play.api.Play.current
 
-class Sprint(val id: Long,
-             var title: String,
-             var num: Int,
-             var sprintStart: Date,
-             var sprintEnd: Date,
-             var countersJson: String) extends KeyedEntity[Long] {
+import org.scalaquery.ql.TypeMapper._
+import org.scalaquery.ql.extended.{ExtendedTable => Table}
 
-  lazy val stories = WallDeeSchema.sprintToStories.left(this)
+import org.scalaquery.ql.extended.H2Driver.Implicit._
 
-  def this() = this(0, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "[]")
+import org.scalaquery.session.{Database, Session}
+import org.scalaquery.ql.Query
 
-  @Transient
+case class Sprint(
+  id: Option[Long],
+  title: String,
+  num: Int,
+  sprintStart: Date,
+  sprintEnd: Date,
+  countersJson: String) {
+
+  def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "[]")
+
   def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson))
 
-  def counters_=(counters: Seq[SprintCounter]) {
-    countersJson = Json.stringify(Json.toJson(counters))
-  }
-
-  @Transient
   lazy val numberOfDays = {
     var current = new DateMidnight(sprintStart.getTime)
     val end = new DateMidnight(sprintEnd.getTime)
     var numberOfDays = 0
 
     while (current.compareTo(end) < 0) {
-      if (current.getDayOfWeek != DateTimeConstants.SATURDAY && current.getDayOfWeek != DateTimeConstants.SUNDAY)
+      if (current.getDayOfWeek != DateTimeConstants.SATURDAY && current.getDayOfWeek != DateTimeConstants.SUNDAY) {
         numberOfDays += 1
+      }
       current = current.plusDays(1)
     }
     numberOfDays
   }
 
-  def save = inTransaction {
-    stories.deleteAll
-    WallDeeSchema.sprints.insertOrUpdate(this)
+  def insert = Sprint.database.withSession {
+    implicit db: Session =>
+      Sprint.insert(this)
   }
 
-  def delete = inTransaction {
-    if (isPersisted) {
-      WallDeeSchema.sprints.delete(id)
-    }
+  def update = Sprint.database.withSession {
+    implicit db: Session =>
+      Sprint.where(_.id === id).update(this)
+  }
+
+  def delete = Sprint.database.withTransaction {
+    implicit db: Session =>
+      Story.where(s => s.sprintId === id).delete
+      Sprint.where(_.id === id).delete
   }
 }
 
-object Sprint {
-  def findAll(): Seq[Sprint] = inTransaction {
-    from(WallDeeSchema.sprints)(s => select(s) orderBy (s.num desc)).toList
+object Sprint extends Table[Sprint]("SPRINT") {
+  lazy val database = Database.forDataSource(DB.getDataSource())
+
+  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+
+  def title = column[String]("TITLE", O NotNull)
+
+  def num = column[Int]("NUM", O NotNull)
+
+  def sprintStart = column[Date]("SPRINTSTART", O NotNull)
+
+  def sprintEnd = column[Date]("SPRINTEND", O NotNull)
+
+  def countersJson = column[String]("COUNTERSJSON", O NotNull)
+
+  def * = id.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ countersJson <>((apply _).tupled, unapply _)
+
+  def formApply(
+    id: Option[Long],
+    title: String,
+    num: Int,
+    sprintStart: Date,
+    sprintEnd: Date,
+    counters: List[SprintCounter]) =
+    Sprint(id, title, num, sprintStart, sprintEnd, Json.stringify(Json.toJson(counters)))
+
+  def formUnapply(sprint: Sprint) =
+    Some(sprint.id, sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd, sprint.counters.toList)
+
+  def query = Query(this)
+
+  def findAll(): Seq[Sprint] = database.withSession {
+    implicit db: Session =>
+      query.orderBy(num.asc).list
   }
 
-  def findById(sprintId: Long) = inTransaction {
-    WallDeeSchema.sprints.lookup(sprintId)
+  def findById(sprintId: Long) = database.withSession {
+    implicit db: Session =>
+      query.where(s => s.id === sprintId).firstOption
   }
 }

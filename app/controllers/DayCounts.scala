@@ -16,7 +16,7 @@ object DayCounts extends Controller {
           formWithErrors => BadRequest, {
             dayCount =>
               dayCount.insert
-              Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprint.id)))
+              Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprintId)))
           })
       }.getOrElse(NotFound)
   }
@@ -31,7 +31,7 @@ object DayCounts extends Controller {
               formWithErrors => BadRequest, {
                 dayCount =>
                   dayCount.update
-                  Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprint.id)))
+                  Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprintId)))
               })
           }
       }.getOrElse(NotFound)
@@ -46,7 +46,7 @@ object DayCounts extends Controller {
   }
 
   def dayCountForm(sprint: Sprint): Form[DayCount] = {
-    val dayCount = new DayCount(dayNum = 0, sprintId = sprint.id)
+    val dayCount = new DayCount(dayNum = 0, sprintId = sprint.id.get)
 
     dayCount.counterValues = sprint.counters.map {
       counter =>
