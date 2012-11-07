@@ -59,7 +59,5 @@ object Alarms extends Controller {
       "name" -> text(maxLength = 255),
       "nextDate" -> date("dd-MM-yyyy HH:mm"),
       "repeatDays" -> optional(number(min = 1))
-    ) {
-      (id, name, nextDate, repeatDays) => Alarm(id, name, new Timestamp(nextDate.getTime), repeatDays)
-    }(Alarm.unapply)).fill(alarm)
+    )(Alarm.apply)(Alarm.unapply)).fill(alarm)
 }

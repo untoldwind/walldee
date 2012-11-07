@@ -4,9 +4,9 @@
 @main("Config: " + display.name,
     Breadcrumb("Home", routes.Application.index, false) ::
     Breadcrumb("Displays", routes.Displays.index, false) ::
-    Breadcrumb(display.name, routes.Displays.showConfig(display.id), true) :: Nil) {
+    Breadcrumb(display.name, routes.Displays.showConfig(display.id.get), true) :: Nil) {
 
-@helper.form(action = routes.Displays.update(display.id), 'id -> "display-form") {
+@helper.form(action = routes.Displays.update(display.id.get), 'id -> "display-form") {
 <fieldset>
     <legend>Display</legend>
     @helper.inputText(form("name"))
@@ -23,7 +23,7 @@
     @views.html.displayItem.list(display, displayItems)
 </ul>
 
-@helper.form(action = routes.DisplayItems.create(display.id), 'id -> "displayItem-form") {
+@helper.form(action = routes.DisplayItems.create(display.id.get), 'id -> "displayItem-form") {
 <fieldset>
     <legend>Display item</legend>
     @helper.select(displayItemForm("widget"), DisplayWidgets.values.toSeq.map(widget => widget.id.toString -> widget.toString ))

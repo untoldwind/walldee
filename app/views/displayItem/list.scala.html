@@ -2,6 +2,6 @@
 
 @displayItems.map { displayItem =>
 <li>@displayItem.widget @displayItem.posx @displayItem.posy @displayItem.width @displayItem.height
-<a href="@routes.DisplayItems.edit(display.id, displayItem.id)">Edit</a>
+<a href="@routes.DisplayItems.edit(display.id.get, displayItem.id)">Edit</a>
 </li>
 }

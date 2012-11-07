@@ -48,7 +48,7 @@ object DisplayItems extends Controller {
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(0, display.id, 0, 0, 0, 0, 0, "{}"))
+    displayItemForm(new DisplayItem(0, display.id.get, 0, 0, 0, 0, 0, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(

@@ -10,16 +10,16 @@ import models.utils.RenderedWidget
 
 object Displays extends Controller {
   def index = Action {
-    Ok(views.html.display.index(Display.findAll(), Sprint.findAll(), displayForm()))
+    Ok(views.html.display.index(Display.findAll, Sprint.findAll(), displayForm()))
   }
 
   def create = Action {
     implicit request =>
       displayForm().bindFromRequest().fold(
-      formWithErrors => BadRequest(views.html.display.index(Display.findAll(), Sprint.findAll(), formWithErrors)), {
+      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll(), formWithErrors)), {
         display =>
-          display.save
-          Ok(views.html.display.index(Display.findAll(), Sprint.findAll(), displayForm()))
+          display.insert
+          Ok(views.html.display.index(Display.findAll, Sprint.findAll(), displayForm()))
       })
   }
 
@@ -66,7 +66,7 @@ object Displays extends Controller {
             DisplayItem.findAllForDisplay(displayId),
             DisplayItems.displayItemFrom(display))), {
             display =>
-              display.save
+              display.update
               Redirect(routes.Displays.showConfig(displayId))
           })
       }.getOrElse(NotFound)
@@ -83,17 +83,9 @@ object Displays extends Controller {
 
   private def displayForm(display: Display = new Display): Form[Display] = Form(
     mapping(
+      "id" -> ignored(display.id),
       "name" -> text(maxLength = 255),
       "sprintId" -> longNumber,
       "backgroundColor" -> text
-    ) {
-      (name, sprintId, backgroundColor) =>
-        display.name = name
-        display.sprintId = sprintId
-        display.backgroundColor = backgroundColor
-        display
-    } {
-      display => Some((display.name, display.sprintId, display.backgroundColor))
-    }
-  ).fill(display)
+    )(Display.apply)(Display.unapply)).fill(display)
 }

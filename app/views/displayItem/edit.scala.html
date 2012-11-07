@@ -4,8 +4,8 @@
 @main(displayItem.widget.toString,
     Breadcrumb("Home", routes.Application.index, false) ::
     Breadcrumb("Displays", routes.Displays.index, false) ::
-    Breadcrumb(display.name, routes.Displays.showConfig(display.id), false) ::
-    Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id, displayItem.id), true) :: Nil) {
+    Breadcrumb(display.name, routes.Displays.showConfig(display.id.get), false) ::
+    Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id.get, displayItem.id), true) :: Nil) {
 
 @helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id), 'id -> "displayItem-form") {
 <fieldset>
