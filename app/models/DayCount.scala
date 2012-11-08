@@ -5,13 +5,7 @@ import play.api.libs.json.Json
 import play.api.db._
 import play.api.Play.current
 
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import scala.slick.driver.H2Driver.simple._
 
 case class DayCount(
   id: Option[Long],
@@ -23,7 +17,7 @@ case class DayCount(
 
   def this(dayNum: Int, sprintId: Long) = this(None, sprintId, dayNum, "[]")
 
-  def counterValues = Json.fromJson[Seq[SprintCounterValue]](Json.parse(counterValuesJson))
+  def counterValues = Json.fromJson[Seq[SprintCounterValue]](Json.parse(counterValuesJson)).getOrElse(Seq())
 
   def insert = DayCount.database.withSession {
     implicit db: Session =>
@@ -69,7 +63,7 @@ object DayCount extends Table[DayCount]("DAYCOUNT") {
 
   def findAllForSprint(sprintId: Long) = database.withSession {
     implicit db: Session =>
-      query.where(d => d.sprintId === sprintId).orderBy(dayNum.asc).list
+      query.where(d => d.sprintId === sprintId).sortBy(d => d.dayNum.asc).list
   }
 
   def findById(dayCountId: Long) = database.withSession {

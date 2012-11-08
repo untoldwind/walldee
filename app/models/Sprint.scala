@@ -4,17 +4,12 @@ import json.SprintCounter
 import java.sql.Date
 import play.api.libs.json.Json
 import org.joda.time.{DateTimeConstants, DateMidnight}
+import org.joda.time.format.DateTimeFormat
 import play.api.db._
 import play.api.Play.current
 
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
+import scala.slick.driver.H2Driver.simple._
 
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
-import org.joda.time.format.DateTimeFormat
 import java.util.Locale
 
 case class Sprint(
@@ -28,7 +23,7 @@ case class Sprint(
 
   def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "de-DE", "[]")
 
-  def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson))
+  def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson)).getOrElse(Seq())
 
   def locale = Locale.forLanguageTag(languageTag)
 
@@ -120,7 +115,7 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def findAll: Seq[Sprint] = database.withSession {
     implicit db: Session =>
-      query.orderBy(num.asc).list
+      query.sortBy(s => s.num.asc).list
   }
 
   def findById(sprintId: Long): Option[Sprint] = database.withSession {

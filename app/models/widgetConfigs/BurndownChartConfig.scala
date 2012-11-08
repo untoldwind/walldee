@@ -14,14 +14,14 @@ case class BurndownChartConfig(chartBackground: Option[String] = None,
 object BurndownChartConfig {
 
   implicit object BurndownChartConfigFormat extends Format[BurndownChartConfig] {
-    override def reads(json: JsValue): BurndownChartConfig =
-      BurndownChartConfig(
+    override def reads(json: JsValue): JsResult[BurndownChartConfig] =
+      JsSuccess(BurndownChartConfig(
         (json \ "chartBackground").asOpt[String],
         (json \ "plotBackground").asOpt[String],
         (json \ "titleSize").asOpt[Int],
         (json \ "tickSize").asOpt[Int],
         (json \ "labelSize").asOpt[Int],
-        (json \ "lineWidth").asOpt[Int])
+        (json \ "lineWidth").asOpt[Int]))
 
     override def writes(burndownChartConfig: BurndownChartConfig): JsValue = JsObject(
       burndownChartConfig.chartBackground.map("chartBackground" -> JsString(_)).toSeq ++

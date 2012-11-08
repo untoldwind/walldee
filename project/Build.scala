@@ -1,6 +1,6 @@
 import sbt._
 import Keys._
-import PlayProject._
+import play.Project._
 
 object ApplicationBuild extends Build {
 
@@ -8,13 +8,14 @@ object ApplicationBuild extends Build {
   val appVersion = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
+    jdbc,
     "com.h2database" % "h2" % "1.3.167",
 
     "org.jfree" % "jfreechart" % "1.0.14",
-    "org.scalaquery" %% "scalaquery" % "0.10.0-M1"
+    "com.typesafe" % "slick_2.10.0-RC1" % "0.11.2"
   )
 
-  val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
+  val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here
   )
 

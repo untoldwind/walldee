@@ -5,14 +5,7 @@ import widgetConfigs._
 import play.api.db._
 import play.api.Play.current
 
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
-import scala.Some
+import scala.slick.driver.H2Driver.simple._
 
 case class DisplayItem(
                         id: Option[Long],
@@ -35,7 +28,7 @@ case class DisplayItem(
 
   def burndownChartConfig = {
     if (widget == DisplayWidgets.BurndownChart) {
-      Some(Json.fromJson[BurndownChartConfig](widgetConfig))
+      Some(Json.fromJson[BurndownChartConfig](widgetConfig).getOrElse(BurndownChartConfig()))
     } else {
       None
     }
@@ -43,7 +36,7 @@ case class DisplayItem(
 
   def sprintTitleConfig = {
     if (widget == DisplayWidgets.SprintTitle) {
-      Some(Json.fromJson[SprintTitleConfig](widgetConfig))
+      Some(Json.fromJson[SprintTitleConfig](widgetConfig).getOrElse(SprintTitleConfig()))
     } else {
       None
     }
@@ -51,7 +44,7 @@ case class DisplayItem(
 
   def clockConfig = {
     if (widget == DisplayWidgets.Clock) {
-      Some(Json.fromJson[ClockConfig](widgetConfig))
+      Some(Json.fromJson[ClockConfig](widgetConfig).getOrElse(ClockConfig()))
     } else {
       None
     }
@@ -59,7 +52,7 @@ case class DisplayItem(
 
   def alarmsConfig = {
     if (widget == DisplayWidgets.Alarms) {
-      Some(Json.fromJson[AlarmsConfig](widgetConfig))
+      Some(Json.fromJson[AlarmsConfig](widgetConfig).getOrElse(AlarmsConfig()))
     } else {
       None
     }
@@ -67,7 +60,7 @@ case class DisplayItem(
 
   def iframeConfig = {
     if (widget == DisplayWidgets.IFrame) {
-      Some(Json.fromJson[IFrameConfig](widgetConfig))
+      Some(Json.fromJson[IFrameConfig](widgetConfig).getOrElse(IFrameConfig()))
     } else {
       None
     }
@@ -157,7 +150,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def findAllForDisplay(displayId: Long): Seq[DisplayItem] = database.withSession {
     implicit db: Session =>
-      query.where(d => d.displayId === displayId).orderBy(id.asc).list
+      query.where(d => d.displayId === displayId).sortBy(d => d.id.asc).list
   }
 
   def findById(displayItemId: Long): Option[DisplayItem] = database.withSession {

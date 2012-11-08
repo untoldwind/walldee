@@ -3,13 +3,7 @@ package models
 import play.api.db._
 import play.api.Play.current
 
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import scala.slick.driver.H2Driver.simple._
 import java.util.Date
 import models.DateMapper.date2timestamp
 
@@ -75,12 +69,12 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def findAll: Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
-      query.orderBy(name.asc).list
+      query.sortBy(s => s.name.asc).list
   }
 
   def findAllActive: Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
-      query.where(s => s.active).orderBy(name.asc).list
+      query.where(s => s.active).sortBy(s => s.name.asc).list
   }
 
   def findById(statusMonitorId: Long): Option[StatusMonitor] = database.withSession {

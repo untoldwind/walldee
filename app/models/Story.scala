@@ -3,13 +3,7 @@ package models
 import play.api.db._
 import play.api.Play.current
 
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import scala.slick.driver.H2Driver.simple._
 
 case class Story(
   id: Option[Long],
@@ -55,6 +49,6 @@ object Story extends Table[Story]("STORY") {
 
   def findAllForSprint(sprintId: Long) = database.withSession {
     implicit db:Session =>
-      query.where(s => s.sprintId === sprintId).orderBy(tag.asc).list
+      query.where(s => s.sprintId === sprintId).sortBy(s => s.tag.asc).list
   }
 }

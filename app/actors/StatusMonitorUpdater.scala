@@ -8,6 +8,8 @@ import play.api.libs.ws.WS
 import com.ning.http.client.Realm.AuthScheme
 
 class StatusMonitorUpdater extends Actor with SLF4JLogging {
+  import context.dispatcher
+
   def receive = {
     case UpdateAll() =>
       StatusMonitor.findAllActive.foreach {
