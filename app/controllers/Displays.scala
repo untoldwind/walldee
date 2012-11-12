@@ -48,6 +48,8 @@ object Displays extends Controller {
                 widgets.Clock.render(display, displayItem)
               case DisplayWidgets.Alarms =>
                 widgets.Alarms.render(display, displayItem)
+              case DisplayWidgets.IFrame =>
+                widgets.IFrame.render(display, displayItem)
             }
             RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, content)
         }

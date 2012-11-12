@@ -1,7 +1,7 @@
 package models
 
 import play.api.libs.json.Json
-import widgetConfigs.{AlarmsConfig, ClockConfig, SprintTitleConfig, BurndownChartConfig}
+import widgetConfigs._
 import play.api.db._
 import play.api.Play.current
 
@@ -12,16 +12,17 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
+import scala.Some
 
 case class DisplayItem(
-  id: Option[Long],
-  displayId: Long,
-  posx: Int,
-  posy: Int,
-  width: Int,
-  height: Int,
-  widgetNum: Int,
-  widgetConfigJson: String) {
+                        id: Option[Long],
+                        displayId: Long,
+                        posx: Int,
+                        posy: Int,
+                        width: Int,
+                        height: Int,
+                        widgetNum: Int,
+                        widgetConfigJson: String) {
 
   def this() = this(None, 0, 0, 0, 0, 0, 0, "{}")
 
@@ -30,7 +31,6 @@ case class DisplayItem(
   def widgetConfig = Json.parse(widgetConfigJson)
 
   def burndownChartConfig = {
-
     if (widget == DisplayWidgets.BurndownChart) {
       Some(Json.fromJson[BurndownChartConfig](widgetConfig))
     } else {
@@ -39,7 +39,6 @@ case class DisplayItem(
   }
 
   def sprintTitleConfig = {
-
     if (widget == DisplayWidgets.SprintTitle) {
       Some(Json.fromJson[SprintTitleConfig](widgetConfig))
     } else {
@@ -48,7 +47,6 @@ case class DisplayItem(
   }
 
   def clockConfig = {
-
     if (widget == DisplayWidgets.Clock) {
       Some(Json.fromJson[ClockConfig](widgetConfig))
     } else {
@@ -57,9 +55,16 @@ case class DisplayItem(
   }
 
   def alarmsConfig = {
-
     if (widget == DisplayWidgets.Alarms) {
       Some(Json.fromJson[AlarmsConfig](widgetConfig))
+    } else {
+      None
+    }
+  }
+
+  def iframeConfig = {
+    if (widget == DisplayWidgets.IFrame) {
+      Some(Json.fromJson[IFrameConfig](widgetConfig))
     } else {
       None
     }
@@ -103,22 +108,24 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
   def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ widgetNum ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
-    displayId: Long,
-    posx: Int,
-    posy: Int,
-    width: Int,
-    height: Int,
-    widgetNum: Int,
-    burndownChartConfig: Option[BurndownChartConfig],
-    sprintTitleConfig: Option[SprintTitleConfig],
-    clockConfig: Option[ClockConfig],
-    alarmsConfig: Option[AlarmsConfig]): DisplayItem = {
+                displayId: Long,
+                posx: Int,
+                posy: Int,
+                width: Int,
+                height: Int,
+                widgetNum: Int,
+                burndownChartConfig: Option[BurndownChartConfig],
+                sprintTitleConfig: Option[SprintTitleConfig],
+                clockConfig: Option[ClockConfig],
+                alarmsConfig: Option[AlarmsConfig],
+                iframeConfig: Option[IFrameConfig]): DisplayItem = {
 
     val widgetConfig = DisplayWidgets(widgetNum) match {
       case DisplayWidgets.BurndownChart => Json.toJson(burndownChartConfig.getOrElse(BurndownChartConfig()))
       case DisplayWidgets.SprintTitle => Json.toJson(sprintTitleConfig.getOrElse(SprintTitleConfig()))
       case DisplayWidgets.Clock => Json.toJson(clockConfig.getOrElse(ClockConfig()))
       case DisplayWidgets.Alarms => Json.toJson(alarmsConfig.getOrElse(AlarmsConfig()))
+      case DisplayWidgets.IFrame => Json.toJson(iframeConfig.getOrElse(IFrameConfig()))
     }
 
     DisplayItem(id, displayId, posx, posy, width, height, widgetNum, Json.stringify(widgetConfig))
@@ -126,17 +133,18 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def formUnapply(displayItem: DisplayItem) =
     Some(
-          displayItem.id,
-          displayItem.displayId,
-          displayItem.posx,
-          displayItem.posy,
-          displayItem.width,
-          displayItem.height,
-          displayItem.widgetNum,
-          displayItem.burndownChartConfig,
-          displayItem.sprintTitleConfig,
-          displayItem.clockConfig,
-          displayItem.alarmsConfig)
+      displayItem.id,
+      displayItem.displayId,
+      displayItem.posx,
+      displayItem.posy,
+      displayItem.width,
+      displayItem.height,
+      displayItem.widgetNum,
+      displayItem.burndownChartConfig,
+      displayItem.sprintTitleConfig,
+      displayItem.clockConfig,
+      displayItem.alarmsConfig,
+      displayItem.iframeConfig)
 
   def query = Query(this)
 

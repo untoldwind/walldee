@@ -1,0 +1,5 @@
+@(display:Display, displayItem:DisplayItem)
+
+@defining(displayItem.iframeConfig) { config =>
+<iframe src="@config.flatMap(_.url).getOrElse("")" width="@{displayItem.width - 12}" height="@{displayItem.height - 12}" frameborder="0" scrolling="no"/>
+}

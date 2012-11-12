@@ -74,6 +74,7 @@ object DisplayItems extends Controller {
       "burndownChartConfig" -> optional(BurndownChart.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
       "clockConfig" -> optional(Clock.configMapping),
-      "alarmsConfig" -> optional(widgets.Alarms.configMapping)
+      "alarmsConfig" -> optional(widgets.Alarms.configMapping),
+      "iframeConfig" -> optional(widgets.IFrame.configMapping)
     )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }
