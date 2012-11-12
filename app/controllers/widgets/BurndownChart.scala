@@ -12,7 +12,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import models.{Display, DisplayItem, DayCount, Sprint}
 import models.json.{SprintCounter, SprintCounterSide}
 import play.api.data.Forms._
-import models.widgetConfigs.BurndownChartConfig
+import models.widgetConfigs.{AlarmsConfig, BurndownChartConfig}
 import org.jfree.chart.title.LegendTitle
 import org.jfree.ui.{RectangleAnchor, RectangleEdge, RectangleInsets}
 import org.jfree.chart.block.LineBorder
@@ -21,8 +21,9 @@ import play.api.templates.Html
 import java.security.MessageDigest
 import org.bouncycastle.util.encoders.HexEncoder
 import org.apache.commons.codec.digest.DigestUtils
+import models.utils.DataDigest
 
-object BurndownChart extends Controller {
+object BurndownChart extends Controller with Widget[BurndownChartConfig] {
   val configMapping = mapping(
     "chartBackground" -> optional(text),
     "plotBackground" -> optional(text),
@@ -34,6 +35,22 @@ object BurndownChart extends Controller {
 
   def render(display: Display, displayItem: DisplayItem): Html = {
     views.html.display.widgets.burndownChart.render(display, displayItem)
+  }
+
+  override def etag(display: Display, displayItem: DisplayItem): String = {
+    val dataDigest = DataDigest()
+
+    dataDigest.update(displayItem.posx)
+    dataDigest.update(displayItem.posy)
+    dataDigest.update(displayItem.width)
+    dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.widgetConfigJson)
+
+    Sprint.findById(display.sprintId).map {
+      sprint =>
+        dataDigest.update(calculateETag(displayItem, sprint, displayItem.width, displayItem.height))
+    }
+    dataDigest.base64Digest()
   }
 
   def getPng(displayItemId: Long, sprintId: Long, width: Int, height: Int) = Action {
@@ -171,27 +188,26 @@ object BurndownChart extends Controller {
   }
 
   private def calculateETag(displayItem: DisplayItem, sprint: Sprint, width: Int, height: Int) = {
-    val bos = new ByteArrayOutputStream()
-    val out = new DataOutputStream(bos)
+    val dataDigest = DataDigest()
 
-    out.writeLong(displayItem.id.get)
-    out.writeLong(sprint.id.get)
-    out.writeInt(sprint.numberOfDays)
+    dataDigest.update(displayItem.id)
+    dataDigest.update(sprint.id)
+    dataDigest.update(sprint.numberOfDays)
     sprint.counters.foreach {
       counter =>
-        out.writeUTF(counter.name)
-        out.writeUTF(counter.color)
+        dataDigest.update(counter.name)
+        dataDigest.update(counter.color)
     }
     DayCount.findAllForSprint(sprint.id.get).foreach {
       dayCount =>
-        out.writeLong(dayCount.id.get)
-        out.writeInt(dayCount.dayNum)
+        dataDigest.update(dayCount.id)
+        dataDigest.update(dayCount.dayNum)
         dayCount.counterValues.foreach {
           counterValue =>
-            out.writeInt(counterValue.value)
+            dataDigest.update(counterValue.value)
         }
     }
 
-    DigestUtils.shaHex(bos.toByteArray)
+    dataDigest.base64Digest()
   }
 }

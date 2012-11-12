@@ -54,7 +54,7 @@ object Alarm extends Table[Alarm]("ALARM") {
       query.orderBy(nextDate.asc).list
   }
 
-  def findAllForToday() = database.withSession {
+  def findAllForToday(): Seq[Alarm] = database.withSession {
     implicit db: Session =>
       val today = DateMidnight.now
       val tomorrow = today.plusDays(1)
@@ -63,7 +63,7 @@ object Alarm extends Table[Alarm]("ALARM") {
         .orderBy(nextDate.asc).list
   }
 
-  def findById(alarmId: Long) = database.withSession {
+  def findById(alarmId: Long): Option[Alarm] = database.withSession {
     implicit db: Session =>
       query.where(a => a.id === alarmId).firstOption
   }

@@ -16,12 +16,12 @@ import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 
 case class Sprint(
-  id: Option[Long],
-  title: String,
-  num: Int,
-  sprintStart: Date,
-  sprintEnd: Date,
-  countersJson: String) {
+                   id: Option[Long],
+                   title: String,
+                   num: Int,
+                   sprintStart: Date,
+                   sprintEnd: Date,
+                   countersJson: String) {
 
   def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "[]")
 
@@ -76,12 +76,12 @@ object Sprint extends Table[Sprint]("SPRINT") {
   def * = id.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ countersJson <>((apply _).tupled, unapply _)
 
   def formApply(
-    id: Option[Long],
-    title: String,
-    num: Int,
-    sprintStart: Date,
-    sprintEnd: Date,
-    counters: List[SprintCounter]) =
+                 id: Option[Long],
+                 title: String,
+                 num: Int,
+                 sprintStart: Date,
+                 sprintEnd: Date,
+                 counters: List[SprintCounter]) =
     Sprint(id, title, num, sprintStart, sprintEnd, Json.stringify(Json.toJson(counters)))
 
   def formUnapply(sprint: Sprint) =
@@ -94,7 +94,7 @@ object Sprint extends Table[Sprint]("SPRINT") {
       query.orderBy(num.asc).list
   }
 
-  def findById(sprintId: Long) = database.withSession {
+  def findById(sprintId: Long): Option[Sprint] = database.withSession {
     implicit db: Session =>
       query.where(s => s.id === sprintId).firstOption
   }

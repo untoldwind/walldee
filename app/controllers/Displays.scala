@@ -6,7 +6,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
 import models.json.SprintCounter
-import models.utils.RenderedWidget
+import models.utils.{DataDigest, RenderedWidget}
+import widgets.Widget
 
 object Displays extends Controller {
   def index = Action {
@@ -35,26 +36,22 @@ object Displays extends Controller {
   }
 
   def showWall(displayId: Long) = Action {
-    Display.findById(displayId).map {
-      display =>
-        val renderedWidgets = DisplayItem.findAllForDisplay(displayId).map {
-          displayItem =>
-            val content = displayItem.widget match {
-              case DisplayWidgets.BurndownChart =>
-                widgets.BurndownChart.render(display, displayItem)
-              case DisplayWidgets.SprintTitle =>
-                widgets.SprintTitle.render(display, displayItem)
-              case DisplayWidgets.Clock =>
-                widgets.Clock.render(display, displayItem)
-              case DisplayWidgets.Alarms =>
-                widgets.Alarms.render(display, displayItem)
-              case DisplayWidgets.IFrame =>
-                widgets.IFrame.render(display, displayItem)
+    implicit request =>
+      Display.findById(displayId).map {
+        display =>
+          val displayItems = DisplayItem.findAllForDisplay(displayId)
+          val etag = getEtag(display, displayItems)
+
+          request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+            val renderedWidgets = displayItems.map {
+              displayItem =>
+                val content = widget(displayItem).render(display, displayItem)
+
+                RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, content)
             }
-            RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, content)
-        }
-        Ok(views.html.display.showWall(display, renderedWidgets))
-    }.getOrElse(NotFound)
+            Ok(views.html.display.showWall(display, renderedWidgets)).withHeaders(ETAG -> etag)
+          }
+      }.getOrElse(NotFound)
   }
 
   def update(displayId: Long) = Action {
@@ -81,6 +78,30 @@ object Displays extends Controller {
           display.delete
           NoContent
       }.getOrElse(NotFound)
+  }
+
+  private def widget(displayItem: DisplayItem): Widget[_] = {
+    displayItem.widget match {
+      case DisplayWidgets.BurndownChart => widgets.BurndownChart
+      case DisplayWidgets.SprintTitle => widgets.SprintTitle
+      case DisplayWidgets.Clock => widgets.Clock
+      case DisplayWidgets.Alarms => widgets.Alarms
+      case DisplayWidgets.IFrame => widgets.IFrame
+    }
+
+  }
+
+  private def getEtag(display: Display, displayItems: Seq[DisplayItem]): String = {
+    val dataDigest = DataDigest()
+
+    dataDigest.update(display.id)
+    dataDigest.update(display.sprintId)
+    dataDigest.update(display.backgroundColor)
+    displayItems.foreach {
+      displayItem =>
+        dataDigest.update(widget(displayItem).etag(display, displayItem))
+    }
+    dataDigest.base64Digest()
   }
 
   private def displayForm(display: Display = new Display): Form[Display] = Form(
