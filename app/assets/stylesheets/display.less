@@ -14,15 +14,17 @@ div.widget {
     .gradient(#FFF, #AAA);
 }
 
-dl.alarms {
+ul.alarms {
     margin: 0;
-    padding: 0;
-    dt {
-        margin: 0;
-        padding: 0;
+    padding: 2px;
+    li {
+        list-style: none;
+        .rounded-corners(5px);
+        margin: 2px;
+        padding: 2px;
+        background: #ffffff;
     }
-    dd {
-        margin: 0;
-        padding: 0;
+    li.alert {
+        background: #ff4444;
     }
 }
