@@ -109,6 +109,7 @@ object Displays extends Controller {
       "id" -> ignored(display.id),
       "name" -> text(maxLength = 255),
       "sprintId" -> longNumber,
-      "backgroundColor" -> text
+      "backgroundColor" -> text,
+      "refreshTime" -> number(min = 1, max = 3600)
     )(Display.apply)(Display.unapply)).fill(display)
 }

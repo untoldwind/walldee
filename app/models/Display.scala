@@ -11,9 +11,9 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 
-case class Display(id: Option[Long], name: String, sprintId: Long, backgroundColor: String) {
+case class Display(id: Option[Long], name: String, sprintId: Long, backgroundColor: String, refreshTime: Int) {
 
-  def this() = this(None, "", 0, "#000000")
+  def this() = this(None, "", 0, "#000000", 5)
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -42,7 +42,9 @@ object Display extends Table[Display]("DISPLAY") {
 
   def backgroundColor = column[String]("BACKGROUNDCOLOR", O NotNull)
 
-  def * = id.? ~ name ~ sprintId ~ backgroundColor <>((apply _).tupled, unapply _)
+  def refreshTime = column[Int]("REFRESHTIME", O NotNull)
+
+  def * = id.? ~ name ~ sprintId ~ backgroundColor ~ refreshTime <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 
