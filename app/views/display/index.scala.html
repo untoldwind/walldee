@@ -12,8 +12,9 @@
 <fieldset>
     <legend>Display</legend>
     @helper.inputText(form("name"))
-    @helper.select(form("sprintId"), sprints.map(sprint => sprint.id.toString -> "Sprint %d: %s".format(sprint.num, sprint.title)))
+    @helper.select(form("sprintId"), sprints.map(sprint => sprint.id.get.toString -> "Sprint %d: %s".format(sprint.num, sprint.title)))
     @helper.inputText(form("backgroundColor"))
+    @helper.inputText(form("refreshTime"))
 </fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Create">

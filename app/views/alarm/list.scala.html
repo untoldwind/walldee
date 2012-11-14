@@ -3,6 +3,6 @@
 @alarms.map { alarm =>
     <li id="alarm-@alarm.id.get">@alarm.name
         <a href="@routes.Alarms.edit(alarm.id.get)" class="edit">Edit</a>
-        @common.deleteLink(routes.Alarms.delete(alarm.id.get), "alarm-" + alarm.id.get)
+        @common.deleteLink(routes.Alarms.delete(alarm.id.get), "alarm-list")
     </li>
 }

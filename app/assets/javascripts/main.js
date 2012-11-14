@@ -25,7 +25,7 @@ $(document).on("click", ".delete dd a", function(e) {
 		url: href,
 		type: "DELETE",
 		success: function(result) {
-			$("#" + ref).remove();
+			$("#" + ref).html(result)
 		},
 		error: function(request, error, exception) {
 			alert(exception)

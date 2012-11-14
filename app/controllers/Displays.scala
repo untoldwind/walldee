@@ -76,7 +76,7 @@ object Displays extends Controller {
       Display.findById(displayId).map {
         display =>
           display.delete
-          NoContent
+          Ok(views.html.display.list(Display.findAll))
       }.getOrElse(NotFound)
   }
 

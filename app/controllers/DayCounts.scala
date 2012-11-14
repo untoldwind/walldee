@@ -38,10 +38,13 @@ object DayCounts extends Controller {
   }
 
   def delete(sprintId: Long, dayCountId: Long) = Action {
-    DayCount.findById(dayCountId).map {
-      dayCount =>
-        dayCount.delete
-        NoContent
+    Sprint.findById(sprintId).flatMap {
+      sprint =>
+        DayCount.findById(dayCountId).map {
+          dayCount =>
+            dayCount.delete
+            Ok(views.html.sprints.dayCountList(sprint, DayCount.findAllForSprint(sprintId)))
+        }
     }.getOrElse(NotFound)
   }
 

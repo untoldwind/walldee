@@ -4,49 +4,57 @@
     <thead>
     <tr>
         <th>Day</th>
+        <td>Number</td>
         @sprint.counters.map { counter =>
         <th>@counter.name</th>
         }
     </tr>
     </thead>
     <tbody>
-    @dayCounts.map { dayCount =>
-    <tr class="dayCount-value" id="dayCount-value-@dayCount.id.get">
-        <td>@dayCount.dayNum</td>
-        @dayCount.counterValues.map { counterValue =>
-        <td>@counterValue.value</td>
+    @defining(sprint.dayLabels) { dayLabels =>
+        @Range.inclusive(0, sprint.numberOfDays).map { dayNum =>
+            @if( dayNum < dayCounts.length) {
+                @defining(dayCounts(dayNum)) { dayCount =>
+                    <tr class="dayCount-value" id="dayCount-value-@dayCount.id.get">
+                        <td>@dayLabels(dayNum)</td>
+                        <td>@dayCount.dayNum</td>
+                        @dayCount.counterValues.map { counterValue =>
+                        <td>@counterValue.value</td>
+                        }
+                        <td>
+                            <a href="#" dayCountId="@dayCount.id.get" class="edit dayCount-update">Update</a>
+                            @common.deleteLink(routes.DayCounts.delete(sprint.id.get, dayCount.id.get), "dayCount-list")
+                        </td>
+                    </tr>
+                    <tr class="dayCount-update" id="dayCount-update-@dayCount.id.get">
+                        <td><input type="text" name="dayNum" value="@dayCount.dayNum"></td>
+                        @dayCount.counterValues.zipWithIndex.map { case (counterValue, index) =>
+                        <td>
+                            <input type="text" name="counterValues[@index].value" value="@counterValue.value">
+                            <input type="hidden" name="counterValues[@index].name" value="@counterValue.name">
+                        </td>
+                        }
+                        <td><button type="button" ref="@routes.DayCounts.update(sprint.id.get, dayCount.id.get)">Update</button></td>
+                    </tr>
+                }
+            } else {
+                <tr class="dayCount-create">
+                    <td>@dayLabels(dayNum)</td>
+                    @helper.form(action = routes.DayCounts.create(sprint.id.get), 'id -> "dayCount-form") {
+                    <td><input type="text" name="dayNum" value="@dayNum"></td>
+                    @sprint.counters.zipWithIndex.map { case (counter, index) =>
+                    <td>
+                        <input type="text" name="counterValues[@index].value">
+                        <input type="hidden" name="counterValues[@index].name" value="@counter.name">
+                    </td>
+                    }
+                    <td><button type="button" ref="@routes.DayCounts.create(sprint.id.get)">Add</button></td>
+                    }
+                </tr>
+                }
         }
-        <td>
-            <a href="#" dayCountId="@dayCount.id.get" class="edit dayCount-update">Update</a>
-            @common.deleteLink(routes.DayCounts.delete(sprint.id.get, dayCount.id.get), "dayCount-value-" + dayCount.id.get)
-        </td>
-    </tr>
-    <tr class="dayCount-update" id="dayCount-update-@dayCount.id.get">
-        <td><input type="text" name="dayNum" value="@dayCount.dayNum"></td>
-        @dayCount.counterValues.zipWithIndex.map { case (counterValue, index) =>
-        <td>
-            <input type="text" name="counterValues[@index].value" value="@counterValue.value">
-            <input type="hidden" name="counterValues[@index].name" value="@counterValue.name">
-        </td>
-        }
-        <td><button type="button" ref="@routes.DayCounts.update(sprint.id.get, dayCount.id.get)">Update</button></td>
-    </tr>
     }
     </tbody>
-    <tfoot>
-    <tr class="dayCount-create">
-        @helper.form(action = routes.DayCounts.create(sprint.id.get), 'id -> "dayCount-form") {
-        <td><input type="text" name="dayNum"></td>
-        @sprint.counters.zipWithIndex.map { case (counter, index) =>
-        <td>
-            <input type="text" name="counterValues[@index].value">
-            <input type="hidden" name="counterValues[@index].name" value="@counter.name">
-        </td>
-        }
-        <td><button type="button" ref="@routes.DayCounts.create(sprint.id.get)">Add</button></td>
-        }
-    </tr>
-    </tfoot>
 </table>
 
 <script type="text/javascript">

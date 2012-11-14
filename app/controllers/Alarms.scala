@@ -49,7 +49,7 @@ object Alarms extends Controller {
     Alarm.findById(alarmId).map {
       alarm =>
         alarm.delete
-        NoContent
+        Ok(views.html.alarm.list(Alarm.findAll))
     }.getOrElse(NotFound)
   }
 
