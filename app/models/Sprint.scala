@@ -14,6 +14,8 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
+import org.joda.time.format.DateTimeFormat
+import java.util.Locale
 
 case class Sprint(
                    id: Option[Long],
@@ -21,11 +23,14 @@ case class Sprint(
                    num: Int,
                    sprintStart: Date,
                    sprintEnd: Date,
+                   languageTag: String,
                    countersJson: String) {
 
-  def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "[]")
+  def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "de-DE", "[]")
 
   def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson))
+
+  def locale = Locale.forLanguageTag(languageTag)
 
   lazy val numberOfDays = {
     var current = new DateMidnight(sprintStart.getTime)
@@ -39,6 +44,22 @@ case class Sprint(
       current = current.plusDays(1)
     }
     numberOfDays
+  }
+
+  lazy val dayLabels = {
+    var result = Seq.newBuilder[String]
+    var formatter = DateTimeFormat.forPattern("E").withLocale(locale)
+    var current = new DateMidnight(sprintStart.getTime)
+    val end = new DateMidnight(sprintEnd.getTime)
+    var numberOfDays = 0
+
+    while (current.compareTo(end) <= 0) {
+      if (current.getDayOfWeek != DateTimeConstants.SATURDAY && current.getDayOfWeek != DateTimeConstants.SUNDAY) {
+        result += formatter.print(current)
+      }
+      current = current.plusDays(1)
+    }
+    result.result()
   }
 
   def insert = Sprint.database.withSession {
@@ -71,21 +92,29 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def sprintEnd = column[Date]("SPRINTEND", O NotNull)
 
+  def languageTag = column[String]("LANGUAGETAG", O NotNull)
+
   def countersJson = column[String]("COUNTERSJSON", O NotNull)
 
-  def * = id.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ countersJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ languageTag ~ countersJson <>((apply _).tupled, unapply _)
 
-  def formApply(
-                 id: Option[Long],
-                 title: String,
-                 num: Int,
-                 sprintStart: Date,
-                 sprintEnd: Date,
-                 counters: List[SprintCounter]) =
-    Sprint(id, title, num, sprintStart, sprintEnd, Json.stringify(Json.toJson(counters)))
+  def formApply(id: Option[Long],
+                title: String,
+                num: Int,
+                sprintStart: Date,
+                sprintEnd: Date,
+                languageTag: String,
+                counters: List[SprintCounter]) =
+    Sprint(id, title, num, sprintStart, sprintEnd, languageTag, Json.stringify(Json.toJson(counters)))
 
   def formUnapply(sprint: Sprint) =
-    Some(sprint.id, sprint.title, sprint.num, sprint.sprintStart, sprint.sprintEnd, sprint.counters.toList)
+    Some(sprint.id,
+      sprint.title,
+      sprint.num,
+      sprint.sprintStart,
+      sprint.sprintEnd,
+      sprint.languageTag,
+      sprint.counters.toList)
 
   def query = Query(this)
 

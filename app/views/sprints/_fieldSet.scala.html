@@ -10,7 +10,9 @@
         @helper.inputText(form("sprintStart"), '_label -> "Start")
         @helper.inputText(form("sprintEnd"), '_label -> "End")
     </div>
-
+    <div>
+        @helper.inputText(form("languageTag"), '_label -> "Language")
+    </div>
     <div id="counters">
         @helper.repeat(form("counters")) { counter =>
         <div>

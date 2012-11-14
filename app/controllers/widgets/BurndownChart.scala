@@ -4,7 +4,7 @@ import play.api.mvc.{Action, Controller}
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.XYPlot
 import java.awt.{BasicStroke, Stroke, Color, Font}
-import org.jfree.chart.axis.NumberAxis
+import org.jfree.chart.axis.{SymbolAxis, NumberAxis}
 import java.io.{DataOutputStream, ByteArrayOutputStream}
 import javax.imageio.ImageIO
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
@@ -131,18 +131,18 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     plot.setRenderer(0, rendererLeft)
     plot.setRenderer(1, rendererRight)
 
-    val domainAxis = new NumberAxis("Days")
+    val domainAxis = new SymbolAxis(null, sprint.dayLabels.toArray)
     domainAxis.setStandardTickUnits(
       NumberAxis.createIntegerTickUnits())
-    domainAxis.setRange(0, sprint.numberOfDays + 1)
+    domainAxis.setRange(-0.5, sprint.numberOfDays + 0.5)
     domainAxis.setLabelFont(labelFont)
     domainAxis.setTickLabelFont(tickFont)
     plot.setDomainAxis(domainAxis)
 
-    val legend = new LegendTitle(plot);
-    legend.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
-    legend.setFrame(new LineBorder());
-    legend.setBackgroundPaint(Color.white);
+    val legend = new LegendTitle(plot)
+    legend.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0))
+    legend.setFrame(new LineBorder())
+    legend.setBackgroundPaint(Color.white)
     val annotation = new XYTitleAnnotation(0.01, 0.01, legend, RectangleAnchor.BOTTOM_LEFT)
     plot.addAnnotation(annotation)
 
@@ -165,6 +165,8 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
       dayCount =>
         dayCount.counterValues.zipWithIndex.foreach {
           case (counterValue, idx) =>
+            if ( dayCount.dayNum == 0 )
+              seriesSeq(idx)._2.add(-1, counterValue.value)
             seriesSeq(idx)._2.add(dayCount.dayNum, counterValue.value)
         }
     }
@@ -193,6 +195,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     dataDigest.update(displayItem.id)
     dataDigest.update(sprint.id)
     dataDigest.update(sprint.numberOfDays)
+    dataDigest.update(sprint.languageTag)
     sprint.counters.foreach {
       counter =>
         dataDigest.update(counter.name)

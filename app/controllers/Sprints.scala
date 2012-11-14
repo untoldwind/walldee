@@ -60,6 +60,7 @@ object Sprints extends Controller {
       "num" -> number(min = 1, max = 10000),
       "sprintStart" -> sqlDate("dd-MM-yyyy"),
       "sprintEnd" -> sqlDate("dd-MM-yyyy"),
+      "languageTag" -> text,
       "counters" -> list(
         mapping(
           "name" -> text,

@@ -10,8 +10,13 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
+import java.util.Locale
 
-case class Display(id: Option[Long], name: String, sprintId: Long, backgroundColor: String, refreshTime: Int) {
+case class Display(id: Option[Long],
+                   name: String,
+                   sprintId: Long,
+                   backgroundColor: String,
+                   refreshTime: Int) {
 
   def this() = this(None, "", 0, "#000000", 5)
 
