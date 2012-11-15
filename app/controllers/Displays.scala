@@ -98,6 +98,7 @@ object Displays extends Controller {
     dataDigest.update(display.id)
     dataDigest.update(display.sprintId)
     dataDigest.update(display.backgroundColor)
+    dataDigest.update(display.refreshTime)
     displayItems.foreach {
       displayItem =>
         dataDigest.update(widget(displayItem).etag(display, displayItem))
