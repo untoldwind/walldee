@@ -3,20 +3,7 @@
 @import models.utils.Breadcrumb
 
 @main("Alarms", Breadcrumb("Home", routes.Application.index, false) :: Breadcrumb("Alarms", routes.Alarms.index, true) :: Nil) {
-<ul id="alarm-list">
+<table id="alarm-list">
     @list(alarms)
-</ul>
-
-@helper.form(action = routes.Alarms.create, 'id -> "alarm-form") {
-<fieldset>
-    <legend>Alarm</legend>
-    @helper.inputText(form("name"))
-    @helper.inputText(form("nextDate"))
-    @helper.inputText(form("repeatDays"))
-</fieldset>
-<div class="actions">
-    <input type="submit" class="btn primary" value="Create">
-</div>
-}
-
+</table>
 }

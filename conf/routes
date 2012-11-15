@@ -10,8 +10,7 @@ GET     /assets/*file                             controllers.Assets.at(path="/p
 
 GET     /alarms                                   controllers.Alarms.index
 POST    /alarms                                   controllers.Alarms.create
-GET     /alarms/:alarmId/edit                     controllers.Alarms.edit(alarmId:Long)
-POST    /alarms/:alarmId                          controllers.Alarms.update(alarmId:Long)
+PUT     /alarms/:alarmId                          controllers.Alarms.update(alarmId:Long)
 DELETE  /alarms/:alarmId                          controllers.Alarms.delete(alarmId:Long)
 
 GET     /sprints                                  controllers.Sprints.index

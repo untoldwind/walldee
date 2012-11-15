@@ -1,8 +1,40 @@
 @(alarms:Seq[Alarm])
 
+<thead>
+    <tr>
+        <th>Name</th>
+        <th>Next date</th>
+        <th>Repeat days</th>
+    </tr>
+</thead>
+<tbody>
 @alarms.map { alarm =>
-    <li id="alarm-@alarm.id.get">@alarm.name
-        <a href="@routes.Alarms.edit(alarm.id.get)" class="edit">Edit</a>
-        @common.deleteLink(routes.Alarms.delete(alarm.id.get), "alarm-list")
-    </li>
+    <tr id="alarm-@alarm.id.get">
+        <td>@alarm.name</td>
+        <td>@views.utils.dateFormat(alarm.nextDate)</td>
+        <td>@alarm.repeatDays</td>
+        <td>
+            <a class="edit edit-switch" ref="#alarm-@alarm.id.get" editRef="#alarm-update-@alarm.id.get">Edit</a>
+            @common.deleteLink(routes.Alarms.delete(alarm.id.get), "alarm-list")
+        </td>
+    </tr>
+    <tr class="update" id="alarm-update-@alarm.id.get">
+        <td><input type="text" name="name" value="@alarm.name"></td>
+        <td><input type="text" name="nextDate" value="@views.utils.dateFormat(alarm.nextDate)"></td>
+        <td><input type="text" name="repeatDays" value="@alarm.repeatDays"></td>
+        <td>
+            <button class="update" action="@routes.Alarms.update(alarm.id.get)" dataRef="#alarm-update-@alarm.id.get" ref="#alarm-list">Update</button>
+        </td>
+    </tr>
 }
+</tbody>
+<tfoot>
+    <tr id="alarm-create">
+        <td><input type="text" name="name"></td>
+        <td><input type="text" name="nextDate"></td>
+        <td><input type="text" name="repeatDays"></td>
+        <td>
+            <button class="create" action="@routes.Alarms.create" dataRef="#alarm-create" ref="#alarm-list">Add</button>
+        </td>
+    </tr>
+</tfoot>
