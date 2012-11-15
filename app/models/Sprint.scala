@@ -118,7 +118,7 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def query = Query(this)
 
-  def findAll(): Seq[Sprint] = database.withSession {
+  def findAll: Seq[Sprint] = database.withSession {
     implicit db: Session =>
       query.orderBy(num.asc).list
   }

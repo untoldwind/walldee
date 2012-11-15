@@ -24,6 +24,10 @@ POST    /sprints/:sprintId/dayCounts              controllers.DayCounts.create(s
 PUT     /sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.update(sprintId:Long, dayCountId:Long)
 DELETE  /sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.delete(sprintId:Long, dayCountId:Long)
 
+GET     /statusMonitors                           controllers.StatusMonitors.index
+POST    /statusMonitors                           controllers.StatusMonitors.create
+GET     /statusMonitors/:statusMonitorId          controllers.StatusMonitors.show(statusMonitorId:Long)
+
 GET     /displays                          controllers.Displays.index
 POST    /displays                          controllers.Displays.create
 GET     /displays/:displayId               controllers.Displays.showWall(displayId:Long)

@@ -1,0 +1,10 @@
+@(form:Form[StatusMonitor])
+
+<fieldset>
+    <legend>Status monitor</legend>
+    @helper.inputText(form("name"), '_label -> "Name")
+    @helper.select(form("typeNum"), models.StatusMonitorTypes.values.toSeq.map(t => t.id.toString -> t.toString), '_label -> "Type")
+    @helper.inputText(form("url"), '_label -> "Url")
+    @helper.checkbox(form("active"), '_label -> "Active")
+    @helper.inputText(form("keepHistory"), '_label -> "Keep history")
+</fieldset>

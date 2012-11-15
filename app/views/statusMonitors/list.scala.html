@@ -1,0 +1,7 @@
+@(statusMonitors: Seq[StatusMonitor])
+
+@statusMonitors.map { statusMonitor =>
+<li>
+    <a href="@routes.StatusMonitors.show(statusMonitor.id.get)">@statusMonitor.name</a>
+</li>
+}

@@ -11,16 +11,16 @@ import widgets.Widget
 
 object Displays extends Controller {
   def index = Action {
-    Ok(views.html.display.index(Display.findAll, Sprint.findAll(), displayForm()))
+    Ok(views.html.display.index(Display.findAll, Sprint.findAll, displayForm()))
   }
 
   def create = Action {
     implicit request =>
       displayForm().bindFromRequest().fold(
-      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll(), formWithErrors)), {
+      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll, formWithErrors)), {
         display =>
           display.insert
-          Ok(views.html.display.index(Display.findAll, Sprint.findAll(), displayForm()))
+          Ok(views.html.display.index(Display.findAll, Sprint.findAll, displayForm()))
       })
   }
 
@@ -28,7 +28,7 @@ object Displays extends Controller {
     Display.findById(displayId).map {
       display =>
         Ok(views.html.display.showConfig(display,
-          Sprint.findAll(),
+          Sprint.findAll,
           displayForm(display),
           DisplayItem.findAllForDisplay(displayId),
           DisplayItems.displayItemFrom(display)))
@@ -61,7 +61,7 @@ object Displays extends Controller {
         display =>
           displayForm(display).bindFromRequest.fold(
           formWithErrors => BadRequest(views.html.display.showConfig(display,
-            Sprint.findAll(),
+            Sprint.findAll,
             formWithErrors,
             DisplayItem.findAllForDisplay(displayId),
             DisplayItems.displayItemFrom(display))), {

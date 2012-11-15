@@ -11,16 +11,16 @@ import play.api.data.format._
 
 object Sprints extends Controller {
   def index = Action {
-    Ok(views.html.sprints.index(Sprint.findAll(), sprintForm()))
+    Ok(views.html.sprints.index(Sprint.findAll, sprintForm()))
   }
 
   def create = Action {
     implicit request =>
       sprintForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll(), formWithErrors)), {
+      formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll, formWithErrors)), {
         sprint =>
           sprint.insert
-          Ok(views.html.sprints.index(Sprint.findAll(), sprintForm()))
+          Ok(views.html.sprints.index(Sprint.findAll, sprintForm()))
       })
   }
 

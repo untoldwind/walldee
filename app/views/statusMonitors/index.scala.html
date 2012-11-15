@@ -1,0 +1,17 @@
+@(statusMonitors: Seq[StatusMonitor], form:Form[StatusMonitor])
+@import models.utils.Breadcrumb
+
+@main("Status monitors", Breadcrumb("Home", routes.Application.index, false) :: Breadcrumb("Status monitors", routes.StatusMonitors.index, true) :: Nil) {
+
+<ul id="statusMonitor-list">
+    @list(statusMonitors)
+</ul>
+
+@helper.form(action = routes.StatusMonitors.create, 'id -> "statusMonitor-form") {
+@_fieldSet(form)
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+}

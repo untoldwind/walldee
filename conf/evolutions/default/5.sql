@@ -1,0 +1,25 @@
+# --- !Ups
+
+create table STATUSMONITOR (
+  ID bigint(20) NOT NULL AUTO_INCREMENT,
+  NAME varchar(255) NOT NULL,
+  TYPENUM int(10) NOT NULL,
+  URL varchar(255) NOT NUll,
+  ACTIVE boolean NOT NULL,
+  KEEPHISTORY int(10) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+create table STATUSVALUE (
+  ID bigint(20) NOT NULL AUTO_INCREMENT,
+  STATUSMONITORID bigint(20) NOT NULL,
+  VALUESJSON varchar(1000) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (STATUSMONITORID) REFERENCES STATUSMONITOR(ID)
+);
+
+# --- !Downs
+
+drop table STATUSVALUE;
+
+drop table STATUSMONITOR;

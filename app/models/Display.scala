@@ -53,12 +53,12 @@ object Display extends Table[Display]("DISPLAY") {
 
   def query = Query(this)
 
-  def findAll = database.withSession {
+  def findAll: Seq[Display] = database.withSession {
     implicit db: Session =>
       query.orderBy(name.asc).list
   }
 
-  def findById(displayId: Long) = database.withSession {
+  def findById(displayId: Long): Option[Display] = database.withSession {
     implicit db: Session =>
       query.where(d => d.id === displayId).firstOption
   }

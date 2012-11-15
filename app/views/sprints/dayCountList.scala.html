@@ -27,6 +27,7 @@
                         </td>
                     </tr>
                     <tr class="dayCount-update" id="dayCount-update-@dayCount.id.get">
+                        <td>@dayLabels(dayNum)</td>
                         <td><input type="text" name="dayNum" value="@dayCount.dayNum"></td>
                         @dayCount.counterValues.zipWithIndex.map { case (counterValue, index) =>
                         <td>
