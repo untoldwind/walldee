@@ -5,7 +5,7 @@ body {
     overflow: hidden;
 }
 
-div.widget {
+div.widget_normal {
     .rounded-corners(10px);
     padding: 4px 4px 4px 4px;
     margin: 0px 0px 0px 0px;
@@ -14,17 +14,42 @@ div.widget {
     .gradient(#FFF, #AAA);
 }
 
-ul.alarms {
+div.widget_black {
+    .rounded-corners(10px);
+    padding: 4px 4px 4px 4px;
+    margin: 0px 0px 0px 0px;
+    color: #ffffff;
+    background: #303040;
+    text-align: center;
+
+}
+
+.widget_normal ul.alarms {
     margin: 0;
     padding: 2px;
     li {
         list-style: none;
-        .rounded-corners(5px);
+        .rounded-corners(8px);
         margin: 2px;
         padding: 2px;
         background: #ffffff;
     }
     li.alert {
         background: #ff4444;
+    }
+}
+
+.widget_black ul.alarms {
+    margin: 0;
+    padding: 2px;
+    li {
+        list-style: none;
+        .rounded-corners(8px);
+        margin: 2px;
+        padding: 2px;
+        background: #111122;
+    }
+    li.alert {
+        background: #880000;
     }
 }

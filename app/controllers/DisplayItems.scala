@@ -54,13 +54,13 @@ object DisplayItems extends Controller {
           DisplayItem.findById(displayItemId).map {
             displayItem =>
               displayItem.delete
-              NoContent
+              Ok(views.html.displayItem.list(display, DisplayItem.findAllForDisplay(displayId)))
           }
       }.getOrElse(NotFound)
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, "{}"))
+    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
@@ -70,6 +70,7 @@ object DisplayItems extends Controller {
       "posy" -> number(min = 0),
       "width" -> number(min = 0),
       "height" -> number(min = 0),
+      "style" -> number,
       "widget" -> number,
       "burndownChartConfig" -> optional(BurndownChart.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),

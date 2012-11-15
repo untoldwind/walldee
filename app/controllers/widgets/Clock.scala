@@ -23,6 +23,7 @@ object Clock extends Widget[ClockConfig] {
     dataDigest.update(displayItem.posy)
     dataDigest.update(displayItem.width)
     dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.styleNum)
     dataDigest.update(displayItem.widgetConfigJson)
 
     val format = org.joda.time.format.DateTimeFormat.forPattern("HH:mm")

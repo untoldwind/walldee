@@ -18,6 +18,7 @@ trait Widget[Config] extends Controller {
     dataDigest.update(displayItem.posy)
     dataDigest.update(displayItem.width)
     dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.styleNum)
     dataDigest.update(displayItem.widgetConfigJson)
 
     dataDigest.base64Digest()

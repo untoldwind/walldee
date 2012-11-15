@@ -12,7 +12,7 @@
 <body style="background: @display.backgroundColor;">
     <div style="position: absolute; width: 100%; height: 100%">
         @renderedWidgets.map { renderedWidget =>
-        <div class="widget" style="position:absolute; overflow: hidden; left: @{renderedWidget.posx + 2}px;top: @{renderedWidget.posy + 2}px;width: @{renderedWidget.width - 12}px;height: @{renderedWidget.height - 12}px">
+        <div class="widget_@renderedWidget.style" style="position:absolute; overflow: hidden; left: @{renderedWidget.posx + 2}px;top: @{renderedWidget.posy + 2}px;width: @{renderedWidget.width - 12}px;height: @{renderedWidget.height - 12}px">
                 @renderedWidget.content
        </div>
     }

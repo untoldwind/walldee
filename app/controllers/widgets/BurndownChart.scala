@@ -9,7 +9,7 @@ import java.io.{DataOutputStream, ByteArrayOutputStream}
 import javax.imageio.ImageIO
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
-import models.{Display, DisplayItem, DayCount, Sprint}
+import models._
 import models.json.{SprintCounter, SprintCounterSide}
 import play.api.data.Forms._
 import models.widgetConfigs.{AlarmsConfig, BurndownChartConfig}
@@ -44,6 +44,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     dataDigest.update(displayItem.posy)
     dataDigest.update(displayItem.width)
     dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.styleNum)
     dataDigest.update(displayItem.widgetConfigJson)
 
     Sprint.findById(display.sprintId).map {
@@ -59,10 +60,11 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
         displayItem =>
           Sprint.findById(sprintId).map {
             sprint =>
-              val etag = calculateETag(displayItem, sprint, width, height)
+              val etag = calculateETag(displayItem, sprint, width, height) + System.currentTimeMillis().toString
 
               request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-                val chart = createChart(sprint, displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
+                val chart = createChart(sprint, displayItem.style,
+                  displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
 
                 val image = chart.createBufferedImage(width, height)
                 val out = new ByteArrayOutputStream()
@@ -77,7 +79,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
       }.getOrElse(NotFound)
   }
 
-  private def createChart(sprint: Sprint, config: BurndownChartConfig): JFreeChart = {
+  private def createChart(sprint: Sprint, style: DisplayStyles.Type, config: BurndownChartConfig): JFreeChart = {
     val titleFont = new Font("SansSerif", Font.BOLD, config.titleSize.getOrElse(12))
     val tickFont = new Font("SansSerif", Font.PLAIN, config.tickSize.getOrElse(12))
     val labelFont = new Font("SansSerif", Font.PLAIN, config.labelSize.getOrElse(12))
@@ -146,6 +148,20 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     val annotation = new XYTitleAnnotation(0.01, 0.01, legend, RectangleAnchor.BOTTOM_LEFT)
     plot.addAnnotation(annotation)
 
+    style match {
+      case DisplayStyles.Normal =>
+        domainAxis.setTickLabelPaint(Color.black)
+        rangeAxisLeft.setTickLabelPaint(Color.black)
+        rangeAxisLeft.setLabelPaint(Color.black)
+        rangeAxisRight.setTickLabelPaint(Color.black)
+        rangeAxisRight.setLabelPaint(Color.black)
+      case DisplayStyles.Black =>
+        domainAxis.setTickLabelPaint(Color.white)
+        rangeAxisLeft.setTickLabelPaint(Color.white)
+        rangeAxisLeft.setLabelPaint(Color.white)
+        rangeAxisRight.setTickLabelPaint(Color.white)
+        rangeAxisRight.setLabelPaint(Color.white)
+    }
     val chart = new JFreeChart(null, titleFont, plot, false)
 
     chart.setBackgroundPaint(config.chartBackground.map(Color.decode(_)).getOrElse(null))
@@ -165,7 +181,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
       dayCount =>
         dayCount.counterValues.zipWithIndex.foreach {
           case (counterValue, idx) =>
-            if ( dayCount.dayNum == 0 )
+            if (dayCount.dayNum == 0)
               seriesSeq(idx)._2.add(-1, counterValue.value)
             seriesSeq(idx)._2.add(dayCount.dayNum, counterValue.value)
         }

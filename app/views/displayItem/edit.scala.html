@@ -14,6 +14,7 @@
     @helper.inputText(displayItemForm("posy"))
     @helper.inputText(displayItemForm("width"))
     @helper.inputText(displayItemForm("height"))
+    @helper.select(displayItemForm("style"), DisplayStyles.values.toSeq.map(style => style.id.toString -> style.toString ))
 </fieldset>
 <input type="hidden" name="@displayItemForm("widget").name" value="@displayItemForm("widget").value">
 @{displayItem.widget match {

@@ -32,6 +32,7 @@
     @helper.inputText(displayItemForm("posy"))
     @helper.inputText(displayItemForm("width"))
     @helper.inputText(displayItemForm("height"))
+    @helper.select(displayItemForm("style"), DisplayStyles.values.toSeq.map(style => style.id.toString -> style.toString ))
 </fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Create">

@@ -21,12 +21,15 @@ case class DisplayItem(
                         posy: Int,
                         width: Int,
                         height: Int,
+                        styleNum: Int,
                         widgetNum: Int,
                         widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
+
+  def style: DisplayStyles.Type = DisplayStyles(styleNum)
 
   def widgetConfig = Json.parse(widgetConfigJson)
 
@@ -101,11 +104,13 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def height = column[Int]("HEIGHT", O NotNull)
 
+  def styleNum = column[Int]("STYLENUM", O NotNull)
+
   def widgetNum = column[Int]("WIDGETNUM", O NotNull)
 
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
-  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ widgetNum ~ widgetConfigJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
                 displayId: Long,
@@ -113,6 +118,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 posy: Int,
                 width: Int,
                 height: Int,
+                styleNum: Int,
                 widgetNum: Int,
                 burndownChartConfig: Option[BurndownChartConfig],
                 sprintTitleConfig: Option[SprintTitleConfig],
@@ -128,7 +134,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       case DisplayWidgets.IFrame => Json.toJson(iframeConfig.getOrElse(IFrameConfig()))
     }
 
-    DisplayItem(id, displayId, posx, posy, width, height, widgetNum, Json.stringify(widgetConfig))
+    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, Json.stringify(widgetConfig))
   }
 
   def formUnapply(displayItem: DisplayItem) =
@@ -139,6 +145,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.posy,
       displayItem.width,
       displayItem.height,
+      displayItem.styleNum,
       displayItem.widgetNum,
       displayItem.burndownChartConfig,
       displayItem.sprintTitleConfig,
@@ -148,12 +155,12 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def query = Query(this)
 
-  def findAllForDisplay(displayId: Long) = database.withSession {
+  def findAllForDisplay(displayId: Long): Seq[DisplayItem] = database.withSession {
     implicit db: Session =>
       query.where(d => d.displayId === displayId).orderBy(id.asc).list
   }
 
-  def findById(displayItemId: Long) = database.withSession {
+  def findById(displayItemId: Long): Option[DisplayItem] = database.withSession {
     implicit db: Session =>
       query.where(d => d.id === displayItemId).firstOption
   }

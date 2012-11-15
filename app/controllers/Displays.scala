@@ -45,9 +45,10 @@ object Displays extends Controller {
           request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
             val renderedWidgets = displayItems.map {
               displayItem =>
+                val style = displayItem.style.toString.toLowerCase()
                 val content = widget(displayItem).render(display, displayItem)
 
-                RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, content)
+                RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, style, content)
             }
             Ok(views.html.display.showWall(display, renderedWidgets)).withHeaders(ETAG -> etag)
           }
