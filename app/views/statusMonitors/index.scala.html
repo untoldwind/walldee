@@ -3,9 +3,9 @@
 
 @main("Status monitors", Breadcrumb("Home", routes.Application.index, false) :: Breadcrumb("Status monitors", routes.StatusMonitors.index, true) :: Nil) {
 
-<ul id="statusMonitor-list">
+<table id="statusMonitor-list">
     @list(statusMonitors)
-</ul>
+</table>
 
 @helper.form(action = routes.StatusMonitors.create, 'id -> "statusMonitor-form") {
 @_fieldSet(form)

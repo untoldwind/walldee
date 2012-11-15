@@ -11,8 +11,15 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 
-case class StatusMonitor(id: Option[Long], name: String, typeNum: Int, url: String, active: Boolean, keepHistory: Int) {
-  def this() = this(None, "", 0, "", true, 10)
+case class StatusMonitor(id: Option[Long],
+                         name: String,
+                         typeNum: Int,
+                         url: String,
+                         username: Option[String],
+                         password: Option[String],
+                         active: Boolean,
+                         keepHistory: Int) {
+  def this() = this(None, "", 0, "", None, None, true, 10)
 
   def monitorType = StatusMonitorTypes(typeNum)
 
@@ -43,16 +50,30 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def url = column[String]("URL", O NotNull)
 
+  def username = column[String]("USERNAME")
+
+  def password = column[String]("PASSWORD")
+
   def active = column[Boolean]("ACTIVE", O NotNull)
 
   def keepHistory = column[Int]("KEEPHISTORY", O NotNull)
 
-  def * = id.? ~ name ~ typeNum ~ url ~ active ~ keepHistory <>((apply _).tupled, unapply _)
+  def * = id.? ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 
-  def findAll = database.withSession {
+  def findAll: Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
       query.orderBy(name.asc).list
+  }
+
+  def findAllActive: Seq[StatusMonitor] = database.withSession {
+    implicit db: Session =>
+      query.where(s => s.active).orderBy(name.asc).list
+  }
+
+  def findById(statusMonitorId: Long): Option[StatusMonitor] = database.withSession {
+    implicit db: Session =>
+      query.where(s => s.id === statusMonitorId).firstOption
   }
 }

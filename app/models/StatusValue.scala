@@ -11,7 +11,10 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 
-case class StatusValue(id: Option[Long], statusMonitorId: Long, valuesJson: String) {
+case class StatusValue(id: Option[Long], statusMonitorId: Long, statusNum: Int, valuesJson: String) {
+
+  def status = StatusTypes(statusNum)
+
   def insert = StatusValue.database.withSession {
     implicit db: Session =>
       StatusValue.insert(this)
@@ -35,9 +38,11 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
 
   def statusMonitorId = column[Long]("STATUSMONITORID", O NotNull)
 
+  def statusNum = column[Int]("STATUSNUM", O NotNull)
+
   def valuesJson = column[String]("VALUESJSON", O NotNull)
 
-  def * = id.? ~ statusMonitorId ~ valuesJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ statusMonitorId ~ statusNum ~ valuesJson <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

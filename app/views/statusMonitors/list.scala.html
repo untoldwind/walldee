@@ -1,7 +1,22 @@
 @(statusMonitors: Seq[StatusMonitor])
 
+<thead>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Active</th>
+    </tr>
+</thead>
+<tbody>
 @statusMonitors.map { statusMonitor =>
-<li>
-    <a href="@routes.StatusMonitors.show(statusMonitor.id.get)">@statusMonitor.name</a>
-</li>
+    <tr>
+        <td>@statusMonitor.name</td>
+        <td>@statusMonitor.monitorType.toString</td>
+        <td>@if(statusMonitor.active) { Active } else { Inactive }</td>
+        <td>
+            <a href="@routes.StatusMonitors.edit(statusMonitor.id.get)" class="edit">Edit</a>
+            @common.deleteLink(routes.StatusMonitors.delete(statusMonitor.id.get), "statusMonitor-list")
+        </td>
+    </tr>
 }
+</tbody>

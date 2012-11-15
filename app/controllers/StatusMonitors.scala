@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Sprint, StatusMonitor}
+import models.StatusMonitor
 import play.api.data._
 import play.api.data.Forms._
 
@@ -20,8 +20,32 @@ object StatusMonitors extends Controller {
       })
   }
 
-  def show(statusMonitorId: Long) = Action {
-    Ok("Bla")
+  def edit(statusMonitorId: Long) = Action {
+    StatusMonitor.findById(statusMonitorId).map {
+      statusMonitor =>
+        Ok(views.html.statusMonitors.edit(statusMonitor, statusMonitorForm(statusMonitor)))
+    }.getOrElse(NotFound)
+  }
+
+  def update(statusMonitorId: Long) = Action {
+    implicit request =>
+      StatusMonitor.findById(statusMonitorId).map {
+        statusMonitor =>
+          statusMonitorForm(statusMonitor).bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.statusMonitors.edit(statusMonitor, formWithErrors)), {
+            statusMonitor =>
+              statusMonitor.update
+              Ok(views.html.statusMonitors.edit(statusMonitor, statusMonitorForm(statusMonitor)))
+          })
+      }.getOrElse(NotFound)
+  }
+
+  def delete(statusMonitorId: Long) = Action {
+    StatusMonitor.findById(statusMonitorId).map {
+      statusMonitor =>
+        statusMonitor.delete
+        Ok(views.html.statusMonitors.list(StatusMonitor.findAll))
+    }.getOrElse(NotFound)
   }
 
   private def statusMonitorForm(statusMonitor: StatusMonitor = new StatusMonitor): Form[StatusMonitor] = Form(
@@ -30,6 +54,8 @@ object StatusMonitors extends Controller {
       "name" -> text,
       "typeNum" -> number,
       "url" -> text(),
+      "username" -> optional(text),
+      "password" -> optional(text),
       "active" -> boolean,
       "keepHistory" -> number
     )(StatusMonitor.apply)(StatusMonitor.unapply)).fill(statusMonitor)
