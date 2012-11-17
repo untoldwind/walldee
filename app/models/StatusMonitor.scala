@@ -10,6 +10,8 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
+import java.util.Date
+import models.DateMapper.date2timestamp
 
 case class StatusMonitor(id: Option[Long],
                          name: String,
@@ -18,8 +20,11 @@ case class StatusMonitor(id: Option[Long],
                          username: Option[String],
                          password: Option[String],
                          active: Boolean,
-                         keepHistory: Int) {
-  def this() = this(None, "", 0, "", None, None, true, 10)
+                         keepHistory: Int,
+                         updatePeriod: Int,
+                         lastQueried: Option[Date],
+                         lastUpdated: Option[Date]) {
+  def this() = this(None, "", 0, "", None, None, true, 10, 60, None, None)
 
   def monitorType = StatusMonitorTypes(typeNum)
 
@@ -58,7 +63,13 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def keepHistory = column[Int]("KEEPHISTORY", O NotNull)
 
-  def * = id.? ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory <>((apply _).tupled, unapply _)
+  def updatePeriod = column[Int]("UPDATEPERIOD", O NotNull)
+
+  def lastQueried = column[Date]("LASTQUERIED")
+
+  def lastUpdated = column[Date]("LASTUPDATED")
+
+  def * = id.? ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory ~ updatePeriod ~ lastQueried.? ~ lastUpdated.? <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

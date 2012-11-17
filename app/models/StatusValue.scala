@@ -10,8 +10,10 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
+import java.util.Date
+import models.DateMapper.date2timestamp
 
-case class StatusValue(id: Option[Long], statusMonitorId: Long, statusNum: Int, valuesJson: String) {
+case class StatusValue(id: Option[Long], statusMonitorId: Long, statusNum: Int, retrievedAt: Date, valuesJson: String) {
 
   def status = StatusTypes(statusNum)
 
@@ -40,9 +42,11 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
 
   def statusNum = column[Int]("STATUSNUM", O NotNull)
 
+  def retrievedAt = column[Date]("RETRIEVEDAT", O NotNull)
+
   def valuesJson = column[String]("VALUESJSON", O NotNull)
 
-  def * = id.? ~ statusMonitorId ~ statusNum ~ valuesJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ statusMonitorId ~ statusNum ~ retrievedAt ~ valuesJson <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

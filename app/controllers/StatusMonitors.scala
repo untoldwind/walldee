@@ -57,6 +57,9 @@ object StatusMonitors extends Controller {
       "username" -> optional(text),
       "password" -> optional(text),
       "active" -> boolean,
-      "keepHistory" -> number
+      "keepHistory" -> number,
+      "updatePeriod" -> number,
+      "lastQueried" -> ignored(statusMonitor.lastQueried),
+      "lastUpdated" -> ignored(statusMonitor.lastUpdated)
     )(StatusMonitor.apply)(StatusMonitor.unapply)).fill(statusMonitor)
 }
