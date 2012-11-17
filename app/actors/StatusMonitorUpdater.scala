@@ -12,14 +12,16 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
     case UpdateAll() =>
       StatusMonitor.findAllActive.foreach {
         statusMonitor =>
+          val processor = monitorProcessors.processor(statusMonitor.monitorType)
+          val url = processor.url(statusMonitor.url)
           val wsRequest = if (statusMonitor.username.isDefined && statusMonitor.password.isDefined)
-            WS.url(statusMonitor.url).withAuth(statusMonitor.username.get, statusMonitor.password.get, AuthScheme.BASIC)
+            WS.url(url).withAuth(statusMonitor.username.get, statusMonitor.password.get, AuthScheme.BASIC)
           else
-            WS.url(statusMonitor.url)
+            WS.url(url)
 
           wsRequest.get().map {
             response =>
-              monitorProcessors.processor(statusMonitor.monitorType).process(statusMonitor, response)
+              processor.process(statusMonitor, response)
           }
       }
     case message =>

@@ -12,8 +12,12 @@ import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 import java.util.Date
 import models.DateMapper.date2timestamp
+import play.api.libs.json.{Json, JsValue}
 
 case class StatusValue(id: Option[Long], statusMonitorId: Long, statusNum: Int, retrievedAt: Date, valuesJson: String) {
+
+  def this(statusMonitorId: Long, status: StatusTypes.Type, json: JsValue) =
+    this(None, statusMonitorId, status.id, new Date(), Json.stringify(json))
 
   def status = StatusTypes(statusNum)
 
@@ -50,7 +54,7 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
 
   def query = Query(this)
 
-  def findAllForStatusMonitor(statusMonitorId: Long) = database.withSession {
+  def findAllForStatusMonitor(statusMonitorId: Long): Seq[StatusValue] = database.withSession {
     implicit db: Session =>
       query.where(s => s.statusMonitorId === statusMonitorId).orderBy(id.desc).list
   }
