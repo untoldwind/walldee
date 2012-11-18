@@ -7,6 +7,6 @@ package object monitorProcessors {
     case StatusMonitorTypes.Jenkins => JenkinsProcessor
     case StatusMonitorTypes.Teamcity => TeamcityProcessor
     case StatusMonitorTypes.Sonar => SonarProcessor
-    case StatusMonitorTypes.Nagios => NagiosProcessor
+    case StatusMonitorTypes.Icinga => IcingaProcessor
   }
 }

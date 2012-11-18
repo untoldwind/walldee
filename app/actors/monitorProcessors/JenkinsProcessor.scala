@@ -1,9 +1,9 @@
 package actors.monitorProcessors
 
 import models.{StatusTypes, StatusValue, StatusMonitor}
-import play.api.libs.ws.Response
 import play.api.libs.json._
 import play.api.libs.ws.Response
+import models.statusValues.JenkinsStatus
 
 case class JenkinsJobBuild(number: Int, url: String)
 
@@ -50,7 +50,7 @@ object JenkinsProcessor extends MonitorProcessor {
 
     val statusValue = jenkinsJob.lastCompletedBuild.map {
       lastCompletedBuild =>
-        val json = JsObject(Seq("number" -> JsNumber(lastCompletedBuild.number)))
+        val json = Json.toJson(JenkinsStatus(Some(lastCompletedBuild.number)))
         jenkinsJob.lastSuccessfulBuild.map {
           case lastSuccessfulBuild if lastCompletedBuild.number == lastSuccessfulBuild.number =>
             new StatusValue(statusMonitor.id.get, StatusTypes.Ok, json)
@@ -60,7 +60,7 @@ object JenkinsProcessor extends MonitorProcessor {
           new StatusValue(statusMonitor.id.get, StatusTypes.Failure, json)
         }
     }.getOrElse {
-      new StatusValue(statusMonitor.id.get, StatusTypes.Failure, JsObject(Seq.empty))
+      new StatusValue(statusMonitor.id.get, StatusTypes.Failure, Json.toJson(JenkinsStatus(None)))
     }
     statusValue.insert
   }

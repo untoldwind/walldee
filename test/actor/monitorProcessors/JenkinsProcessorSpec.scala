@@ -8,7 +8,6 @@ import play.api.test.Helpers._
 import models.{StatusTypes, StatusValue, StatusMonitorTypes, StatusMonitor}
 import actors.monitorProcessors.JenkinsProcessor
 import play.api.libs.ws.Response
-import io.Source
 import play.api.libs.json.Json
 
 class JenkinsProcessorSpec extends Specification with Mockito {
@@ -90,5 +89,6 @@ class JenkinsProcessorSpec extends Specification with Mockito {
     response.status returns OK
     response.body returns body
     response.json returns Json.parse(body)
+    response
   }
 }

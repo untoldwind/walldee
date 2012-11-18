@@ -38,7 +38,7 @@ case class StatusValue(id: Option[Long], statusMonitorId: Long, statusNum: Int, 
 }
 
 object StatusValue extends Table[StatusValue]("STATUSVALUE") {
-  lazy val database = Database.forDataSource(DB.getDataSource())
+  def database = Database.forDataSource(DB.getDataSource())
 
   def id = column[Long]("ID", O PrimaryKey, O AutoInc)
 
