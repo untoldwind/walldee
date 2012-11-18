@@ -72,7 +72,7 @@ object IcingaOverview {
 }
 
 object IcingaProcessor extends MonitorProcessor {
-  override def url(url: String): String = url match {
+  override def apiUrl(url: String): String = url match {
     case url if url.endsWith("&jsonoutput") => url
     case url => url + "&jsonoutput"
   }

@@ -15,19 +15,19 @@ class JenkinsProcessorSpec extends Specification with Mockito {
     "should not encode direct json url" in {
       val url = "http://localhost/jobs/bla/123/api/json"
 
-      JenkinsProcessor.url(url) must be_==(url)
+      JenkinsProcessor.apiUrl(url) must be_==(url)
     }
 
     "should add api/json to url with /" in {
       val url = "http://localhost/jobs/bla/123/"
 
-      JenkinsProcessor.url(url) must be_==(url + "api/json")
+      JenkinsProcessor.apiUrl(url) must be_==(url + "api/json")
     }
 
     "should add /api/json to url without /" in {
       val url = "http://localhost/jobs/bla/123"
 
-      JenkinsProcessor.url(url) must be_==(url + "/api/json")
+      JenkinsProcessor.apiUrl(url) must be_==(url + "/api/json")
     }
 
     "process json correctly" in {

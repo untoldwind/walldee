@@ -15,13 +15,13 @@ class IcingaProcessorSpec extends Specification with Mockito {
     "should not encode direct json url" in {
       val url = "https://icinga/cgi-bin/icinga/status.cgi?hostgroup=hosts&style=overview&nostatusheader&jsonoutput"
 
-      IcingaProcessor.url(url) must be_==(url)
+      IcingaProcessor.apiUrl(url) must be_==(url)
     }
 
     "should add jsonOutput to url" in {
       val url = "https://icinga/cgi-bin/icinga/status.cgi?hostgroup=hosts&style=overview&nostatusheader"
 
-      IcingaProcessor.url(url) must be_==(url + "&jsonoutput")
+      IcingaProcessor.apiUrl(url) must be_==(url + "&jsonoutput")
     }
 
     "process json correctly" in {

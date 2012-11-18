@@ -4,7 +4,7 @@ import models.StatusMonitor
 import play.api.libs.ws.Response
 
 trait MonitorProcessor {
-  def url(url: String) = url
+  def apiUrl(url: String) = url
 
   def process(statusMonitor: StatusMonitor, response: Response)
 }

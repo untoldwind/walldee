@@ -1,6 +1,6 @@
 package actors
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import models.StatusMonitor
 import actors.StatusMonitorUpdater.UpdateAll
@@ -13,7 +13,7 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
       StatusMonitor.findAllActive.foreach {
         statusMonitor =>
           val processor = monitorProcessors.processor(statusMonitor.monitorType)
-          val url = processor.url(statusMonitor.url)
+          val url = processor.apiUrl(statusMonitor.url)
           val wsRequest = if (statusMonitor.username.isDefined && statusMonitor.password.isDefined)
             WS.url(url).withAuth(statusMonitor.username.get, statusMonitor.password.get, AuthScheme.BASIC)
           else

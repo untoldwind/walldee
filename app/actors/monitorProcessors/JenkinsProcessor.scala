@@ -39,7 +39,7 @@ object JenkinsJob {
 }
 
 object JenkinsProcessor extends MonitorProcessor {
-  override def url(url: String): String = url match {
+  override def apiUrl(url: String): String = url match {
     case url if url.endsWith("/api/json") => url
     case url if url.endsWith("/") => url + "api/json"
     case url => url + "/api/json"
@@ -50,7 +50,7 @@ object JenkinsProcessor extends MonitorProcessor {
 
     val statusValue = jenkinsJob.lastCompletedBuild.map {
       lastCompletedBuild =>
-        val json = Json.toJson(JenkinsStatus(Some(lastCompletedBuild.number)))
+        val json = Json.toJson(JenkinsStatus(lastCompletedBuild.number))
         jenkinsJob.lastSuccessfulBuild.map {
           case lastSuccessfulBuild if lastCompletedBuild.number == lastSuccessfulBuild.number =>
             new StatusValue(statusMonitor.id.get, StatusTypes.Ok, json)
@@ -60,7 +60,7 @@ object JenkinsProcessor extends MonitorProcessor {
           new StatusValue(statusMonitor.id.get, StatusTypes.Failure, json)
         }
     }.getOrElse {
-      new StatusValue(statusMonitor.id.get, StatusTypes.Failure, Json.toJson(JenkinsStatus(None)))
+      new StatusValue(statusMonitor.id.get, StatusTypes.Unknown, JsObject(Seq.empty))
     }
     statusValue.insert
   }
