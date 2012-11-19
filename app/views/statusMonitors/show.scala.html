@@ -1,0 +1,15 @@
+@(statusMonitor:StatusMonitor, statusValues:Seq[StatusValue])
+@import models.utils.Breadcrumb
+
+@main(statusMonitor.name,
+Breadcrumb("Home", routes.Application.index, false) ::
+Breadcrumb("Status monitors", routes.StatusMonitors.index, false) ::
+Breadcrumb(statusMonitor.name, routes.StatusMonitors.show(statusMonitor.id.get), true) :: Nil) {
+
+<h1>@statusMonitor.name</h1>
+
+@{statusMonitor.monitorType match {
+    case StatusMonitorTypes.Jenkins => monitorTypes.jenkinsValues(statusValues)
+}}
+
+}

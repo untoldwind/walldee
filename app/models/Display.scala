@@ -15,10 +15,11 @@ import java.util.Locale
 case class Display(id: Option[Long],
                    name: String,
                    sprintId: Long,
+                   projectId: Option[Long],
                    backgroundColor: String,
                    refreshTime: Int) {
 
-  def this() = this(None, "", 0, "#000000", 5)
+  def this() = this(None, "", 0, None, "#000000", 5)
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -45,11 +46,13 @@ object Display extends Table[Display]("DISPLAY") {
 
   def sprintId = column[Long]("SPRINTID", O NotNull)
 
+  def projectId = column[Long]("PROJECTID", O NotNull)
+
   def backgroundColor = column[String]("BACKGROUNDCOLOR", O NotNull)
 
   def refreshTime = column[Int]("REFRESHTIME", O NotNull)
 
-  def * = id.? ~ name ~ sprintId ~ backgroundColor ~ refreshTime <>((apply _).tupled, unapply _)
+  def * = id.? ~ name ~ sprintId ~ projectId.? ~ backgroundColor ~ refreshTime <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

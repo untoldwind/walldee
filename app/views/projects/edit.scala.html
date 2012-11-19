@@ -1,0 +1,16 @@
+@(project:Project, form:Form[Project])
+@import models.utils.Breadcrumb
+
+@main(project.name,
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Projects", routes.Projects.index, false) ::
+    Breadcrumb(project.name, routes.Projects.edit(project.id.get), true) :: Nil) {
+
+@helper.form(action = routes.Projects.update(project.id.get), 'id -> "project-form") {
+@_fieldSet(form)
+<div class="actions">
+    <input type="submit" class="btn primary" value="Update">
+</div>
+}
+
+}

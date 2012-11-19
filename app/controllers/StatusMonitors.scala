@@ -1,29 +1,36 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.StatusMonitor
+import models.{Project, StatusValue, StatusMonitor}
 import play.api.data._
 import play.api.data.Forms._
 
 object StatusMonitors extends Controller {
   def index = Action {
-    Ok(views.html.statusMonitors.index(StatusMonitor.findAll, statusMonitorForm()))
+    Ok(views.html.statusMonitors.index(StatusMonitor.findAll, Project.findAll, statusMonitorForm()))
   }
 
   def create = Action {
     implicit request =>
       statusMonitorForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.statusMonitors.index(StatusMonitor.findAll, formWithErrors)), {
+      formWithErrors => BadRequest(views.html.statusMonitors.index(StatusMonitor.findAll, Project.findAll, formWithErrors)), {
         statusMonitor =>
           statusMonitor.insert
-          Ok(views.html.statusMonitors.index(StatusMonitor.findAll, statusMonitorForm()))
+          Ok(views.html.statusMonitors.index(StatusMonitor.findAll, Project.findAll, statusMonitorForm()))
       })
+  }
+
+  def show(statusMonitorId: Long) = Action {
+    StatusMonitor.findById(statusMonitorId).map {
+      statusMonitor =>
+        Ok(views.html.statusMonitors.show(statusMonitor, StatusValue.findAllForStatusMonitor(statusMonitorId)))
+    }.getOrElse(NotFound)
   }
 
   def edit(statusMonitorId: Long) = Action {
     StatusMonitor.findById(statusMonitorId).map {
       statusMonitor =>
-        Ok(views.html.statusMonitors.edit(statusMonitor, statusMonitorForm(statusMonitor)))
+        Ok(views.html.statusMonitors.edit(statusMonitor, Project.findAll, statusMonitorForm(statusMonitor)))
     }.getOrElse(NotFound)
   }
 
@@ -32,10 +39,10 @@ object StatusMonitors extends Controller {
       StatusMonitor.findById(statusMonitorId).map {
         statusMonitor =>
           statusMonitorForm(statusMonitor).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.statusMonitors.edit(statusMonitor, formWithErrors)), {
+          formWithErrors => BadRequest(views.html.statusMonitors.edit(statusMonitor, Project.findAll, formWithErrors)), {
             statusMonitor =>
               statusMonitor.update
-              Ok(views.html.statusMonitors.edit(statusMonitor, statusMonitorForm(statusMonitor)))
+              Ok(views.html.statusMonitors.edit(statusMonitor, Project.findAll, statusMonitorForm(statusMonitor)))
           })
       }.getOrElse(NotFound)
   }
@@ -51,6 +58,7 @@ object StatusMonitors extends Controller {
   private def statusMonitorForm(statusMonitor: StatusMonitor = new StatusMonitor): Form[StatusMonitor] = Form(
     mapping(
       "id" -> ignored(statusMonitor.id),
+      "projectId" -> longNumber,
       "name" -> text,
       "typeNum" -> number,
       "url" -> text(),

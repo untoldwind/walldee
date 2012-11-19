@@ -1,0 +1,20 @@
+@(projects: Seq[Project], form:Form[Project])
+@import models.utils.Breadcrumb
+
+@main("Projects",
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Projects", routes.Projects.index, true) :: Nil) {
+
+<table id="project-list">
+    @list(projects)
+</table>
+
+@helper.form(action = routes.Projects.create, 'id -> "project-form") {
+@_fieldSet(form)
+<div class="actions">
+    <input type="submit" class="btn primary" value="Create">
+</div>
+}
+
+}
+

@@ -17,14 +17,13 @@ import org.scalaquery.ql.Query
 import org.joda.time.format.DateTimeFormat
 import java.util.Locale
 
-case class Sprint(
-                   id: Option[Long],
-                   title: String,
-                   num: Int,
-                   sprintStart: Date,
-                   sprintEnd: Date,
-                   languageTag: String,
-                   countersJson: String) {
+case class Sprint(id: Option[Long],
+                  title: String,
+                  num: Int,
+                  sprintStart: Date,
+                  sprintEnd: Date,
+                  languageTag: String,
+                  countersJson: String) {
 
   def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "de-DE", "[]")
 

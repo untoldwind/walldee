@@ -1,4 +1,4 @@
-@(statusMonitor:StatusMonitor, form:Form[StatusMonitor])
+@(statusMonitor:StatusMonitor, projects:Seq[Project], form:Form[StatusMonitor])
 @import models.utils.Breadcrumb
 
 @main(statusMonitor.name,
@@ -7,7 +7,7 @@
     Breadcrumb(statusMonitor.name, routes.StatusMonitors.edit(statusMonitor.id.get), true) :: Nil) {
 
 @helper.form(action = routes.StatusMonitors.update(statusMonitor.id.get), 'id -> "statusMonitor-form") {
-@_fieldSet(form)
+@_fieldSet(projects, form)
 <div class="actions">
     <input type="submit" class="btn primary" value="Update">
 </div>

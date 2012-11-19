@@ -1,26 +1,27 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{DisplayWidgets, DisplayItem, Sprint, Display}
+import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
 import models.json.SprintCounter
 import models.utils.{DataDigest, RenderedWidget}
+import utils.RenderedWidget
 import widgets.Widget
 
 object Displays extends Controller {
   def index = Action {
-    Ok(views.html.display.index(Display.findAll, Sprint.findAll, displayForm()))
+    Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, displayForm()))
   }
 
   def create = Action {
     implicit request =>
       displayForm().bindFromRequest().fold(
-      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll, formWithErrors)), {
+      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, formWithErrors)), {
         display =>
           display.insert
-          Ok(views.html.display.index(Display.findAll, Sprint.findAll, displayForm()))
+          Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, displayForm()))
       })
   }
 
@@ -29,6 +30,7 @@ object Displays extends Controller {
       display =>
         Ok(views.html.display.showConfig(display,
           Sprint.findAll,
+          Project.findAll,
           displayForm(display),
           DisplayItem.findAllForDisplay(displayId),
           DisplayItems.displayItemFrom(display)))
@@ -62,6 +64,7 @@ object Displays extends Controller {
           displayForm(display).bindFromRequest.fold(
           formWithErrors => BadRequest(views.html.display.showConfig(display,
             Sprint.findAll,
+            Project.findAll,
             formWithErrors,
             DisplayItem.findAllForDisplay(displayId),
             DisplayItems.displayItemFrom(display))), {
@@ -111,6 +114,7 @@ object Displays extends Controller {
       "id" -> ignored(display.id),
       "name" -> text(maxLength = 255),
       "sprintId" -> longNumber,
+      "projectId" -> optional(longNumber),
       "backgroundColor" -> text,
       "refreshTime" -> number(min = 1, max = 3600)
     )(Display.apply)(Display.unapply)).fill(display)

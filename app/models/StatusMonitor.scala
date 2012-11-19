@@ -14,6 +14,7 @@ import java.util.Date
 import models.DateMapper.date2timestamp
 
 case class StatusMonitor(id: Option[Long],
+                         projectId: Long,
                          name: String,
                          typeNum: Int,
                          url: String,
@@ -24,7 +25,7 @@ case class StatusMonitor(id: Option[Long],
                          updatePeriod: Int,
                          lastQueried: Option[Date],
                          lastUpdated: Option[Date]) {
-  def this() = this(None, "", 0, "", None, None, true, 10, 60, None, None)
+  def this() = this(None, 0, "", 0, "", None, None, true, 10, 60, None, None)
 
   def monitorType = StatusMonitorTypes(typeNum)
 
@@ -60,6 +61,8 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def id = column[Long]("ID", O PrimaryKey, O AutoInc)
 
+  def projectId = column[Long]("PROJECTID", O NotNull)
+
   def name = column[String]("NAME", O NotNull)
 
   def typeNum = column[Int]("TYPENUM", O NotNull)
@@ -80,7 +83,7 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def lastUpdated = column[Date]("LASTUPDATED")
 
-  def * = id.? ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory ~ updatePeriod ~ lastQueried.? ~ lastUpdated.? <>((apply _).tupled, unapply _)
+  def * = id.? ~ projectId ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory ~ updatePeriod ~ lastQueried.? ~ lastUpdated.? <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

@@ -12,7 +12,7 @@
 <tbody>
 @statusMonitors.map { statusMonitor =>
     <tr>
-        <td>@statusMonitor.name</td>
+        <td><a href="@routes.StatusMonitors.show(statusMonitor.id.get)">@statusMonitor.name</a></td>
         <td>@statusMonitor.monitorType.toString</td>
         <td>@if(statusMonitor.active) { Active } else { Inactive }</td>
         <td>@views.utils.dateFormat(statusMonitor.lastQueried)</td>
