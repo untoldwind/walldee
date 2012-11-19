@@ -13,7 +13,7 @@ import org.scalaquery.ql.Query
 import java.util.Date
 import models.DateMapper.date2timestamp
 import play.api.libs.json.{Json, JsValue}
-import statusValues.{JenkinsStatus, IcingaStatus}
+import statusValues.{MetricStatus, BuildStatus, IcingaStatus}
 
 case class StatusValue(id: Option[Long],
                        statusMonitorId: Long,
@@ -28,9 +28,9 @@ case class StatusValue(id: Option[Long],
 
   def statusValues = Json.parse(valuesJson)
 
-  def jenkinsStatus = {
+  def buildStatus = {
     if (status != StatusTypes.Unknown) {
-      Some(Json.fromJson[JenkinsStatus](statusValues))
+      Some(Json.fromJson[BuildStatus](statusValues))
     } else {
       None
     }
@@ -44,9 +44,9 @@ case class StatusValue(id: Option[Long],
     }
   }
 
-  def sonarStatus = {
+  def metricStatus = {
     if (status != StatusTypes.Unknown) {
-      Some(Json.fromJson[IcingaStatus](statusValues))
+      Some(Json.fromJson[MetricStatus](statusValues))
     } else {
       None
     }

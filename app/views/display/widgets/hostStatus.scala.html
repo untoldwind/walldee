@@ -1,0 +1,6 @@
+@(display:Display, displayItem:DisplayItem, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
+
+@defining(displayItem.hostStatusConfig) { config =>
+<ul class="hostStatus">
+</ul>
+}

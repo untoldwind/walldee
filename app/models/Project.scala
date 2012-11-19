@@ -34,7 +34,7 @@ case class Project(id: Option[Long],
 }
 
 object Project extends Table[Project]("PROJECT") {
-  lazy val database = Database.forDataSource(DB.getDataSource())
+  def database = Database.forDataSource(DB.getDataSource())
 
   def id = column[Long]("ID", O PrimaryKey, O AutoInc)
 

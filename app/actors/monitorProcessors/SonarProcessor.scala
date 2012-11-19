@@ -3,7 +3,7 @@ package actors.monitorProcessors
 import models.{StatusTypes, StatusValue, StatusMonitor}
 import play.api.libs.ws.Response
 import play.api.libs.json.{JsObject, Json, JsValue, Reads}
-import models.statusValues.{JenkinsStatus, SonarStatus, SonarSeverityTypes, SonarViolation}
+import models.statusValues.{BuildStatus, MetricStatus, MetricSeverityTypes, MetricViolation}
 
 object SonarMetricTypes extends Enumeration {
   type Type = Value
@@ -42,11 +42,11 @@ object SonarResource {
 
 object SonarProcessor extends MonitorProcessor {
 
-  val UrlPattern = """(http|https)://([a-zA-Z0.9:]+)/dashboard/index/([0-9]+).*""".r
+  val UrlPattern = """(http|https)://([a-zA-Z0-9\.:/]+)/dashboard/index/([0-9]+).*""".r
 
   override def apiUrl(url: String) = url match {
-    case UrlPattern(proto, host, id) =>
-      proto + "://" + host + "/api/resources?resource=" + id + "&metrics=" + SonarMetricTypes.values.mkString(",") + "&format=json"
+    case UrlPattern(proto, base, id) =>
+      proto + "://" + base + "/api/resources?resource=" + id + "&metrics=" + SonarMetricTypes.values.mkString(",") + "&format=json"
     case url => url
   }
 
@@ -56,7 +56,7 @@ object SonarProcessor extends MonitorProcessor {
     if (sonarResources.length == 1) {
       var coverage = 0.0
       var violationsCount = 0
-      val violations = Seq.newBuilder[SonarViolation]
+      val violations = Seq.newBuilder[MetricViolation]
       sonarResources(0).metrics.foreach {
         metric =>
           metric.key match {
@@ -65,19 +65,19 @@ object SonarProcessor extends MonitorProcessor {
             case SonarMetricTypes.violations =>
               violationsCount = metric.value.toInt
             case SonarMetricTypes.blocker_violations =>
-              violations += SonarViolation(SonarSeverityTypes.Blocker, metric.value.toInt)
+              violations += MetricViolation(MetricSeverityTypes.Blocker, metric.value.toInt)
             case SonarMetricTypes.critical_violations =>
-              violations += SonarViolation(SonarSeverityTypes.Critical, metric.value.toInt)
+              violations += MetricViolation(MetricSeverityTypes.Critical, metric.value.toInt)
             case SonarMetricTypes.major_violations =>
-              violations += SonarViolation(SonarSeverityTypes.Major, metric.value.toInt)
+              violations += MetricViolation(MetricSeverityTypes.Major, metric.value.toInt)
             case SonarMetricTypes.minor_violations =>
-              violations += SonarViolation(SonarSeverityTypes.Minor, metric.value.toInt)
+              violations += MetricViolation(MetricSeverityTypes.Minor, metric.value.toInt)
             case SonarMetricTypes.info_violations =>
-              violations += SonarViolation(SonarSeverityTypes.Info, metric.value.toInt)
+              violations += MetricViolation(MetricSeverityTypes.Info, metric.value.toInt)
           }
       }
 
-      val sonarStatus = SonarStatus(sonarResources(0).name, coverage, violationsCount, violations.result())
+      val sonarStatus = MetricStatus(sonarResources(0).name, coverage, violationsCount, violations.result())
       updateStatus(statusMonitor, StatusTypes.Ok, Json.toJson(sonarStatus))
     } else {
       updateStatus(statusMonitor, StatusTypes.Failure, JsObject(Seq.empty))

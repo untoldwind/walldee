@@ -3,7 +3,7 @@ package actors.monitorProcessors
 import models.{StatusTypes, StatusValue, StatusMonitor}
 import play.api.libs.json._
 import play.api.libs.ws.Response
-import models.statusValues.JenkinsStatus
+import models.statusValues.BuildStatus
 
 case class JenkinsJobBuild(number: Int, url: String)
 
@@ -22,6 +22,7 @@ object JenkinsJobBuild {
 case class JenkinsJob(name: String,
                       lastBuild: Option[JenkinsJobBuild],
                       lastCompletedBuild: Option[JenkinsJobBuild],
+                      lastStableBuild: Option[JenkinsJobBuild],
                       lastSuccessfulBuild: Option[JenkinsJobBuild])
 
 object JenkinsJob {
@@ -32,6 +33,7 @@ object JenkinsJob {
         (json \ "name").as[String],
         (json \ "lastBuild").asOpt[JenkinsJobBuild],
         (json \ "lastCompletedBuild").asOpt[JenkinsJobBuild],
+        (json \ "lastStableBuild").asOpt[JenkinsJobBuild],
         (json \ "lastSuccessfulBuild").asOpt[JenkinsJobBuild]
       )
   }
@@ -50,9 +52,9 @@ object JenkinsProcessor extends MonitorProcessor {
 
     jenkinsJob.lastCompletedBuild.map {
       lastCompletedBuild =>
-        val json = Json.toJson(JenkinsStatus(lastCompletedBuild.number))
-        jenkinsJob.lastSuccessfulBuild.map {
-          case lastSuccessfulBuild if lastCompletedBuild.number == lastSuccessfulBuild.number =>
+        val json = Json.toJson(BuildStatus(lastCompletedBuild.number))
+        jenkinsJob.lastStableBuild.map {
+          case lastStableBuild if lastCompletedBuild.number == lastStableBuild.number =>
             updateStatus(statusMonitor, StatusTypes.Ok, json)
           case _ =>
             updateStatus(statusMonitor, StatusTypes.Failure, json)

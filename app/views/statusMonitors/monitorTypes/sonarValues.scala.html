@@ -1,0 +1,22 @@
+@(statusValues:Seq[StatusValue])
+
+<table>
+    <thead>
+    <tr>
+        <th>Status</th>
+        <td>Retrieved at</td>
+        <td>Coverage</td>
+        <td>Violations</td>
+    </tr>
+    </thead>
+    <tbody>
+    @statusValues.map { statusValue =>
+    <tr>
+        <td>@statusValue.status</td>
+        <td>@views.utils.dateFormat(statusValue.retrievedAt)</td>
+        <td>@statusValue.metricStatus.map(_.coverage.toString).getOrElse("--")</td>
+        <td>@statusValue.metricStatus.map(_.violationsCount.toString).getOrElse("--")</td>
+    </tr>
+    }
+    </tbody>
+</table>

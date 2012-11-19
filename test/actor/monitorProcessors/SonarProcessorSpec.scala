@@ -5,23 +5,36 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
-import models.{StatusTypes, StatusValue, StatusMonitorTypes, StatusMonitor}
+import models._
 import actors.monitorProcessors.{SonarProcessor, JenkinsProcessor}
 import play.api.libs.ws.Response
 import play.api.libs.json.Json
+import play.api.libs.ws.Response
+import play.api.test.FakeApplication
+import scala.Some
 
 class SonarProcessorSpec extends Specification with Mockito {
   "Sonar processor" should {
-    "should not encode direct json url" in {
+    "should encode http url" in {
       val url = "http://nemo.sonarsource.org/dashboard/index/427172?did=1"
 
       SonarProcessor.apiUrl(url) must be_==("http://nemo.sonarsource.org/api/resources?resource=427172&metrics=coverage,violations,blocker_violations,critical_violations,major_violations,minor_violations,info_violations&format=json")
     }
 
+    "should encode https url" in {
+      var url = "https://sonar.somewhere.de/sonar/dashboard/index/50647"
+
+      SonarProcessor.apiUrl(url) must be_==("https://sonar.somewhere.de/sonar/api/resources?resource=50647&metrics=coverage,violations,blocker_violations,critical_violations,major_violations,minor_violations,info_violations&format=json")
+    }
+
     "process json correctly" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val project = Project(Some(1), "Project")
+
+        project.insert
+
         val statusMonitor =
-          StatusMonitor(Some(1), "Ci", StatusMonitorTypes.Sonar.id, "http://localhost", None, None, true, 10, 60, None, None)
+          StatusMonitor(Some(1), 1, "Ci", StatusMonitorTypes.Sonar.id, "http://localhost", None, None, true, 10, 60, None, None)
 
         statusMonitor.insert
 

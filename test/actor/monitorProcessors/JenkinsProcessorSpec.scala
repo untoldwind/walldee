@@ -5,10 +5,13 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
-import models.{StatusTypes, StatusValue, StatusMonitorTypes, StatusMonitor}
+import models._
 import actors.monitorProcessors.JenkinsProcessor
 import play.api.libs.ws.Response
 import play.api.libs.json.Json
+import play.api.libs.ws.Response
+import play.api.test.FakeApplication
+import scala.Some
 
 class JenkinsProcessorSpec extends Specification with Mockito {
   "Jenkins processor" should {
@@ -32,8 +35,12 @@ class JenkinsProcessorSpec extends Specification with Mockito {
 
     "process json correctly" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val project = Project(Some(1), "Project")
+
+        project.insert
+
         val statusMonitor =
-          StatusMonitor(Some(1), "Ci", StatusMonitorTypes.Jenkins.id, "http://localhost", None, None, true, 10, 60, None, None)
+          StatusMonitor(Some(1), 1, "Ci", StatusMonitorTypes.Jenkins.id, "http://localhost", None, None, true, 10, 60, None, None)
 
         statusMonitor.insert
 

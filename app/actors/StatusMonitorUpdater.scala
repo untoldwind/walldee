@@ -14,6 +14,7 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
         statusMonitor =>
           val processor = monitorProcessors.processor(statusMonitor.monitorType)
           val url = processor.apiUrl(statusMonitor.url)
+
           val wsRequest = if (statusMonitor.username.isDefined && statusMonitor.password.isDefined)
             WS.url(url).withAuth(statusMonitor.username.get, statusMonitor.password.get, AuthScheme.BASIC)
           else
@@ -25,6 +26,9 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
             response =>
               processor.process(statusMonitor, response)
               statusMonitor.updateLastUpdated
+          }.recover {
+            case e =>
+              log.error("Exception", e)
           }
       }
     case message =>

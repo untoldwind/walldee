@@ -8,7 +8,10 @@ import actors.monitorProcessors.IcingaProcessor
 import play.api.libs.ws.Response
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
-import models.{StatusTypes, StatusValue, StatusMonitorTypes, StatusMonitor}
+import models._
+import play.api.libs.ws.Response
+import play.api.test.FakeApplication
+import scala.Some
 
 class IcingaProcessorSpec extends Specification with Mockito {
   "Icinga processor" should {
@@ -26,8 +29,12 @@ class IcingaProcessorSpec extends Specification with Mockito {
 
     "process json correctly" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val project = Project(Some(1), "Project")
+
+        project.insert
+
         val statusMonitor =
-          StatusMonitor(Some(1), "Monitor", StatusMonitorTypes.Icinga.id, "http://localhost", None, None, true, 10, 60, None, None)
+          StatusMonitor(Some(1), 1, "Monitor", StatusMonitorTypes.Icinga.id, "http://localhost", None, None, true, 10, 60, None, None)
 
         statusMonitor.insert
 

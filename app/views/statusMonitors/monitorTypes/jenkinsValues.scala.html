@@ -13,7 +13,7 @@
             <tr>
                 <td>@statusValue.status</td>
                 <td>@views.utils.dateFormat(statusValue.retrievedAt)</td>
-                <td>@statusValue.jenkinsStatus.map(_.number.toString).getOrElse("--")</td>
+                <td>@statusValue.buildStatus.map(_.number.toString).getOrElse("--")</td>
             </tr>
         }
     </tbody>

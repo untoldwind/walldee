@@ -81,6 +81,14 @@ case class DisplayItem(
     }
   }
 
+  def hostStatusConfig = {
+    if (widget == DisplayWidgets.HostStatus) {
+      Some(Json.fromJson[HostStatusConfig](widgetConfig))
+    } else {
+      None
+    }
+  }
+
   def insert = DisplayItem.database.withSession {
     implicit db: Session =>
       DisplayItem.insert(this)
@@ -133,7 +141,8 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 clockConfig: Option[ClockConfig],
                 alarmsConfig: Option[AlarmsConfig],
                 iframeConfig: Option[IFrameConfig],
-                buildStatusConfig: Option[BuildStatusConfig]): DisplayItem = {
+                buildStatusConfig: Option[BuildStatusConfig],
+                hostStatusConfig: Option[HostStatusConfig]): DisplayItem = {
 
     val widgetConfig = DisplayWidgets(widgetNum) match {
       case DisplayWidgets.BurndownChart => Json.toJson(burndownChartConfig.getOrElse(BurndownChartConfig()))
@@ -142,6 +151,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       case DisplayWidgets.Alarms => Json.toJson(alarmsConfig.getOrElse(AlarmsConfig()))
       case DisplayWidgets.IFrame => Json.toJson(iframeConfig.getOrElse(IFrameConfig()))
       case DisplayWidgets.BuildStatus => Json.toJson(buildStatusConfig.getOrElse(BuildStatusConfig()))
+      case DisplayWidgets.HostStatus => Json.toJson(hostStatusConfig.getOrElse(HostStatusConfig()))
     }
 
     DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, Json.stringify(widgetConfig))
@@ -162,7 +172,8 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.clockConfig,
       displayItem.alarmsConfig,
       displayItem.iframeConfig,
-      displayItem.buildStatusConfig)
+      displayItem.buildStatusConfig,
+      displayItem.hostStatusConfig)
 
   def query = Query(this)
 

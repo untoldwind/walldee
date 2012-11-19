@@ -52,6 +52,7 @@ case class StatusMonitor(id: Option[Long],
 
   def delete = StatusMonitor.database.withSession {
     implicit db: Session =>
+      StatusValue.where(_.statusMonitorId === id.get).delete
       StatusMonitor.where(_.id === id).delete
   }
 }
@@ -104,6 +105,6 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def finaAllForProject(projectId: Long, types: Seq[StatusMonitorTypes.Type]): Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
-      query.where(s => s.projectId === projectId && s.typeNum.inSet(types.map(_.id))).list
+      query.where(s => s.projectId === projectId && s.typeNum.inSet(types.map(_.id))).orderBy(name.asc).list
   }
 }

@@ -10,6 +10,7 @@ Breadcrumb(statusMonitor.name, routes.StatusMonitors.show(statusMonitor.id.get),
 
 @{statusMonitor.monitorType match {
     case StatusMonitorTypes.Jenkins => monitorTypes.jenkinsValues(statusValues)
+    case StatusMonitorTypes.Sonar => monitorTypes.sonarValues(statusValues)
 }}
 
 }
