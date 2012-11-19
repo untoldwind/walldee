@@ -1,0 +1,13 @@
+@(display:Display, displayItem:DisplayItem, statusMonitors:Seq[(StatusMonitor, StatusTypes.Type)])
+
+@defining(displayItem.buildStatusConfig) { config =>
+<ul class="buildStatus">
+    @statusMonitors.map { case (statusMonitor, status) =>
+    <li class="@status.toString">
+        <div style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
+        @statusMonitor.name
+        </div>
+    </li>
+    }
+</ul>
+}

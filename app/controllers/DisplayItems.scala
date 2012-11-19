@@ -76,6 +76,7 @@ object DisplayItems extends Controller {
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
       "clockConfig" -> optional(Clock.configMapping),
       "alarmsConfig" -> optional(widgets.Alarms.configMapping),
-      "iframeConfig" -> optional(widgets.IFrame.configMapping)
+      "iframeConfig" -> optional(widgets.IFrame.configMapping),
+      "buildStatusConfig" -> optional(widgets.BuildStatus.configMapping)
     )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }

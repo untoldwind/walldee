@@ -101,4 +101,9 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
     implicit db: Session =>
       query.where(s => s.id === statusMonitorId).firstOption
   }
+
+  def finaAllForProject(projectId: Long, types: Seq[StatusMonitorTypes.Type]): Seq[StatusMonitor] = database.withSession {
+    implicit db: Session =>
+      query.where(s => s.projectId === projectId && s.typeNum.inSet(types.map(_.id))).list
+  }
 }
