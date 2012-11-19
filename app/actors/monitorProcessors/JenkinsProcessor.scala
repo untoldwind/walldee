@@ -48,21 +48,20 @@ object JenkinsProcessor extends MonitorProcessor {
   def process(statusMonitor: StatusMonitor, response: Response) {
     val jenkinsJob = response.json.as[JenkinsJob]
 
-    val statusValue = jenkinsJob.lastCompletedBuild.map {
+    jenkinsJob.lastCompletedBuild.map {
       lastCompletedBuild =>
         val json = Json.toJson(JenkinsStatus(lastCompletedBuild.number))
         jenkinsJob.lastSuccessfulBuild.map {
           case lastSuccessfulBuild if lastCompletedBuild.number == lastSuccessfulBuild.number =>
-            new StatusValue(statusMonitor.id.get, StatusTypes.Ok, json)
+            updateStatus(statusMonitor, StatusTypes.Ok, json)
           case _ =>
-            new StatusValue(statusMonitor.id.get, StatusTypes.Failure, json)
+            updateStatus(statusMonitor, StatusTypes.Failure, json)
         }.getOrElse {
-          new StatusValue(statusMonitor.id.get, StatusTypes.Failure, json)
+          updateStatus(statusMonitor, StatusTypes.Failure, json)
         }
     }.getOrElse {
-      new StatusValue(statusMonitor.id.get, StatusTypes.Unknown, JsObject(Seq.empty))
+      updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
     }
-    statusValue.insert
   }
 
 }

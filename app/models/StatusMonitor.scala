@@ -38,6 +38,17 @@ case class StatusMonitor(id: Option[Long],
       StatusMonitor.where(_.id === id).update(this)
   }
 
+  def updateLastQueried = StatusMonitor.database.withSession {
+    implicit db: Session =>
+      StatusMonitor.where(_.id === id).map(_.lastQueried).update(new Date)
+  }
+
+  def updateLastUpdated = StatusMonitor.database.withSession {
+    implicit db: Session =>
+      StatusMonitor.where(_.id === id).map(_.lastUpdated).update(new Date)
+  }
+
+
   def delete = StatusMonitor.database.withSession {
     implicit db: Session =>
       StatusMonitor.where(_.id === id).delete

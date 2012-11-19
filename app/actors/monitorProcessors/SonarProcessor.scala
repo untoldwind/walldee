@@ -53,7 +53,7 @@ object SonarProcessor extends MonitorProcessor {
   def process(statusMonitor: StatusMonitor, response: Response) {
     val sonarResources = response.json.as[Seq[SonarResource]]
 
-    val statusValue = if (sonarResources.length == 1) {
+    if (sonarResources.length == 1) {
       var coverage = 0.0
       var violationsCount = 0
       val violations = Seq.newBuilder[SonarViolation]
@@ -78,11 +78,9 @@ object SonarProcessor extends MonitorProcessor {
       }
 
       val sonarStatus = SonarStatus(sonarResources(0).name, coverage, violationsCount, violations.result())
-      new StatusValue(statusMonitor.id.get, StatusTypes.Ok, Json.toJson(sonarStatus))
+      updateStatus(statusMonitor, StatusTypes.Ok, Json.toJson(sonarStatus))
     } else {
-      new StatusValue(statusMonitor.id.get, StatusTypes.Failure, JsObject(Seq.empty))
+      updateStatus(statusMonitor, StatusTypes.Failure, JsObject(Seq.empty))
     }
-
-    statusValue.insert
   }
 }

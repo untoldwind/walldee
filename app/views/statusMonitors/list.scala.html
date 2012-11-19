@@ -5,6 +5,8 @@
         <th>Name</th>
         <th>Type</th>
         <th>Active</th>
+        <th>Last queried</th>
+        <th>Last updated</th>
     </tr>
 </thead>
 <tbody>
@@ -13,6 +15,8 @@
         <td>@statusMonitor.name</td>
         <td>@statusMonitor.monitorType.toString</td>
         <td>@if(statusMonitor.active) { Active } else { Inactive }</td>
+        <td>@views.utils.dateFormat(statusMonitor.lastQueried)</td>
+        <td>@views.utils.dateFormat(statusMonitor.lastUpdated)</td>
         <td>
             <a href="@routes.StatusMonitors.edit(statusMonitor.id.get)" class="edit">Edit</a>
             @common.deleteLink(routes.StatusMonitors.delete(statusMonitor.id.get), "statusMonitor-list")

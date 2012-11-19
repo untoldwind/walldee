@@ -13,13 +13,44 @@ import org.scalaquery.ql.Query
 import java.util.Date
 import models.DateMapper.date2timestamp
 import play.api.libs.json.{Json, JsValue}
+import statusValues.{JenkinsStatus, IcingaStatus}
 
-case class StatusValue(id: Option[Long], statusMonitorId: Long, statusNum: Int, retrievedAt: Date, valuesJson: String) {
+case class StatusValue(id: Option[Long],
+                       statusMonitorId: Long,
+                       statusNum: Int,
+                       retrievedAt: Date,
+                       valuesJson: String) {
 
   def this(statusMonitorId: Long, status: StatusTypes.Type, json: JsValue) =
     this(None, statusMonitorId, status.id, new Date(), Json.stringify(json))
 
   def status = StatusTypes(statusNum)
+
+  def statusValues = Json.parse(valuesJson)
+
+  def jenkinsStatus = {
+    if (status != StatusTypes.Unknown) {
+      Some(Json.fromJson[JenkinsStatus](statusValues))
+    } else {
+      None
+    }
+  }
+
+  def icingaStatus = {
+    if (status != StatusTypes.Unknown) {
+      Some(Json.fromJson[IcingaStatus](statusValues))
+    } else {
+      None
+    }
+  }
+
+  def sonarStatus = {
+    if (status != StatusTypes.Unknown) {
+      Some(Json.fromJson[IcingaStatus](statusValues))
+    } else {
+      None
+    }
+  }
 
   def insert = StatusValue.database.withSession {
     implicit db: Session =>
@@ -57,5 +88,10 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
   def findAllForStatusMonitor(statusMonitorId: Long): Seq[StatusValue] = database.withSession {
     implicit db: Session =>
       query.where(s => s.statusMonitorId === statusMonitorId).orderBy(id.desc).list
+  }
+
+  def findLastForStatusMonitor(statusMonitorId: Long): Option[StatusValue] = database.withSession {
+    implicit db: Session =>
+      query.where(s => s.statusMonitorId === statusMonitorId).orderBy(id.desc).firstOption
   }
 }

@@ -19,9 +19,12 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
           else
             WS.url(url)
 
+          statusMonitor.updateLastQueried
+
           wsRequest.get().map {
             response =>
               processor.process(statusMonitor, response)
+              statusMonitor.updateLastUpdated
           }
       }
     case message =>

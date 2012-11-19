@@ -98,8 +98,7 @@ object IcingaProcessor extends MonitorProcessor {
         })
     })
 
-    val statusValue = new StatusValue(statusMonitor.id.get, status, Json.toJson(icingaStatus))
-
-    statusValue.insert
+    updateStatus(statusMonitor, status, Json.toJson(icingaStatus))
   }
+
 }
