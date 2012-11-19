@@ -1,0 +1,48 @@
+@(configField:play.api.data.Field)
+
+<fieldset>
+    <legend>Alarms</legend>
+    <div>
+    @helper.inputText(configField("labelFont"))
+    @helper.inputText(configField("columns"))
+    </div>
+    <div id="items">
+        @helper.repeat(configField("items")) { item =>
+        <div id="item-@item.id">
+            @helper.select(item("itemType"), models.widgetConfigs.MetricsItemTypes.values.toSeq.map(itemType => itemType.id.toString -> itemType.toString))
+            @helper.inputText(item("labelSize"))
+            <div>
+            @models.statusValues.MetricSeverityTypes.values.toList.map { severity =>
+                @helper.checkbox(item("severities")(severity.toString), '_label -> severity.toString)
+            }
+            </div>
+            <a href="#" class="itemDelete">Delete</a>
+        </div>
+        }
+    </div>
+    <a href="#" id="addItem">Add</a>
+</fieldset>
+
+<script type="text/html" id="itemTmpl">
+    <div id="item-@configField("items[{idx}]").id">
+        @helper.select(configField("items[{idx}]")("itemType"), models.widgetConfigs.MetricsItemTypes.values.toSeq.map(itemType => itemType.id.toString -> itemType.toString))
+        @helper.inputText(configField("items[{idx}]")("labelSize"))
+        <div>
+            @models.statusValues.MetricSeverityTypes.values.toList.map { severity =>
+                @helper.checkbox(configField("items[{idx}]")("severities")(severity.toString), '_label -> severity.toString)
+            }
+        </div>
+        <a href="#" class="itemDelete">Delete</a>
+    </div>
+</script>
+
+<script type="text/javascript">
+    $("#addItem").click(function () {
+        var tmpl = $("#itemTmpl").html();
+        var idx = $("#items").children().length;
+        $("#items").append(tmpl.replace(/\{idx\}/g, idx))
+    });
+    $("a.itemDelete").click(function(e) {
+        log($(this).parent().remove())
+    });
+</script>

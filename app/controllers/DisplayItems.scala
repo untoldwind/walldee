@@ -78,6 +78,7 @@ object DisplayItems extends Controller {
       "alarmsConfig" -> optional(widgets.Alarms.configMapping),
       "iframeConfig" -> optional(widgets.IFrame.configMapping),
       "buildStatusConfig" -> optional(widgets.BuildStatus.configMapping),
-      "hostStatusConfig" -> optional(widgets.HostStatus.configMapping)
+      "hostStatusConfig" -> optional(widgets.HostStatus.configMapping),
+      "metricsConfig" -> optional(widgets.Metrics.configMapping)
     )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }

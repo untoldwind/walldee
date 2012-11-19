@@ -93,6 +93,7 @@ object Displays extends Controller {
       case DisplayWidgets.IFrame => widgets.IFrame
       case DisplayWidgets.BuildStatus => widgets.BuildStatus
       case DisplayWidgets.HostStatus => widgets.HostStatus
+      case DisplayWidgets.Metrics => widgets.Metrics
     }
 
   }
