@@ -1,0 +1,11 @@
+# --- !Ups
+
+CREATE TABLE CONFIG (
+  ID int(10) NOT NULL,
+  VALUEJSON CLOB,
+  PRIMARY KEY (ID)
+);
+
+# --- !Downs
+
+DROP TABLE CONFIG;

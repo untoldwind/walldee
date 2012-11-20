@@ -32,7 +32,7 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
           }
       }
     case message =>
-      log.error("Received invalid message {0}", message.toString)
+      log.error("Received invalid message " + message.toString)
   }
 }
 
