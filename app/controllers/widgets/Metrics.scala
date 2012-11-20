@@ -6,6 +6,7 @@ import models.statusValues.MetricSeverityTypes
 import models._
 import scala.Some
 import play.api.templates.Html
+import utils.DataDigest
 
 object Metrics extends Widget[MetricsConfig] {
   def itemTypeMapping = number.transform[MetricsItemTypes.Type](
@@ -47,12 +48,14 @@ object Metrics extends Widget[MetricsConfig] {
 
   def metricsItemMapping = mapping(
     "itemType" -> itemTypeMapping,
-    "labelSize" -> optional(number),
+    "valueFont" -> optional(text),
+    "valueSize" -> optional(number),
     "severities" -> severityMapping
   )(MetricsItem.apply)(MetricsItem.unapply)
 
   def configMapping = mapping(
     "labelFont" -> optional(text),
+    "labelSize" -> optional(number),
     "columns" -> optional(number),
     "items" -> seq(metricsItemMapping)
   )(MetricsConfig.apply)(MetricsConfig.unapply)
@@ -68,5 +71,34 @@ object Metrics extends Widget[MetricsConfig] {
         }
         views.html.display.widgets.metrics(display, displayItem, statusMonitorsWithValues)
     }.getOrElse(Html(""))
+  }
+
+
+  override def etag(display: Display, displayItem: DisplayItem): String = {
+    val dataDigest = DataDigest()
+
+    dataDigest.update(displayItem.posx)
+    dataDigest.update(displayItem.posy)
+    dataDigest.update(displayItem.width)
+    dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.styleNum)
+    dataDigest.update(displayItem.widgetConfigJson)
+
+    dataDigest.update(display.projectId)
+    display.projectId.map {
+      projectId =>
+        StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar)).foreach {
+          statusMonitor =>
+            dataDigest.update(statusMonitor.id)
+            dataDigest.update(statusMonitor.active)
+            StatusValue.findLastForStatusMonitor(statusMonitor.id.get).foreach {
+              statusValue =>
+                dataDigest.update(statusValue.id)
+                dataDigest.update(statusValue.statusNum)
+            }
+        }
+    }
+
+    dataDigest.base64Digest()
   }
 }

@@ -10,7 +10,8 @@ object MetricsItemTypes extends Enumeration {
 }
 
 case class MetricsItem(itemType: MetricsItemTypes.Type,
-                       labelSize: Option[Int] = None,
+                       valueFont: Option[String] = None,
+                       valueSize: Option[Int] = None,
                        severities: Seq[MetricSeverityTypes.Type] = Seq.empty)
 
 object MetricsItem {
@@ -19,18 +20,21 @@ object MetricsItem {
     override def reads(json: JsValue): MetricsItem =
       MetricsItem(
         MetricsItemTypes((json \ "itemType").as[Int]),
-        (json \ "labelSize").asOpt[Int],
+        (json \ "valueFont").asOpt[String],
+        (json \ "valueSize").asOpt[Int],
         (json \ "severities").as[Seq[Int]].map(MetricSeverityTypes(_)))
 
     override def writes(metricsItem: MetricsItem): JsValue = JsObject(
       Seq("itemType" -> JsNumber(metricsItem.itemType.id),
         "severities" -> Json.toJson(metricsItem.severities.map(_.id))) ++
-        metricsItem.labelSize.map("labelSize" -> JsNumber(_)).toSeq)
+        metricsItem.valueFont.map("valueFont" -> JsString(_)).toSeq ++
+        metricsItem.valueSize.map("valueSize" -> JsNumber(_)).toSeq)
   }
 
 }
 
 case class MetricsConfig(labelFont: Option[String] = None,
+                         labelSize: Option[Int] = None,
                          columns: Option[Int] = None,
                          items: Seq[MetricsItem] = Seq.empty)
 
@@ -41,11 +45,13 @@ object MetricsConfig {
     override def reads(json: JsValue): MetricsConfig =
       MetricsConfig(
         (json \ "labelFont").asOpt[String],
+        (json \ "labelSize").asOpt[Int],
         (json \ "columns").asOpt[Int],
         (json \ "items").as[Seq[MetricsItem]])
 
     override def writes(metricsConfig: MetricsConfig): JsValue = JsObject(
       metricsConfig.labelFont.map("labelFont" -> JsString(_)).toSeq ++
+        metricsConfig.labelSize.map("labelSize" -> JsNumber(_)).toSeq ++
         metricsConfig.columns.map("columns" -> JsNumber(_)).toSeq ++
         Seq("items" -> Json.toJson(metricsConfig.items))
     )
