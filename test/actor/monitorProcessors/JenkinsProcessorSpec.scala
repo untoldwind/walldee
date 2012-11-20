@@ -15,19 +15,19 @@ import scala.Some
 
 class JenkinsProcessorSpec extends Specification with Mockito {
   "Jenkins processor" should {
-    "should not encode direct json url" in {
+    "not encode direct json url" in {
       val url = "http://localhost/jobs/bla/123/api/json"
 
       JenkinsProcessor.apiUrl(url) must be_==(url)
     }
 
-    "should add api/json to url with /" in {
+    "add api/json to url with /" in {
       val url = "http://localhost/jobs/bla/123/"
 
       JenkinsProcessor.apiUrl(url) must be_==(url + "api/json")
     }
 
-    "should add /api/json to url without /" in {
+    "add /api/json to url without /" in {
       val url = "http://localhost/jobs/bla/123"
 
       JenkinsProcessor.apiUrl(url) must be_==(url + "/api/json")

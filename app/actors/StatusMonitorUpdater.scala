@@ -22,7 +22,7 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
 
           statusMonitor.updateLastQueried
 
-          wsRequest.get().map {
+          wsRequest.withHeaders("Accept" -> "application/json").get().map {
             response =>
               processor.process(statusMonitor, response)
               statusMonitor.updateLastUpdated
