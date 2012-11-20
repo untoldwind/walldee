@@ -81,20 +81,20 @@ object IcingaProcessor extends MonitorProcessor {
     val icingaOverview = response.json.as[IcingaOverview]
 
     var status = StatusTypes.Ok
-    val icingaStatus = IcingaStatus(icingaOverview.status.hostgroups.map {
+    val icingaStatus = HostsStatus(icingaOverview.status.hostgroups.map {
       hostgroup =>
-        IcingaStatusGroup(hostgroup.members.map {
+        HostsGroup(hostgroup.members.map {
           host =>
-            val hostStatus = if (host.hostStatus == "UP") IcingaHostStatusTypes.Up else IcingaHostStatusTypes.Down
+            val hostStatus = if (host.hostStatus == "UP") HostStatusTypes.Up else HostStatusTypes.Down
             val serviceStatus = if (host.statusCritical > 0) {
               status = StatusTypes.Failure
-              IcingaServiceStatusTypes.Critical
+              HostServiceStatusTypes.Critical
             } else if (host.statusWarning > 0) {
               status = StatusTypes.Failure
-              IcingaServiceStatusTypes.Warning
+              HostServiceStatusTypes.Warning
             } else
-              IcingaServiceStatusTypes.Ok
-            IcingaStatusHost(host.hostName, hostStatus, serviceStatus)
+              HostServiceStatusTypes.Ok
+            HostStatus(host.hostName, hostStatus, serviceStatus)
         })
     })
 

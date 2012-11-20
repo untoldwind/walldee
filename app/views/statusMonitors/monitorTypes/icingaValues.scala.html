@@ -1,0 +1,20 @@
+@(statusValues:Seq[StatusValue])
+
+<table>
+    <thead>
+    <tr>
+        <th>Status</th>
+        <td>Retrieved at</td>
+        <td>Host status</td>
+    </tr>
+    </thead>
+    <tbody>
+    @statusValues.map { statusValue =>
+    <tr>
+        <td>@statusValue.status</td>
+        <td>@views.utils.dateFormat(statusValue.retrievedAt)</td>
+        <td>@statusValue.hostsStatus</td>
+    </tr>
+    }
+    </tbody>
+</table>
