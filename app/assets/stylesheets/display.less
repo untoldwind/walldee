@@ -24,68 +24,134 @@ div.widget_black {
 
 }
 
-.widget_normal ul.alarms {
-    margin: 0;
-    padding: 2px;
-    li {
-        list-style: none;
-        .rounded-corners(8px);
-        margin: 2px;
+.widget_normal {
+    ul.alarms {
+        margin: 0;
         padding: 2px;
-        background: #ffffff;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            background: #ffffff;
+        }
+        li.alert {
+            background: #ff4444;
+        }
     }
-    li.alert {
-        background: #ff4444;
+
+    ul.buildStatus {
+        margin: 0;
+        padding: 2px;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            background: #ffffff;
+        }
+        li.Ok {
+            background: #44ff44;
+        }
+        li.Failure {
+            background: #ff4444;
+        }
+    }
+
+    ul.hostStatus {
+        margin: 0;
+        padding: 2px;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            div.group {
+                .rounded-corners(4px);
+                padding: 2px;
+                background: #a9a9a9;
+            }
+            span {
+                display: inline-block;
+                .rounded-corners(2px);
+                padding: 1px;
+                margin: 1px;
+            }
+            span.Up-Ok {
+                background: #44ff44;
+            }
+            span.Up-Warning {
+                background: #ffff44;
+            }
+            span.Down-Ok, span.Down-Warning, span.Down-Critical, span.Up-Critical {
+                background: #ff4444;
+            }
+        }
     }
 }
 
-.widget_black ul.alarms {
-    margin: 0;
-    padding: 2px;
-    li {
-        list-style: none;
-        .rounded-corners(8px);
-        margin: 2px;
+.widget_black {
+    ul.alarms {
+        margin: 0;
         padding: 2px;
-        background: #111122;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            background: #111122;
+        }
+        li.alert {
+            background: #880000;
+        }
     }
-    li.alert {
-        background: #880000;
-    }
-}
 
-.widget_normal ul.buildStatus {
-    margin: 0;
-    padding: 2px;
-    li {
-        list-style: none;
-        .rounded-corners(8px);
-        margin: 2px;
+    ul.buildStatus {
+        margin: 0;
         padding: 2px;
-        background: #ffffff;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            background: #111122;
+        }
+        li.Ok {
+            background: #008800;
+        }
+        li.Failure {
+            background: #880000;
+        }
     }
-    li.Ok {
-        background: #44ff44;
-    }
-    li.Failure {
-        background: #ff4444;
-    }
-}
 
-.widget_black ul.buildStatus {
-    margin: 0;
-    padding: 2px;
-    li {
-        list-style: none;
-        .rounded-corners(8px);
-        margin: 2px;
+    ul.hostStatus {
+        margin: 0;
         padding: 2px;
-        background: #111122;
-    }
-    li.Ok {
-        background: #008800;
-    }
-    li.Failure {
-        background: #880000;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            div.group {
+                .rounded-corners(4px);
+                padding: 2px;
+                background: #111122;
+            }
+            span {
+                display: inline-block;
+                .rounded-corners(2px);
+                padding: 1px;
+                margin: 1px;
+            }
+            span.Up-Ok {
+                background: #008800;
+            }
+            span.Up-Warning {
+                background: #888800;
+            }
+            span.Down-Ok, span.Down-Warning, span.Down-Critical, span.Up-Critical {
+                background: #880000;
+            }
+        }
     }
 }
