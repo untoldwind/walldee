@@ -5,26 +5,12 @@ body {
     overflow: hidden;
 }
 
-div.widget_normal {
+div.widget {
     .rounded-corners(10px);
     padding: 4px 4px 4px 4px;
     margin: 0px 0px 0px 0px;
-    background: #a9a9a9;
-    text-align: center;
-    .gradient(#FFF, #AAA);
-}
-
-div.widget_black {
-    .rounded-corners(10px);
-    padding: 4px 4px 4px 4px;
-    margin: 0px 0px 0px 0px;
-    color: #ffffff;
-    background: #303040;
     text-align: center;
 
-}
-
-.widget_normal {
     ul.alarms {
         margin: 0;
         padding: 2px;
@@ -33,10 +19,6 @@ div.widget_black {
             .rounded-corners(8px);
             margin: 2px 0px 2px 0px;
             padding: 2px 0px 2px 0px;
-            background: #ffffff;
-        }
-        li.alert {
-            background: #ff4444;
         }
     }
 
@@ -48,13 +30,6 @@ div.widget_black {
             .rounded-corners(8px);
             margin: 2px 0px 2px 0px;
             padding: 2px 0px 2px 0px;
-            background: #ffffff;
-        }
-        li.Ok {
-            background: #44ff44;
-        }
-        li.Failure {
-            background: #ff4444;
         }
     }
 
@@ -69,13 +44,46 @@ div.widget_black {
             table.group {
                 .rounded-corners(4px);
                 padding: 2px;
-                background: #a9a9a9;
                 width: 100%;
             }
             td {
                 .rounded-corners(2px);
                 padding: 1px;
                 margin: 1px;
+            }
+        }
+    }
+}
+
+div.normal {
+    background: #a9a9a9;
+    .gradient(#FFF, #AAA);
+
+    ul.alarms {
+        li {
+            background: #ffffff;
+        }
+        li.alert {
+            background: #ff4444;
+        }
+    }
+
+    ul.buildStatus {
+        li {
+            background: #ffffff;
+        }
+        li.Ok {
+            background: #44ff44;
+        }
+        li.Failure {
+            background: #ff4444;
+        }
+    }
+
+    ul.hostStatus {
+        li {
+            table.group {
+                background: #a9a9a9;
             }
             td.Up-Ok {
                 background: #44ff44;
@@ -90,15 +98,12 @@ div.widget_black {
     }
 }
 
-.widget_black {
+div.black {
+    background: #303040;
+    color: #ffffff;
+
     ul.alarms {
-        margin: 0;
-        padding: 2px;
         li {
-            list-style: none;
-            .rounded-corners(8px);
-            margin: 2px 0px 2px 0px;
-            padding: 2px 0px 2px 0px;
             background: #111122;
         }
         li.alert {
@@ -107,13 +112,7 @@ div.widget_black {
     }
 
     ul.buildStatus {
-        margin: 0;
-        padding: 2px;
         li {
-            list-style: none;
-            .rounded-corners(8px);
-            margin: 2px 0px 2px 0px;
-            padding: 2px 0px 2px 0px;
             background: #111122;
         }
         li.Ok {
@@ -125,23 +124,9 @@ div.widget_black {
     }
 
     ul.hostStatus {
-        margin: 0;
-        padding: 2px;
         li {
-            list-style: none;
-            .rounded-corners(8px);
-            margin: 2px 0px 2px 0px;
-            padding: 2px 0px 2px 0px;
             table.group {
-                .rounded-corners(4px);
-                padding: 2px;
                 background: #111122;
-                width: 100%;
-            }
-            td {
-                .rounded-corners(2px);
-                padding: 1px;
-                margin: 1px;
             }
             td.Up-Ok {
                 background: #008800;
