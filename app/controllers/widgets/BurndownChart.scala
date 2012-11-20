@@ -60,7 +60,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
         displayItem =>
           Sprint.findById(sprintId).map {
             sprint =>
-              val etag = calculateETag(displayItem, sprint, width, height) + System.currentTimeMillis().toString
+              val etag = calculateETag(displayItem, sprint, width, height)
 
               request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
                 val chart = createChart(sprint, displayItem.style,
