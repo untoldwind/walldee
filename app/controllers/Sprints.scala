@@ -53,6 +53,15 @@ object Sprints extends Controller {
       }.getOrElse(NotFound)
   }
 
+  def delete(sprintId:Long ) = Action {
+    implicit request =>
+      Sprint.findById(sprintId).map {
+        sprint =>
+          sprint.delete
+          Ok(views.html.sprints.list(Sprint.findAll))
+      }.getOrElse(NotFound)
+  }
+
   private def sprintForm(sprint: Sprint = new Sprint): Form[Sprint] = Form(
     mapping(
       "id" -> ignored(sprint.id),

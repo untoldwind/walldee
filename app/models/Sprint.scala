@@ -74,6 +74,7 @@ case class Sprint(id: Option[Long],
   def delete = Sprint.database.withTransaction {
     implicit db: Session =>
       Story.where(s => s.sprintId === id).delete
+      DayCount.where(d => d.sprintId === id).delete
       Sprint.where(_.id === id).delete
   }
 }

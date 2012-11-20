@@ -4,5 +4,6 @@
 <li>
     <a href="@routes.Sprints.show(sprint.id.get)">@sprint.title</a>
     @sprint.num
+    @common.deleteLink(routes.Sprints.delete(sprint.id.get), "sprint-list")
 </li>
 }
