@@ -42,7 +42,7 @@ object Displays extends Controller {
       Display.findById(displayId).map {
         display =>
           val displayItems = DisplayItem.findAllForDisplay(displayId)
-          val etag = getEtag(display, displayItems) + System.currentTimeMillis().toString
+          val etag = getEtag(display, displayItems)
 
           request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
             val renderedWidgets = displayItems.map {
