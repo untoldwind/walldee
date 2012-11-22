@@ -12,6 +12,8 @@ import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 import java.util.Date
 import models.DateMapper.date2timestamp
+import play.api.libs.json.Json
+import statusMonitors.IcingaConfig
 
 case class StatusMonitor(id: Option[Long],
                          projectId: Long,
@@ -24,10 +26,20 @@ case class StatusMonitor(id: Option[Long],
                          keepHistory: Int,
                          updatePeriod: Int,
                          lastQueried: Option[Date],
-                         lastUpdated: Option[Date]) {
-  def this() = this(None, 0, "", 0, "", None, None, true, 10, 60, None, None)
+                         lastUpdated: Option[Date],
+                         configJson: Option[String]) {
+  def this() = this(None, 0, "", 0, "", None, None, true, 10, 60, None, None, None)
+
+  def config = configJson.map(Json.parse(_))
 
   def monitorType = StatusMonitorTypes(typeNum)
+
+  def icingaConfig: Option[IcingaConfig] = {
+    if (monitorType == StatusMonitorTypes.Icinga)
+      config.map(Json.fromJson[IcingaConfig](_))
+    else
+      None
+  }
 
   def insert = StatusMonitor.database.withSession {
     implicit db: Session =>
@@ -84,7 +96,47 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def lastUpdated = column[Date]("LASTUPDATED")
 
-  def * = id.? ~ projectId ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory ~ updatePeriod ~ lastQueried.? ~ lastUpdated.? <>((apply _).tupled, unapply _)
+  def configJson = column[String]("CONFIGJSON")
+
+  def * = id.? ~ projectId ~ name ~ typeNum ~ url ~ username.? ~ password.? ~ active ~ keepHistory ~ updatePeriod ~ lastQueried.? ~ lastUpdated.? ~ configJson.? <>((apply _).tupled, unapply _)
+
+  def formApply(id: Option[Long],
+                projectId: Long,
+                name: String,
+                typeNum: Int,
+                url: String,
+                username: Option[String],
+                password: Option[String],
+                active: Boolean,
+                keepHistory: Int,
+                updatePeriod: Int,
+                lastQueried: Option[Date],
+                lastUpdated: Option[Date],
+                icingaConfig: Option[IcingaConfig]): StatusMonitor = {
+    val config = StatusMonitorTypes(typeNum) match {
+      case StatusMonitorTypes.Icinga =>
+        Some(Json.toJson(icingaConfig.getOrElse(IcingaConfig())))
+      case _ =>
+        None
+    }
+    StatusMonitor(id, projectId, name, typeNum, url, username, password, active, keepHistory, updatePeriod,
+      lastQueried, lastUpdated, config.map(Json.stringify(_)))
+  }
+
+  def formUnapply(statusMonitor: StatusMonitor) =
+    Some(statusMonitor.id,
+      statusMonitor.projectId,
+      statusMonitor.name,
+      statusMonitor.typeNum,
+      statusMonitor.url,
+      statusMonitor.username,
+      statusMonitor.password,
+      statusMonitor.active,
+      statusMonitor.keepHistory,
+      statusMonitor.updatePeriod,
+      statusMonitor.lastQueried,
+      statusMonitor.lastUpdated,
+      statusMonitor.icingaConfig)
 
   def query = Query(this)
 

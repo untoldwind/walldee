@@ -4,6 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models.{Project, StatusValue, StatusMonitor}
 import play.api.data._
 import play.api.data.Forms._
+import models.statusMonitors.{IcingaExpected, IcingaConfig}
 
 object StatusMonitors extends Controller {
   def index = Action {
@@ -68,6 +69,17 @@ object StatusMonitors extends Controller {
       "keepHistory" -> number,
       "updatePeriod" -> number,
       "lastQueried" -> ignored(statusMonitor.lastQueried),
-      "lastUpdated" -> ignored(statusMonitor.lastUpdated)
-    )(StatusMonitor.apply)(StatusMonitor.unapply)).fill(statusMonitor)
+      "lastUpdated" -> ignored(statusMonitor.lastUpdated),
+      "icingaConfig" -> optional(icingaConfigMapping)
+    )(StatusMonitor.formApply)(StatusMonitor.formUnapply)).fill(statusMonitor)
+
+  private def icingaConfigMapping = mapping(
+    "expected" -> seq(icingaExpectedMapping)
+  )(IcingaConfig.apply)(IcingaConfig.unapply)
+
+  private def icingaExpectedMapping = mapping(
+    "host" -> text,
+    "criticals" -> number,
+    "warnings" -> number
+  )(IcingaExpected.apply)(IcingaExpected.unapply)
 }

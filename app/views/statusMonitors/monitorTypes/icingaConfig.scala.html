@@ -1,0 +1,36 @@
+@(configField:play.api.data.Field)
+
+<fieldset>
+    <legend>Icinga</legend>
+    <div id="items">
+        @helper.repeat(configField("expected")) { item =>
+        <div id="item-@item.id">
+            @helper.inputText(item("host"))
+            @helper.inputText(item("criticals"))
+            @helper.inputText(item("warnings"))
+            <a href="#" class="itemDelete">Delete</a>
+        </div>
+        }
+    </div>
+    <a href="#" id="addItem">Add</a>
+</fieldset>
+
+<script type="text/html" id="itemTmpl">
+    <div id="item-@configField("expected[{idx}]").id">
+    @helper.inputText(configField("expected[{idx}]")("host"))
+    @helper.inputText(configField("expected[{idx}]")("criticals"))
+    @helper.inputText(configField("expected[{idx}]")("warnings"))
+    <a href="#" class="itemDelete">Delete</a>
+    </div>
+</script>
+
+<script type="text/javascript">
+    $("#addItem").click(function () {
+        var tmpl = $("#itemTmpl").html();
+        var idx = $("#items").children().length;
+        $("#items").append(tmpl.replace(/\{idx\}/g, idx))
+    });
+    $("a.itemDelete").click(function(e) {
+        log($(this).parent().remove())
+    });
+</script>
