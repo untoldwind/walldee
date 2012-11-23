@@ -14,23 +14,33 @@ import org.joda.time.DateMidnight
 import java.util.Date
 import models.DateMapper.date2timestamp
 import org.scalaquery.ql.Query
+import globals.Global
 
 case class Alarm(id: Option[Long], name: String, nextDate: Date, repeatDays: Option[Int]) {
   def this() = this(None, "", new Timestamp(System.currentTimeMillis()), None)
 
-  def insert = Alarm.database.withSession {
-    implicit db: Session =>
-      Alarm.insert(this)
+  def insert = {
+    Alarm.database.withSession {
+      implicit db: Session =>
+        Alarm.insert(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def update = Alarm.database.withSession {
-    implicit db: Session =>
-      Alarm.where(_.id === id).update(this)
+  def update = {
+    Alarm.database.withSession {
+      implicit db: Session =>
+        Alarm.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def delete = Alarm.database.withSession {
-    implicit db: Session =>
-      Alarm.where(_.id === id).delete
+  def delete = {
+    Alarm.database.withSession {
+      implicit db: Session =>
+        Alarm.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 }
 

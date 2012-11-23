@@ -14,6 +14,7 @@ import java.util.Date
 import models.DateMapper.date2timestamp
 import play.api.libs.json.{Json, JsValue}
 import statusValues.{MetricStatus, BuildStatus, HostsStatus}
+import globals.Global
 
 case class StatusValue(id: Option[Long],
                        statusMonitorId: Long,
@@ -52,19 +53,28 @@ case class StatusValue(id: Option[Long],
     }
   }
 
-  def insert = StatusValue.database.withSession {
-    implicit db: Session =>
-      StatusValue.insert(this)
+  def insert = {
+    StatusValue.database.withSession {
+      implicit db: Session =>
+        StatusValue.insert(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def update = StatusValue.database.withSession {
-    implicit db: Session =>
-      StatusValue.where(_.id === id).update(this)
+  def update = {
+    StatusValue.database.withSession {
+      implicit db: Session =>
+        StatusValue.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def delete = StatusValue.database.withSession {
-    implicit db: Session =>
-      StatusValue.where(_.id === id).delete
+  def delete = {
+    StatusValue.database.withSession {
+      implicit db: Session =>
+        StatusValue.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 }
 

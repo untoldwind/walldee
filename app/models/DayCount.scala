@@ -12,6 +12,7 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 import sprints.SprintCounterValue
+import globals.Global
 
 case class DayCount(
                      id: Option[Long],
@@ -25,19 +26,28 @@ case class DayCount(
 
   def counterValues = Json.fromJson[Seq[SprintCounterValue]](Json.parse(counterValuesJson))
 
-  def insert = DayCount.database.withSession {
-    implicit db: Session =>
-      DayCount.insert(this)
+  def insert = {
+    DayCount.database.withSession {
+      implicit db: Session =>
+        DayCount.insert(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def update = DayCount.database.withSession {
-    implicit db: Session =>
-      DayCount.where(_.id === id).update(this)
+  def update = {
+    DayCount.database.withSession {
+      implicit db: Session =>
+        DayCount.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def delete = DayCount.database.withSession {
-    implicit db: Session =>
-      DayCount.where(_.id === id).delete
+  def delete = {
+    DayCount.database.withSession {
+      implicit db: Session =>
+        DayCount.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 
 }

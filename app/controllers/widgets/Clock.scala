@@ -1,10 +1,13 @@
 package controllers.widgets
 
+import play.api.Play.current
 import play.api.data.Forms._
 import models.widgetConfigs.ClockConfig
-import models.{Alarm, DisplayItem, Display}
+import models.{DisplayItem, Display}
 import play.api.templates.Html
-import models.utils.DataDigest
+import play.api.libs.concurrent.Akka
+import globals.Global
+import akka.util.duration._
 
 object Clock extends Widget[ClockConfig] {
   val configMapping = mapping(
@@ -13,6 +16,8 @@ object Clock extends Widget[ClockConfig] {
   )(ClockConfig.apply)(ClockConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
+    val next = 1050 - (System.currentTimeMillis() % 1000)
+    Akka.system.scheduler.scheduleOnce(next millis, Global.displayUpdater, displayItem)
     views.html.display.widgets.clock.render(display, displayItem)
   }
 }

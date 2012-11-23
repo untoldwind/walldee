@@ -16,6 +16,7 @@ import org.scalaquery.ql.Query
 import org.joda.time.format.DateTimeFormat
 import java.util.Locale
 import sprints.SprintCounter
+import globals.Global
 
 case class Sprint(id: Option[Long],
                   title: String,
@@ -61,21 +62,29 @@ case class Sprint(id: Option[Long],
     result.result()
   }
 
-  def insert = Sprint.database.withSession {
-    implicit db: Session =>
-      Sprint.insert(this)
+  def insert = {
+    Sprint.database.withSession {
+      implicit db: Session =>
+        Sprint.insert(this)
+    }
   }
 
-  def update = Sprint.database.withSession {
-    implicit db: Session =>
-      Sprint.where(_.id === id).update(this)
+  def update = {
+    Sprint.database.withSession {
+      implicit db: Session =>
+        Sprint.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def delete = Sprint.database.withTransaction {
-    implicit db: Session =>
-      Story.where(s => s.sprintId === id).delete
-      DayCount.where(d => d.sprintId === id).delete
-      Sprint.where(_.id === id).delete
+  def delete = {
+    Sprint.database.withTransaction {
+      implicit db: Session =>
+        Story.where(s => s.sprintId === id).delete
+        DayCount.where(d => d.sprintId === id).delete
+        Sprint.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 }
 

@@ -1,3 +1,5 @@
+package globals
+
 import actors.{DisplayUpdater, Backup, StatusMonitorUpdater}
 import akka.actor.Props
 import play.api.Play.current

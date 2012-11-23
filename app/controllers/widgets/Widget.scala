@@ -1,10 +1,12 @@
 package controllers.widgets
 
+import play.api.Play.current
 import play.api.mvc.Controller
 import play.api.data.Mapping
 import models.{DisplayWidgets, DisplayItem, Display}
 import play.api.templates.Html
 import models.utils.{RenderedWidget, DataDigest}
+import play.api.cache.Cache
 
 trait Widget[Config] extends Controller {
   def configMapping: Mapping[Config]
@@ -36,6 +38,8 @@ object Widget {
   }
 
   def getRenderedWidget(display: Display, displayItem: DisplayItem): RenderedWidget = {
-    forDisplayItem(displayItem).render(display, displayItem)
+    Cache.getOrElse(cacheKey(display, displayItem)) {
+      forDisplayItem(displayItem).render(display, displayItem)
+    }
   }
 }

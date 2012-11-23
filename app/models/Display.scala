@@ -11,6 +11,7 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 import java.util.Locale
+import globals.Global
 
 case class Display(id: Option[Long],
                    name: String,
@@ -26,14 +27,20 @@ case class Display(id: Option[Long],
       Display.insert(this)
   }
 
-  def update = Display.database.withSession {
-    implicit db: Session =>
-      Display.where(_.id === id).update(this)
+  def update = {
+    Display.database.withSession {
+      implicit db: Session =>
+        Display.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def delete = Display.database.withSession {
-    implicit db: Session =>
-      Display.where(_.id === id).delete
+  def delete = {
+    Display.database.withSession {
+      implicit db: Session =>
+        Display.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 }
 
@@ -59,6 +66,16 @@ object Display extends Table[Display]("DISPLAY") {
   def findAll: Seq[Display] = database.withSession {
     implicit db: Session =>
       query.orderBy(name.asc).list
+  }
+
+  def findAllForSprint(sprintId: Long): Seq[Display] = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.sprintId === sprintId).orderBy(name.asc).list
+  }
+
+  def findAllForProject(projectId: Long): Seq[Display] = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.projectId === projectId).orderBy(name.asc).list
   }
 
   def findById(displayId: Long): Option[Display] = database.withSession {

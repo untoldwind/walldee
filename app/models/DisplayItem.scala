@@ -13,6 +13,7 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 import scala.Some
+import globals.Global
 
 case class DisplayItem(
                         id: Option[Long],
@@ -97,19 +98,28 @@ case class DisplayItem(
     }
   }
 
-  def insert = DisplayItem.database.withSession {
-    implicit db: Session =>
-      DisplayItem.insert(this)
+  def insert = {
+    DisplayItem.database.withSession {
+      implicit db: Session =>
+        DisplayItem.insert(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def update = DisplayItem.database.withSession {
-    implicit db: Session =>
-      DisplayItem.where(_.id === id).update(this)
+  def update = {
+    DisplayItem.database.withSession {
+      implicit db: Session =>
+        DisplayItem.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def delete = DisplayItem.database.withSession {
-    implicit db: Session =>
-      DisplayItem.where(_.id === id).delete
+  def delete = {
+    DisplayItem.database.withSession {
+      implicit db: Session =>
+        DisplayItem.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 }
 

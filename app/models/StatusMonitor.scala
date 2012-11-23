@@ -14,6 +14,7 @@ import java.util.Date
 import models.DateMapper.date2timestamp
 import play.api.libs.json.Json
 import statusMonitors.IcingaConfig
+import globals.Global
 
 case class StatusMonitor(id: Option[Long],
                          projectId: Long,
@@ -41,31 +42,44 @@ case class StatusMonitor(id: Option[Long],
       None
   }
 
-  def insert = StatusMonitor.database.withSession {
-    implicit db: Session =>
-      StatusMonitor.insert(this)
+  def insert = {
+    StatusMonitor.database.withSession {
+      implicit db: Session =>
+        StatusMonitor.insert(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def update = StatusMonitor.database.withSession {
-    implicit db: Session =>
-      StatusMonitor.where(_.id === id).update(this)
+  def update = {
+    StatusMonitor.database.withSession {
+      implicit db: Session =>
+        StatusMonitor.where(_.id === id).update(this)
+    }
+    Global.displayUpdater ! this
   }
 
-  def updateLastQueried = StatusMonitor.database.withSession {
-    implicit db: Session =>
-      StatusMonitor.where(_.id === id).map(_.lastQueried).update(new Date)
+  def updateLastQueried = {
+    StatusMonitor.database.withSession {
+      implicit db: Session =>
+        StatusMonitor.where(_.id === id).map(_.lastQueried).update(new Date)
+    }
   }
 
-  def updateLastUpdated = StatusMonitor.database.withSession {
-    implicit db: Session =>
-      StatusMonitor.where(_.id === id).map(_.lastUpdated).update(new Date)
+  def updateLastUpdated = {
+    StatusMonitor.database.withSession {
+      implicit db: Session =>
+        StatusMonitor.where(_.id === id).map(_.lastUpdated).update(new Date)
+    }
   }
 
 
-  def delete = StatusMonitor.database.withSession {
-    implicit db: Session =>
-      StatusValue.where(_.statusMonitorId === id.get).delete
-      StatusMonitor.where(_.id === id).delete
+  def delete = {
+    StatusMonitor.database.withSession {
+      implicit db: Session =>
+        StatusValue.where(_.statusMonitorId === id.get).delete
+        StatusMonitor.where(_.id === id).delete
+    }
+    Global.displayUpdater ! this
   }
 }
 
