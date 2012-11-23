@@ -17,29 +17,9 @@ object Alarms extends Widget[AlarmsConfig] {
     "alertPeriod" -> optional(number)
   )(AlarmsConfig.apply)(AlarmsConfig.unapply)
 
-  def render(display: Display, displayItem: DisplayItem): Html = {
+  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     views.html.display.widgets.alarms.render(display, displayItem,
       findAllPendingForToday(displayItem.alarmsConfig.flatMap(_.alertPeriod)))
-  }
-
-  override def etag(display: Display, displayItem: DisplayItem): String = {
-    val dataDigest = DataDigest()
-
-    dataDigest.update(displayItem.posx)
-    dataDigest.update(displayItem.posy)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.styleNum)
-    dataDigest.update(displayItem.widgetConfigJson)
-
-    findAllPendingForToday(displayItem.alarmsConfig.flatMap(_.alertPeriod)).foreach {
-      case (alarm, alert) =>
-        dataDigest.update(alert)
-        dataDigest.update(alarm.id)
-        dataDigest.update(alarm.name)
-        dataDigest.update(alarm.repeatDays)
-    }
-    dataDigest.base64Digest()
   }
 
   private def findAllPendingForToday(alarmPeriod: Option[Int]): Seq[(Alarm, Boolean)] = {

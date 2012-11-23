@@ -33,25 +33,8 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     "lineWidth" -> optional(number)
   )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
 
-  def render(display: Display, displayItem: DisplayItem): Html = {
+  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     views.html.display.widgets.burndownChart.render(display, displayItem)
-  }
-
-  override def etag(display: Display, displayItem: DisplayItem): String = {
-    val dataDigest = DataDigest()
-
-    dataDigest.update(displayItem.posx)
-    dataDigest.update(displayItem.posy)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.styleNum)
-    dataDigest.update(displayItem.widgetConfigJson)
-
-    Sprint.findById(display.sprintId).map {
-      sprint =>
-        dataDigest.update(calculateETag(displayItem, sprint, displayItem.width, displayItem.height))
-    }
-    dataDigest.base64Digest()
   }
 
   def getPng(displayItemId: Long, sprintId: Long, width: Int, height: Int) = Action {

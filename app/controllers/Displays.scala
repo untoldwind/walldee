@@ -45,10 +45,7 @@ object Displays extends Controller {
           request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
             val renderedWidgets = displayItems.map {
               displayItem =>
-                val style = displayItem.style.toString.toLowerCase()
-                val content = widget(displayItem).render(display, displayItem)
-
-                RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, style, content)
+                Widget.forDisplayItem(displayItem).render(display, displayItem)
             }
             Ok(views.html.display.showWall(display, renderedWidgets)).withHeaders(ETAG -> etag)
           }
@@ -82,20 +79,6 @@ object Displays extends Controller {
       }.getOrElse(NotFound)
   }
 
-  private def widget(displayItem: DisplayItem): Widget[_] = {
-    displayItem.widget match {
-      case DisplayWidgets.BurndownChart => widgets.BurndownChart
-      case DisplayWidgets.SprintTitle => widgets.SprintTitle
-      case DisplayWidgets.Clock => widgets.Clock
-      case DisplayWidgets.Alarms => widgets.Alarms
-      case DisplayWidgets.IFrame => widgets.IFrame
-      case DisplayWidgets.BuildStatus => widgets.BuildStatus
-      case DisplayWidgets.HostStatus => widgets.HostStatus
-      case DisplayWidgets.Metrics => widgets.Metrics
-    }
-
-  }
-
   private def getEtag(display: Display, displayItems: Seq[DisplayItem]): String = {
     val dataDigest = DataDigest()
 
@@ -105,7 +88,7 @@ object Displays extends Controller {
     dataDigest.update(display.refreshTime)
     displayItems.foreach {
       displayItem =>
-        dataDigest.update(widget(displayItem).etag(display, displayItem))
+        dataDigest.update(Widget.getRenderedWidget(display, displayItem).etag)
     }
     dataDigest.base64Digest()
   }

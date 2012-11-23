@@ -12,7 +12,7 @@ object BuildStatus extends Widget[BuildStatusConfig] {
     "labelSize" -> optional(number)
   )(BuildStatusConfig.apply)(BuildStatusConfig.unapply)
 
-  def render(display: Display, displayItem: DisplayItem): Html = {
+  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     display.projectId.map {
       projectId =>
         var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Jenkins, StatusMonitorTypes.Teamcity))
@@ -23,33 +23,5 @@ object BuildStatus extends Widget[BuildStatusConfig] {
         }
         views.html.display.widgets.buildStatus(display, displayItem, statusMonitorsWithStatus)
     }.getOrElse(Html(""))
-  }
-
-  override def etag(display: Display, displayItem: DisplayItem): String = {
-    val dataDigest = DataDigest()
-
-    dataDigest.update(displayItem.posx)
-    dataDigest.update(displayItem.posy)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.styleNum)
-    dataDigest.update(displayItem.widgetConfigJson)
-
-    dataDigest.update(display.projectId)
-    display.projectId.map {
-      projectId =>
-        StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Jenkins, StatusMonitorTypes.Teamcity)).foreach {
-          statusMonitor =>
-            dataDigest.update(statusMonitor.id)
-            dataDigest.update(statusMonitor.active)
-            StatusValue.findLastForStatusMonitor(statusMonitor.id.get).foreach {
-              statusValue =>
-                dataDigest.update(statusValue.id)
-                dataDigest.update(statusValue.statusNum)
-            }
-        }
-    }
-
-    dataDigest.base64Digest()
   }
 }

@@ -11,7 +11,7 @@ object IFrame extends Widget[IFrameConfig] {
     "url" -> optional(text)
   )(IFrameConfig.apply)(IFrameConfig.unapply)
 
-  def render(display: Display, displayItem: DisplayItem): Html = {
+  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     views.html.display.widgets.iframe.render(display, displayItem)
   }
 }

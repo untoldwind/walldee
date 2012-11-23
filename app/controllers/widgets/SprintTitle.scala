@@ -12,27 +12,10 @@ object SprintTitle extends Widget[SprintTitleConfig] {
     "labelSize" -> optional(number)
   )(SprintTitleConfig.apply)(SprintTitleConfig.unapply)
 
-  def render(display: Display, displayItem: DisplayItem): Html = {
+  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     Sprint.findById(display.sprintId).map {
       sprint =>
         views.html.display.widgets.sprintTitle.render(display, displayItem, sprint)
     }.getOrElse(Html(""))
-  }
-
-  override def etag(display: Display, displayItem: DisplayItem): String = {
-    val dataDigest = DataDigest()
-
-    dataDigest.update(displayItem.posx)
-    dataDigest.update(displayItem.posy)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.styleNum)
-    dataDigest.update(displayItem.widgetConfigJson)
-
-    Sprint.findById(display.sprintId).map {
-      sprint =>
-        dataDigest.update(sprint.title)
-    }
-    dataDigest.base64Digest()
   }
 }

@@ -73,7 +73,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     "items" -> seq(metricsItemMapping)
   )(MetricsConfig.apply)(MetricsConfig.unapply)
 
-  def render(display: Display, displayItem: DisplayItem) = {
+  def renderHtml(display: Display, displayItem: DisplayItem) = {
     display.projectId.map {
       projectId =>
         var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
@@ -133,34 +133,6 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     val chart = new JFreeChart(null, titleFont, plot, false)
     chart.setBackgroundPaint(null)
     chart
-  }
-
-  override def etag(display: Display, displayItem: DisplayItem): String = {
-    val dataDigest = DataDigest()
-
-    dataDigest.update(displayItem.posx)
-    dataDigest.update(displayItem.posy)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.styleNum)
-    dataDigest.update(displayItem.widgetConfigJson)
-
-    dataDigest.update(display.projectId)
-    display.projectId.map {
-      projectId =>
-        StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar)).foreach {
-          statusMonitor =>
-            dataDigest.update(statusMonitor.id)
-            dataDigest.update(statusMonitor.active)
-            StatusValue.findLastForStatusMonitor(statusMonitor.id.get).foreach {
-              statusValue =>
-                dataDigest.update(statusValue.id)
-                dataDigest.update(statusValue.statusNum)
-            }
-        }
-    }
-
-    dataDigest.base64Digest()
   }
 }
 

@@ -2,25 +2,40 @@ package controllers.widgets
 
 import play.api.mvc.Controller
 import play.api.data.Mapping
-import models.{DisplayItem, Display}
+import models.{DisplayWidgets, DisplayItem, Display}
 import play.api.templates.Html
-import models.utils.DataDigest
+import models.utils.{RenderedWidget, DataDigest}
 
 trait Widget[Config] extends Controller {
   def configMapping: Mapping[Config]
 
-  def render(display: Display, displayItem: DisplayItem): Html
+  def renderHtml(display: Display, displayItem: DisplayItem): Html
 
-  def etag(display: Display, displayItem: DisplayItem): String = {
-    val dataDigest = DataDigest()
+  def render(display: Display, displayItem: DisplayItem): RenderedWidget = {
+    val style = displayItem.style.toString.toLowerCase()
+    val content = renderHtml(display, displayItem)
+    RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, style, content)
+  }
+}
 
-    dataDigest.update(displayItem.posx)
-    dataDigest.update(displayItem.posy)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.styleNum)
-    dataDigest.update(displayItem.widgetConfigJson)
+object Widget {
+  def cacheKey(display: Display, displayItem: DisplayItem) =
+    "renderedWidget-%d-%d".format(display.id.get, displayItem.id.get)
 
-    dataDigest.base64Digest()
+  def forDisplayItem(displayItem: DisplayItem): Widget[_] = {
+    displayItem.widget match {
+      case DisplayWidgets.BurndownChart => BurndownChart
+      case DisplayWidgets.SprintTitle => SprintTitle
+      case DisplayWidgets.Clock => Clock
+      case DisplayWidgets.Alarms => Alarms
+      case DisplayWidgets.IFrame => IFrame
+      case DisplayWidgets.BuildStatus => BuildStatus
+      case DisplayWidgets.HostStatus => HostStatus
+      case DisplayWidgets.Metrics => Metrics
+    }
+  }
+
+  def getRenderedWidget(display: Display, displayItem: DisplayItem): RenderedWidget = {
+    forDisplayItem(displayItem).render(display, displayItem)
   }
 }
