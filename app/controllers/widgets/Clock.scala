@@ -16,7 +16,7 @@ object Clock extends Widget[ClockConfig] {
   )(ClockConfig.apply)(ClockConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    val next = 1050 - (System.currentTimeMillis() % 1000)
+    val next = 60L * 1000L + 50 - (System.currentTimeMillis() % (60L * 1000))
     Akka.system.scheduler.scheduleOnce(next millis, Global.displayUpdater, displayItem)
     views.html.display.widgets.clock.render(display, displayItem)
   }
