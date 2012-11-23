@@ -48,4 +48,5 @@ GET     /displays/:displayId/items/:itemId controllers.DisplayItems.edit(display
 POST    /displays/:displayId/items/:itemId controllers.DisplayItems.update(displayId:Long, itemId:Long)
 DELETE  /displays/:displayId/items/:itemId controllers.DisplayItems.delete(displayId:Long, itemId:Long)
 
-GET     /plugins/burndownChart/:itemId/:sprintId   controllers.widgets.BurndownChart.getPng(itemId:Long, sprintId:Long, width:Int ?= 400, height:Int ?= 300)
+GET     /widgets/burndownChart/:itemId/:sprintId   controllers.widgets.BurndownChart.getPng(itemId:Long, sprintId:Long, width:Int ?= 400, height:Int ?= 300)
+GET     /widgets/metrics/coverage/:itemId/:projectId/:itemIdx controllers.widgets.Metrics.getCoveragePng(itemId:Long, projectId:Long, itemIdx:Int, width:Int ?= 400, height:Int ?= 300)
