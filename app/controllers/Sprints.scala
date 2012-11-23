@@ -5,7 +5,7 @@ import models.{DayCount, Story, Sprint}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
-import models.json.{SprintCounterSide, SprintCounter}
+import models.sprints.{SprintCounter, SprintCounterSide}
 import validation.Constraints
 import play.api.data.format._
 

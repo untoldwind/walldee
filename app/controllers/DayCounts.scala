@@ -5,7 +5,7 @@ import models.{Sprint, DayCount, Story}
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
-import models.json.SprintCounterValue
+import models.sprints.SprintCounterValue
 
 object DayCounts extends Controller {
   def create(sprintId: Long) = Action {

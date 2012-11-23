@@ -4,9 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import scala.Some
-import models.json.SprintCounter
-import models.utils.{DataDigest, RenderedWidget}
+import models.utils.DataDigest
 import utils.RenderedWidget
 import widgets.Widget
 

@@ -1,6 +1,5 @@
 package models
 
-import json.SprintCounter
 import java.sql.Date
 import play.api.libs.json.Json
 import org.joda.time.{DateTimeConstants, DateMidnight}
@@ -16,6 +15,7 @@ import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
 import org.joda.time.format.DateTimeFormat
 import java.util.Locale
+import sprints.SprintCounter
 
 case class Sprint(id: Option[Long],
                   title: String,

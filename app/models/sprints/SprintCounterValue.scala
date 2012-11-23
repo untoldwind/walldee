@@ -1,4 +1,4 @@
-package models.json
+package models.sprints
 
 import play.api.libs.json._
 import play.api.libs.json.JsObject

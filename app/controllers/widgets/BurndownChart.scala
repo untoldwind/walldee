@@ -10,7 +10,7 @@ import javax.imageio.ImageIO
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import models._
-import models.json.{SprintCounter, SprintCounterSide}
+import sprints.{SprintCounter, SprintCounterSide}
 import play.api.data.Forms._
 import models.widgetConfigs.{AlarmsConfig, BurndownChartConfig}
 import org.jfree.chart.title.LegendTitle

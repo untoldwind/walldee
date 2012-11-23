@@ -18,7 +18,7 @@
         <div>
             @helper.inputText(counter("name"))
             @helper.inputText(counter("color"))
-            @helper.select(counter("side"), models.json.SprintCounterSide.values.toSeq.map(side => side.id.toString ->
+            @helper.select(counter("side"), models.sprints.SprintCounterSide.values.toSeq.map(side => side.id.toString ->
             side.toString))
         </div>
         }
@@ -30,7 +30,7 @@
     <div>
         @helper.inputText(form("counters[{idx}]")("name"))
         @helper.inputText(form("counters[{idx}]")("color"))
-        @helper.select(form("counters[{idx}]")("side"), models.json.SprintCounterSide.values.toSeq.map(side =>
+        @helper.select(form("counters[{idx}]")("side"), models.sprints.SprintCounterSide.values.toSeq.map(side =>
         side.id.toString -> side.toString))
     </div>
 </script>

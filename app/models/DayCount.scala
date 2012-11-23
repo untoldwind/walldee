@@ -1,6 +1,5 @@
 package models
 
-import json.SprintCounterValue
 import play.api.libs.json.Json
 import play.api.db._
 import play.api.Play.current
@@ -12,12 +11,13 @@ import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
 import org.scalaquery.ql.Query
+import sprints.SprintCounterValue
 
 case class DayCount(
-  id: Option[Long],
-  sprintId: Long,
-  dayNum: Int,
-  counterValuesJson: String) {
+                     id: Option[Long],
+                     sprintId: Long,
+                     dayNum: Int,
+                     counterValuesJson: String) {
 
   def this() = this(None, 0, 0, "[]")
 
@@ -58,21 +58,21 @@ object DayCount extends Table[DayCount]("DAYCOUNT") {
   def query = Query(this)
 
   def formApply(
-    id: Option[Long],
-    sprintId: Long,
-    dayNum: Int,
-    counterValues: List[SprintCounterValue]) =
+                 id: Option[Long],
+                 sprintId: Long,
+                 dayNum: Int,
+                 counterValues: List[SprintCounterValue]) =
     DayCount(id, sprintId, dayNum, Json.stringify(Json.toJson(counterValues)))
 
   def formUnapply(dayCount: DayCount) =
     Some(dayCount.id, dayCount.sprintId, dayCount.dayNum, dayCount.counterValues.toList)
 
-  def findAllForSprint(sprintId: Long) = database.withSession {
+  def findAllForSprint(sprintId: Long): Seq[DayCount] = database.withSession {
     implicit db: Session =>
       query.where(d => d.sprintId === sprintId).orderBy(dayNum.asc).list
   }
 
-  def findById(dayCountId: Long) = database.withSession {
+  def findById(dayCountId: Long): Option[DayCount] = database.withSession {
     implicit db: Session =>
       query.where(d => d.id === dayCountId).firstOption
   }
