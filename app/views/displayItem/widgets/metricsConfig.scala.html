@@ -11,8 +11,10 @@
         @helper.repeat(configField("items")) { item =>
         <div id="item-@item.id">
             @helper.select(item("itemType"), models.widgetConfigs.MetricsItemTypes.values.toSeq.map(itemType => itemType.id.toString -> itemType.toString))
+            @helper.checkbox(item("asGauge"))
             @helper.inputText(item("valueFont"))
             @helper.inputText(item("valueSize"))
+            @helper.inputText(item("warnAt"))
             <div>
             @models.statusValues.MetricSeverityTypes.values.toList.map { severity =>
                 @helper.checkbox(item("severities")(severity.toString), '_label -> severity.toString)
@@ -28,8 +30,10 @@
 <script type="text/html" id="itemTmpl">
     <div id="item-@configField("items[{idx}]").id">
         @helper.select(configField("items[{idx}]")("itemType"), models.widgetConfigs.MetricsItemTypes.values.toSeq.map(itemType => itemType.id.toString -> itemType.toString))
+        @helper.checkbox(configField("items[{idx}]")("asGauge"))
         @helper.inputText(configField("items[{idx}]")("valueFont"))
         @helper.inputText(configField("items[{idx}]")("valueSize"))
+        @helper.inputText(configField("items[{idx}]")("warnAt"))
         <div>
             @models.statusValues.MetricSeverityTypes.values.toList.map { severity =>
                 @helper.checkbox(configField("items[{idx}]")("severities")(severity.toString), '_label -> severity.toString)

@@ -55,9 +55,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
 
                 ImageIO.write(image, "png", out)
 
-                val response = Ok(content = out.toByteArray)
-
-                response.withHeaders(ETAG -> etag)
+                Ok(content = out.toByteArray).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
               }
           }
       }.getOrElse(NotFound)

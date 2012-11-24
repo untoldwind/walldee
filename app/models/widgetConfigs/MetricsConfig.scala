@@ -10,8 +10,10 @@ object MetricsItemTypes extends Enumeration {
 }
 
 case class MetricsItem(itemType: MetricsItemTypes.Type,
+                       asGauge: Option[Boolean] = None,
                        valueFont: Option[String] = None,
                        valueSize: Option[Int] = None,
+                       warnAt: Option[Int] = None,
                        severities: Seq[MetricSeverityTypes.Type] = Seq.empty)
 
 object MetricsItem {
@@ -20,15 +22,21 @@ object MetricsItem {
     override def reads(json: JsValue): MetricsItem =
       MetricsItem(
         MetricsItemTypes((json \ "itemType").as[Int]),
+        (json \ "asGauge").asOpt[Boolean],
         (json \ "valueFont").asOpt[String],
         (json \ "valueSize").asOpt[Int],
+        (json \ "warnAt").asOpt[Int],
         (json \ "severities").as[Seq[Int]].map(MetricSeverityTypes(_)))
 
     override def writes(metricsItem: MetricsItem): JsValue = JsObject(
       Seq("itemType" -> JsNumber(metricsItem.itemType.id),
         "severities" -> Json.toJson(metricsItem.severities.map(_.id))) ++
+        metricsItem.asGauge.map("asGauge" -> JsBoolean(_)).toSeq ++
         metricsItem.valueFont.map("valueFont" -> JsString(_)).toSeq ++
-        metricsItem.valueSize.map("valueSize" -> JsNumber(_)).toSeq)
+        metricsItem.valueSize.map("valueSize" -> JsNumber(_)).toSeq ++
+        metricsItem.warnAt.map("warnAt" -> JsNumber(_)).toSeq
+
+    )
   }
 
 }
