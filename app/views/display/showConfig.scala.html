@@ -14,6 +14,7 @@
     @helper.select(form("projectId"), projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
     @helper.inputText(form("backgroundColor"))
     @helper.inputText(form("refreshTime"))
+    @helper.checkbox(form("useLongPolling"))
 </fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Update">

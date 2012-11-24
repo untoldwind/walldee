@@ -5,16 +5,21 @@ import play.api.libs.json._
 import models.sprints.SprintCounter
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
+import models.DisplayItem
 
-case class RenderedWidget(var posx: Int,
-                          var posy: Int,
-                          var width: Int,
-                          var height: Int,
-                          var style: String,
-                          var content: Html) {
+case class RenderedWidget(displayItem: DisplayItem,
+                          content: Html) {
+  val id = "displayItem-%d".format(displayItem.id.get)
+  val posx = displayItem.posx + 2
+  val posy = displayItem.posy + 2
+  val width = displayItem.width - 12
+  val height = displayItem.height - 12
+  val style = displayItem.style.toString.toLowerCase
+
   lazy val etag = {
     val dataDigest = new DataDigest
 
+    dataDigest.update(id)
     dataDigest.update(posx)
     dataDigest.update(posy)
     dataDigest.update(width)
@@ -30,11 +35,13 @@ object RenderedWidget {
   implicit object SprintCounterFormat extends Writes[RenderedWidget] {
 
     override def writes(renderedWidget: RenderedWidget): JsValue = JsObject(Seq(
+      "id" -> JsString(renderedWidget.id),
       "posx" -> JsNumber(renderedWidget.posx),
       "posy" -> JsNumber(renderedWidget.posy),
       "width" -> JsNumber(renderedWidget.width),
       "height" -> JsNumber(renderedWidget.height),
       "style" -> JsString(renderedWidget.style),
+      "etag" -> JsString(renderedWidget.etag),
       "content" -> JsString(renderedWidget.content.toString)))
   }
 

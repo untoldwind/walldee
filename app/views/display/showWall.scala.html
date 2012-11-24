@@ -6,17 +6,65 @@
     <title>@display.name</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/display.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-    <script src="@routes.Assets.at("javascripts/jquery-1.8.3.min.js")" type="text/javascript"></script>
-    <meta http-equiv="refresh" content="@display.refreshTime">
+    @if(display.useLongPolling) {
+        <script src="@routes.Assets.at("javascripts/jquery-1.8.3.min.js")" type="text/javascript"></script>
+    } else {
+        <meta http-equiv="refresh" content="@display.refreshTime">
+    }
 </head>
 <body style="background: @display.backgroundColor;">
-    <div style="position: absolute; width: 100%; height: 100%">
+    <div id="displayItems" style="position: absolute; width: 100%; height: 100%">
         @renderedWidgets.map { renderedWidget =>
-        <div class="widget @renderedWidget.style" style="position:absolute; overflow: hidden; left: @{renderedWidget.posx + 2}px;top: @{renderedWidget.posy + 2}px;width: @{renderedWidget.width - 12}px;height: @{renderedWidget.height - 12}px">
+        <div id="@renderedWidget.id" etag="@renderedWidget.etag" class="widget @renderedWidget.style" style="left: @{renderedWidget.posx}px;top: @{renderedWidget.posy}px;width: @{renderedWidget.width}px;height: @{renderedWidget.height}px">
                 @renderedWidget.content
-       </div>
+        </div>
     }
     </div>
+
+    @if(display.useLongPolling) {
+        <script type="text/javascript">
+            var applyUpdates = function(updates) {
+                console.log(updates);
+                $.each(updates, function(idx, update) {
+                    var selector = "#" + update.id;
+                    if ( $(selector).length == 0 ) {
+                        $("#displayItems").append("<div id=\"" + update.id + "\"></div>");
+                    }
+                    $(selector).attr("class", "widget");
+                    $(selector).addClass(update.style);
+                    $(selector).attr("etag", update.etag);
+                    $(selector).offset({ left: update.posx + "px", top: update.posy + "px" });
+                    $(selector).width(update.width + "px");
+                    $(selector).height(update.height + "px");
+                    $(selector).html(update.content);
+                });
+            }
+            var getUpdates = function() {
+                var state = {};
+                $("div.widget").each(function () {
+                    state[$(this).attr("id")] = $(this).attr("etag");
+                });
+                $.ajax({
+                    url: "@routes.Displays.wallUpdates(display.id.get)",
+                    data: JSON.stringify(state),
+                    dataType: "json",
+                    contentType: "application/json",
+                    type: "POST",
+                    success: function(result) {
+                        applyUpdates(result);
+                        getUpdates();
+                    },
+                    error: function(request, error, exception) {
+                        getUpdates();
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+                getUpdates();
+            })
+        </script>
+    }
 </body>
 </html>
 

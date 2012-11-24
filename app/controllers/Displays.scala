@@ -4,9 +4,12 @@ import play.api.mvc.{Action, Controller}
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import models.utils.DataDigest
-import utils.RenderedWidget
+import utils.{RenderedWidget, DataDigest}
 import widgets.Widget
+import play.api.libs.concurrent.Promise
+import globals.Global
+import actors.DisplayUpdater
+import play.api.libs.json.Json
 
 object Displays extends Controller {
   def index = Action {
@@ -40,14 +43,38 @@ object Displays extends Controller {
       Display.findById(displayId).map {
         display =>
           val displayItems = DisplayItem.findAllForDisplay(displayId)
-          val etag = getEtag(display, displayItems)
-
-          request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+          if (display.useLongPolling) {
             val renderedWidgets = displayItems.map {
               displayItem =>
                 Widget.forDisplayItem(displayItem).render(display, displayItem)
             }
-            Ok(views.html.display.showWall(display, renderedWidgets)).withHeaders(ETAG -> etag)
+            Ok(views.html.display.showWall(display, renderedWidgets))
+          } else {
+            val etag = getEtag(display, displayItems)
+
+            request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+              val renderedWidgets = displayItems.map {
+                displayItem =>
+                  Widget.forDisplayItem(displayItem).render(display, displayItem)
+              }
+              Ok(views.html.display.showWall(display, renderedWidgets)).withHeaders(ETAG -> etag)
+            }
+          }
+      }.getOrElse(NotFound)
+  }
+
+  def wallUpdates(displayId: Long) = Action(parse.json) {
+    implicit request =>
+      Display.findById(displayId).map {
+        display =>
+          Async {
+            val changes = Promise[Seq[RenderedWidget]]()
+
+            Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], changes)
+            changes.map {
+              renderedWidgets =>
+                Ok(Json.stringify(Json.toJson(renderedWidgets)))
+            }
           }
       }.getOrElse(NotFound)
   }
@@ -100,6 +127,7 @@ object Displays extends Controller {
       "sprintId" -> longNumber,
       "projectId" -> optional(longNumber),
       "backgroundColor" -> text,
-      "refreshTime" -> number(min = 1, max = 3600)
+      "refreshTime" -> number(min = 1, max = 3600),
+      "useLongPolling" -> boolean
     )(Display.apply)(Display.unapply)).fill(display)
 }

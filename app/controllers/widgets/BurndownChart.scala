@@ -34,22 +34,23 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
   )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    views.html.display.widgets.burndownChart.render(display, displayItem)
+    Sprint.findById(display.sprintId).map {
+      sprint =>
+        views.html.display.widgets.burndownChart.render(display, displayItem, calculateETag(displayItem, sprint))
+    }.getOrElse(Html(""))
   }
 
-  def getPng(displayItemId: Long, sprintId: Long, width: Int, height: Int) = Action {
+  def getPng(displayItemId: Long, sprintId: Long, etag: String) = Action {
     request =>
       DisplayItem.findById(displayItemId).flatMap {
         displayItem =>
           Sprint.findById(sprintId).map {
             sprint =>
-              val etag = calculateETag(displayItem, sprint, width, height)
-
               request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
                 val chart = createChart(sprint, displayItem.style,
                   displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
 
-                val image = chart.createBufferedImage(width, height)
+                val image = chart.createBufferedImage(displayItem.width - 5, displayItem.height - 5)
                 val out = new ByteArrayOutputStream()
 
                 ImageIO.write(image, "png", out)
@@ -188,10 +189,13 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     (leftSeries.result(), rightSeries.result())
   }
 
-  private def calculateETag(displayItem: DisplayItem, sprint: Sprint, width: Int, height: Int) = {
+  private def calculateETag(displayItem: DisplayItem, sprint: Sprint): String = {
+
     val dataDigest = DataDigest()
 
     dataDigest.update(displayItem.id)
+    dataDigest.update(displayItem.width)
+    dataDigest.update(displayItem.height)
     dataDigest.update(sprint.id)
     dataDigest.update(sprint.numberOfDays)
     dataDigest.update(sprint.languageTag)

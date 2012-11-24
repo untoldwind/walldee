@@ -14,9 +14,8 @@ trait Widget[Config] extends Controller {
   def renderHtml(display: Display, displayItem: DisplayItem): Html
 
   def render(display: Display, displayItem: DisplayItem): RenderedWidget = {
-    val style = displayItem.style.toString.toLowerCase()
     val content = renderHtml(display, displayItem)
-    RenderedWidget(displayItem.posx, displayItem.posy, displayItem.width, displayItem.height, style, content)
+    RenderedWidget(displayItem, content)
   }
 }
 

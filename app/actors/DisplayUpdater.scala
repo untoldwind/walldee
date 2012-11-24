@@ -6,8 +6,14 @@ import akka.event.slf4j.SLF4JLogging
 import models._
 import controllers.widgets.Widget
 import play.api.cache.Cache
+import play.api.libs.concurrent.{Redeemable, Redeemed}
+import utils.RenderedWidget
+import actors.DisplayUpdater.{CheckListeners, FindUpdates}
+import scala.collection.mutable
 
 class DisplayUpdater extends Actor with SLF4JLogging {
+  val listeners = mutable.ListBuffer.empty[FindUpdates]
+
   def receive = {
     case alarm: Alarm =>
       Display.findAll.foreach {
@@ -64,9 +70,50 @@ class DisplayUpdater extends Actor with SLF4JLogging {
           val cacheKey = Widget.cacheKey(display, displayItem)
 
           Cache.set(cacheKey, rendered)
+          self ! CheckListeners(display)
+      }
+
+    case findUpdates: FindUpdates =>
+      if (!findUpdates.check(currentWidgets(findUpdates.display)))
+        listeners += findUpdates
+
+    case CheckListeners(display) =>
+      listeners.filter(_.display.id == display.id).toSeq.foreach {
+        findUpdates =>
+          if (findUpdates.check(currentWidgets(findUpdates.display)))
+            listeners -= findUpdates
       }
 
     case message =>
       log.error("Received invalid message " + message.toString)
   }
+
+  private def currentWidgets(display: Display) = {
+    DisplayItem.findAllForDisplay(display.id.get).map {
+      displayItem =>
+        Widget.getRenderedWidget(display, displayItem)
+    }
+  }
+}
+
+object DisplayUpdater {
+
+  case class FindUpdates(display: Display, state: Map[String, String], result: Redeemable[Seq[RenderedWidget]]) {
+    def check(renderedWidgets: Seq[RenderedWidget]) = {
+      val changed = renderedWidgets.filter {
+        renderedWidget =>
+          state.get(renderedWidget.id).map(_ != renderedWidget.etag).getOrElse(true)
+      }
+      if (!changed.isEmpty) {
+        result.redeem {
+          changed
+        }
+        true
+      } else
+        false
+    }
+  }
+
+  case class CheckListeners(display: Display)
+
 }
