@@ -1,4 +1,4 @@
-@(display:Display, displayItem:DisplayItem, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
+@(display:Display, displayItem:DisplayItem, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])], etag:String)
 @import models.widgetConfigs.MetricsItemTypes
 
 @defining(displayItem.metricsConfig) { config =>
@@ -6,7 +6,7 @@
     @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
         <td>
             @if(item.asGauge.getOrElse(false)) {
-                <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, display.projectId.get, itemIdx, "")"/>
+                <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, display.projectId.get, itemIdx, etag)"/>
             } else {
                 <div class="title" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
                     @{item.itemType match {

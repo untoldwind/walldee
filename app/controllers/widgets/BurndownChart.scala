@@ -194,6 +194,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     dataDigest.update(displayItem.id)
     dataDigest.update(displayItem.width)
     dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.widgetConfigJson)
     dataDigest.update(sprint.id)
     dataDigest.update(sprint.numberOfDays)
     dataDigest.update(sprint.languageTag)

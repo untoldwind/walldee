@@ -5,6 +5,7 @@ import models.statusValues.MetricSeverityTypes
 import models._
 import play.api.templates.Html
 import play.api.mvc.{Controller, Action}
+import utils.DataDigest
 import widgetConfigs.{MetricsConfig, MetricsItem, MetricsItemTypes}
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
@@ -84,7 +85,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
             (statusMonitor,
               StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
         }
-        views.html.display.widgets.metrics(display, displayItem, statusMonitorsWithValues)
+        views.html.display.widgets.metrics(display, displayItem, statusMonitorsWithValues, calculateETag(displayItem, statusMonitorsWithValues))
     }.getOrElse(Html(""))
   }
 
@@ -92,24 +93,54 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     request =>
       DisplayItem.findById(displayItemId).map {
         displayItem =>
-          var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
-          var statusMonitorsWithValues = statusMonitors.map {
-            statusMonitor =>
-              (statusMonitor,
-                StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
+          request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
+            var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
+            var statusMonitorsWithValues = statusMonitors.map {
+              statusMonitor =>
+                (statusMonitor,
+                  StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
+            }
+
+            val config = displayItem.metricsConfig.getOrElse(MetricsConfig())
+            val configItem = config.items(itemIdx)
+            val width = (displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1)
+            val chart = configItem.itemType match {
+              case MetricsItemTypes.Coverage =>
+                createCoverageChart(statusMonitorsWithValues, displayItem.style, width, config, configItem)
+              case MetricsItemTypes.ViolationsDetail =>
+                createViolationDetailChart(statusMonitorsWithValues, displayItem.style, width, config, configItem)
+            }
+            val image = chart.createBufferedImage(width, width)
+            val out = new ByteArrayOutputStream()
+
+            ImageIO.write(image, "png", out)
+
+            Ok(content = out.toByteArray).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
           }
-
-          val config = displayItem.metricsConfig.getOrElse(MetricsConfig())
-          val width = (displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1);
-          val chart = createCoverageChart(statusMonitorsWithValues, displayItem.style, width, config, config.items(itemIdx))
-
-          val image = chart.createBufferedImage(width, width)
-          val out = new ByteArrayOutputStream()
-
-          ImageIO.write(image, "png", out)
-
-          Ok(content = out.toByteArray).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
       }.getOrElse(NotFound)
+  }
+
+  private def calculateETag(displayItem: DisplayItem, statusMonitors: Seq[(StatusMonitor, Option[StatusValue])]): String = {
+
+    val dataDigest = DataDigest()
+
+    dataDigest.update(displayItem.id)
+    dataDigest.update(displayItem.width)
+    dataDigest.update(displayItem.height)
+    dataDigest.update(displayItem.widgetConfigJson)
+    statusMonitors.foreach {
+      case (statusMonitor, statusValueOpt) =>
+        dataDigest.update(statusMonitor.id)
+        dataDigest.update(statusMonitor.keepHistory)
+        dataDigest.update(statusMonitor.configJson)
+        statusValueOpt.map {
+          statusValue =>
+            dataDigest.update(statusValue.id)
+            dataDigest.update(statusValue.valuesJson)
+        }
+    }
+
+    dataDigest.base64Digest()
   }
 
   private def createCoverageChart(statusMonitors: Seq[(StatusMonitor, Option[StatusValue])],
@@ -129,6 +160,34 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     plot.addScale(0, new CoverageScale)
     plot.addLayer(new FillPointer())
     val valueIndicator = new CoverageDialValueIndicator(valueFont)
+    plot.addLayer(valueIndicator)
+    plot.setDataset(dataSet)
+    plot.setBackgroundPaint(null)
+
+    val chart = new JFreeChart(null, titleFont, plot, false)
+    chart.setBackgroundPaint(null)
+    chart
+  }
+
+  private def createViolationDetailChart(statusMonitors: Seq[(StatusMonitor, Option[StatusValue])],
+                                         style: DisplayStyles.Type, width: Int,
+                                         config: MetricsConfig, item: MetricsItem): JFreeChart = {
+    val titleFont = new Font("SansSerif", Font.BOLD, (width / 6.4).toInt)
+    val valueFont = new Font("SansSerif", Font.BOLD, (width / 3.6).toInt)
+
+    val violations = statusMonitors.map {
+      case (statusMonitor, statusValues) =>
+        val violations = statusValues.flatMap(_.metricStatus).map(_.violations).getOrElse(Seq.empty)
+        violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
+    }.sum
+
+    val dataSet = new DefaultValueDataset(violations)
+    val plot = new DialPlot
+    val frame = new ViolationsDialFrame(titleFont, item.severities.head.toString)
+    plot.setDialFrame(frame)
+    plot.addScale(0, new CoverageScale)
+    plot.addLayer(new FillPointer())
+    val valueIndicator = new ViolationsDialValueIndicator(valueFont)
     plot.addLayer(valueIndicator)
     plot.setDataset(dataSet)
     plot.setBackgroundPaint(null)
@@ -190,6 +249,37 @@ class CoverageDialFrame(font: Font) extends ArcDialFrame(225, -270) {
   }
 }
 
+class ViolationsDialFrame(font: Font, title:String) extends ArcDialFrame(225, -270) {
+  setOuterRadius(0.93)
+
+  override def draw(g2: Graphics2D, plot: DialPlot, frame: Rectangle2D, view: Rectangle2D) {
+    val pt = new Point2D.Double(frame.getWidth * 0.5, frame.getHeight * 0.9)
+
+    // the indicator bounds is calculated from the templateValue (which
+    // determines the minimum size), the maxTemplateValue (which, if
+    // specified, provides a maximum size) and the actual value
+    val fm = g2.getFontMetrics(font)
+    val valueBounds = TextUtilities.getTextBounds(title, g2, fm)
+
+    // align this rectangle to the frameAnchor
+    val bounds = RectangleAnchor.createRectangle(new Size2D(valueBounds.getWidth, valueBounds.getHeight), pt.getX, pt.getY, RectangleAnchor.CENTER)
+
+    // now find the text anchor point
+    val savedClip = g2.getClip()
+    g2.clip(bounds)
+
+    val pt2 = RectangleAnchor.coordinates(bounds, RectangleAnchor.RIGHT)
+    g2.setPaint(Color.white)
+    g2.setFont(this.font)
+    TextUtilities.drawAlignedString(title, g2, pt2.getX.toFloat, pt2.getY().toFloat, TextAnchor.CENTER_RIGHT)
+    g2.setClip(savedClip)
+
+    g2.setStroke(new BasicStroke(5.0f))
+    g2.setPaint(Color.black)
+    g2.draw(getWindow(frame))
+  }
+}
+
 class CoverageDialValueIndicator(font: Font) extends DialValueIndicator {
   setAngle(90)
   setRadius(0.52)
@@ -197,6 +287,48 @@ class CoverageDialValueIndicator(font: Font) extends DialValueIndicator {
   setPaint(Color.white)
 
   val formatter = new DecimalFormat("0.0", DecimalFormatSymbols.getInstance(Locale.US))
+
+  override def draw(g2: Graphics2D, plot: DialPlot, frame: Rectangle2D, view: Rectangle2D) {
+    // work out the anchor point
+    val f = DialPlot.rectangleByRadius(frame, this.getRadius, this.getRadius)
+    val arc = new Arc2D.Double(f, this.getAngle, 0.0, Arc2D.OPEN)
+    val pt = arc.getStartPoint()
+
+    // the indicator bounds is calculated from the templateValue (which
+    // determines the minimum size), the maxTemplateValue (which, if
+    // specified, provides a maximum size) and the actual value
+    val fm = g2.getFontMetrics(this.font)
+    val value = plot.getValue(this.getDatasetIndex)
+
+    val valueStr = if (value >= 100) "100" else formatter.format(value)
+    val valueBounds = TextUtilities.getTextBounds(valueStr, g2, fm)
+
+    // align this rectangle to the frameAnchor
+    val bounds = RectangleAnchor.createRectangle(new Size2D(valueBounds.getWidth, valueBounds.getHeight), pt.getX, pt.getY, this.getFrameAnchor)
+
+    // add the insets
+    val fb = this.getInsets.createOutsetRectangle(bounds)
+
+    // now find the text anchor point
+    val savedClip = g2.getClip()
+    g2.clip(fb)
+
+    val pt2 = RectangleAnchor.coordinates(bounds, this.getValueAnchor)
+    g2.setPaint(this.getPaint)
+    g2.setFont(this.font)
+    TextUtilities.drawAlignedString(valueStr, g2, pt2.getX.toFloat, pt2.getY().toFloat, this.getTextAnchor)
+    g2.setClip(savedClip)
+  }
+}
+
+
+class ViolationsDialValueIndicator(font: Font) extends DialValueIndicator {
+  setAngle(90)
+  setRadius(0.52)
+  setFont(font)
+  setPaint(Color.white)
+
+  val formatter = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.US))
 
   override def draw(g2: Graphics2D, plot: DialPlot, frame: Rectangle2D, view: Rectangle2D) {
     // work out the anchor point
