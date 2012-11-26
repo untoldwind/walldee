@@ -8,6 +8,7 @@ import play.api.libs.json._
 import play.api.libs.json.JsArray
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsNumber
+import java.util.Date
 
 
 object Alarms extends Controller {
@@ -15,15 +16,16 @@ object Alarms extends Controller {
     Ok(views.html.alarm.index(Alarm.findAll, alarmForm()))
   }
 
-  def eventsJson = Action {
-    val events = JsArray(Alarm.findAll.map {
+  def eventsJson(start:Long, end:Long) = Action {
+    val events = JsArray(Alarm.findAllBetween(new Date(start * 1000L), new Date(end* 1000L)).map {
       alarm =>
         JsObject(Seq(
           "id" -> JsNumber(alarm.id.get),
           "start" -> JsNumber(alarm.nextDate.getTime),
           "end" -> JsNumber(alarm.nextDate.getTime + alarm.durationMins * 60L * 1000L),
           "title" -> JsString(alarm.name)
-        ))
+        ) ++
+          alarm.repeatDays.map("repeatDays" -> JsNumber(_)).toSeq)
     })
     Ok(Json.stringify(events)).withHeaders(CONTENT_TYPE -> "application/json")
   }

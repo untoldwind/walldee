@@ -16,7 +16,7 @@ import models.DateMapper.date2timestamp
 import org.scalaquery.ql.Query
 import globals.Global
 
-case class Alarm(id: Option[Long], name: String, nextDate: Date, durationMins:Int, repeatDays: Option[Int]) {
+case class Alarm(id: Option[Long], name: String, nextDate: Date, durationMins: Int, repeatDays: Option[Int]) {
   def this() = this(None, "", new Timestamp(System.currentTimeMillis()), 15, None)
 
   def insert = {
@@ -64,6 +64,11 @@ object Alarm extends Table[Alarm]("ALARM") {
   def findAll: Seq[Alarm] = database.withSession {
     implicit db: Session =>
       query.orderBy(nextDate.asc).list
+  }
+
+  def findAllBetween(start: Date, end: Date): Seq[Alarm] = database.withSession {
+    implicit db: Session =>
+      query.where(a => a.nextDate >= start && a.nextDate <= end).orderBy(nextDate.asc).list
   }
 
   def findAllForToday(): Seq[Alarm] = database.withSession {

@@ -6,19 +6,54 @@
     Breadcrumb("Home", routes.Application.index, false) ::
     Breadcrumb("Alarms", routes.Alarms.index, true) :: Nil,
     Seq("date.js", "jquery.weekcalendar.js"), Seq("week-calendar-default.css", "jquery.weekcalendar.css")) {
-<table id="alarm-list">
-    @list(alarms)
-</table>
-
-
-<div id="message" class="ui-corner-all"></div>
-
-<div class="clearer"></div>
 
 <div id="calendar"></div>
 
-<div id="event-edit">
-    Hubba
+<div id="event-create">
+    <form>
+        <table>
+            <tr>
+                <td>Name</td>
+                <td><input name="name" type="text"></td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td><input name="nextDate"  id="nextDate" type="text"></td>
+            </tr>
+            <tr>
+                <td>Duration (mins)</td>
+                <td><input name="durationMins" type="text"></td>
+            </tr>
+            <tr>
+                <td>Repeat (days)</td>
+                <td><input name="repeatDays" type="text"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="event-update">
+    <form>
+        <input name="id" type="hidden">
+        <table>
+            <tr>
+                <td>Name</td>
+                <td><input name="name" type="text"></td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td><input name="nextDate"  id="nextDate" type="text"></td>
+            </tr>
+            <tr>
+                <td>Duration (mins)</td>
+                <td><input name="durationMins" type="text"></td>
+            </tr>
+            <tr>
+                <td>Repeat (days)</td>
+                <td><input name="repeatDays" type="text"></td>
+            </tr>
+        </table>
+    </form>
 </div>
 
 <script type="text/javascript">
@@ -28,14 +63,60 @@
 
 
     $(document).ready(function() {
-        $("#event-edit").dialog({
+        $("#event-create").dialog({
             autoOpen: false,
             height: 300,
             width: 350,
-            modal: true
+            modal: true,
+            buttons: {
+                Ok: function(event) {
+                    console.log($("#event-create form").serialize())
+                    $.ajax({
+                        url: "/alarms",
+                        data: $("#event-create form").serialize(),
+                        type: "POST",
+                        success: function(result) {
+                            $('#calendar').weekCalendar("refresh");
+                            $("#event-create").dialog("close");
+                        },
+                        error: function(request, error, exception) {
+                            alert(exception);
+                        }
+                    });
+                },
+                Cancel: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+        $("#event-update").dialog({
+            autoOpen: false,
+            height: 300,
+            width: 350,
+            modal: true,
+            buttons: {
+                Ok: function(event) {
+                    console.log($("#event-create form").serialize())
+                    $.ajax({
+                        url: "/alarms/" + $('#event-update form input[name="id"]').val(),
+                        data: $("#event-update form").serialize(),
+                        type: "PUT",
+                        success: function(result) {
+                            $('#calendar').weekCalendar("refresh");
+                            $("#event-update").dialog("close");
+                        },
+                        error: function(request, error, exception) {
+                            alert(exception);
+                        }
+                    });
+                },
+                Cancel: function() {
+                    $(this).dialog( "close" );
+                }
+            }
         });
         $('#calendar').weekCalendar({
-            data: "@routes.Alarms.eventsJson",
+            data: "/alarms/events.json",
             switchDisplay: {'Work week': 5, 'Full week': 7},
             daysToShow: 5,
             scrollToHourMillis : 0,
@@ -45,44 +126,87 @@
             hourLine: true,
             allowEventDelete: true,
             height: function($calendar){
-                return $(window).height() - $("header").outerHeight(true) - $("footer").outerHeight(true);
+                return $("#content").innerHeight();
             },
             eventRender: function(calEvent, $event) {
                 if (calEvent.end.getTime() < new Date().getTime()) {
                     $event.css('backgroundColor', '#aaa');
-                    $event.find('.time').css({
+                    $event.find('.wc-time').css({
                         backgroundColor: '#999',
                         border:'1px solid #888'
                     });
+                } else if ( calEvent.repeatDays != null ) {
+                    $event.css('backgroundColor', '#0a0');
+                    $event.find('.wc-time').css({
+                        backgroundColor: '#090',
+                        border:'1px solid #080'
+                    });
                 }
             },
-            eventNew: function(calEvent, $event) {
-                displayMessage('<strong>Added event</strong><br/>Start: ' + calEvent.start + '<br/>End: ' + calEvent.end);
-                alert('You\'ve added a new event. You would capture this event, add the logic for creating a new event with your own fields, data and whatever backend persistence you require.');
+            beforeEventNew: function(event, calEventData) {
+                var calEvent = calEventData.calEvent
+                $('#event-create form input[name="nextDate"]').val(utils.formatDate(calEvent.start, "Y-M-d H:m"));
+                $('#event-create form input[name="durationMins"]').val((calEvent.end.getTime() - calEvent.start.getTime()) / 60 / 1000);
+                $("#event-create").dialog("open");
+                return false;
             },
             eventDrop: function(calEvent, $event) {
-                displayMessage('<strong>Moved Event</strong><br/>Start: ' + calEvent.start + '<br/>End: ' + calEvent.end);
+                $.ajax({
+                    url: "/alarms/" + calEvent.id,
+                    data: {
+                        id: calEvent.id,
+                        name: calEvent.title,
+                        nextDate: utils.formatDate(calEvent.start, "Y-M-d H:m"),
+                        durationMins: (calEvent.end.getTime() - calEvent.start.getTime()) / 60 / 1000,
+                        repeatDays: calEvent.repeatDays
+                    },
+                    type: "PUT",
+                    success: function(result) {
+                        $('#calendar').weekCalendar("refresh");
+                    },
+                    error: function(request, error, exception) {
+                        alert(exception);
+                    }
+                });
             },
             eventResize: function(calEvent, $event) {
-                displayMessage('<strong>Resized Event</strong><br/>Start: ' + calEvent.start + '<br/>End: ' + calEvent.end);
+                $.ajax({
+                    url: "/alarms/" + calEvent.id,
+                    data: {
+                        id: calEvent.id,
+                        name: calEvent.title,
+                        nextDate: utils.formatDate(calEvent.start, "Y-M-d H:m"),
+                        durationMins: (calEvent.end.getTime() - calEvent.start.getTime()) / 60 / 1000,
+                        repeatDays: calEvent.repeatDays
+                    },
+                    type: "PUT",
+                    success: function(result) {
+                        $('#calendar').weekCalendar("refresh");
+                    },
+                    error: function(request, error, exception) {
+                        alert(exception);
+                    }
+                });
             },
             eventClick: function(calEvent, $event) {
-                displayMessage('<strong>Clicked Event</strong><br/>Start: ' + calEvent.start + '<br/>End: ' + calEvent.end);
+                $('#event-update form input[name="id"]').val(calEvent.id);
+                $('#event-update form input[name="name"]').val(calEvent.title);
+                $('#event-update form input[name="nextDate"]').val(utils.formatDate(calEvent.start, "Y-M-d H:m"));
+                $('#event-update form input[name="durationMins"]').val((calEvent.end.getTime() - calEvent.start.getTime()) / 60 / 1000);
+                $('#event-update form input[name="repeatDays"]').val(calEvent.repeatDays);
+                $("#event-update").dialog("open");
             },
-            eventMouseover: function(calEvent, $event) {
-                displayMessage('<strong>Mouseover Event</strong><br/>Start: ' + calEvent.start + '<br/>End: ' + calEvent.end);
-            },
-            eventMouseout: function(calEvent, $event) {
-                displayMessage('<strong>Mouseout Event</strong><br/>Start: ' + calEvent.start + '<br/>End: ' + calEvent.end);
-            },
-            noEvents: function() {
-                displayMessage('There are no events for this week');
-            },
-            reachedmindate: function($calendar, date) {
-                displayMessage('You reached mindate');
-            },
-            reachedmaxdate: function($calendar, date) {
-                displayMessage('You cannot go further');
+            eventDelete: function(calEvent, $event) {
+                $.ajax({
+                    url: "/alarms/" + calEvent.id,
+                    type: "DELETE",
+                    success: function(result) {
+                        $('#calendar').weekCalendar("refresh");
+                    },
+                    error: function(request, error, exception) {
+                        alert(exception);
+                    }
+                });
             }
         });
 
