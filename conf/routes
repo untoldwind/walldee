@@ -10,6 +10,7 @@ GET     /assets/*file                             controllers.Assets.at(path="/p
 
 GET     /alarms                                   controllers.Alarms.index
 POST    /alarms                                   controllers.Alarms.create
+GET     /alarms/events.json                       controllers.Alarms.eventsJson
 PUT     /alarms/:alarmId                          controllers.Alarms.update(alarmId:Long)
 DELETE  /alarms/:alarmId                          controllers.Alarms.delete(alarmId:Long)
 

@@ -4,6 +4,7 @@
     <tr>
         <th>Name</th>
         <th>Next date</th>
+        <th>Duration minutes</th>
         <th>Repeat days</th>
     </tr>
 </thead>
@@ -12,6 +13,7 @@
     <tr id="alarm-@alarm.id.get">
         <td>@alarm.name</td>
         <td>@views.utils.dateFormat(alarm.nextDate)</td>
+        <td>@alarm.durationMins</td>
         <td>@alarm.repeatDays</td>
         <td>
             <a class="edit edit-switch" ref="#alarm-@alarm.id.get" editRef="#alarm-update-@alarm.id.get">Edit</a>
@@ -21,6 +23,7 @@
     <tr class="update" id="alarm-update-@alarm.id.get">
         <td><input type="text" name="name" value="@alarm.name"></td>
         <td><input type="text" name="nextDate" value="@views.utils.dateFormat(alarm.nextDate)"></td>
+        <td><input type="text" name="durationMins" value="alarm.duractionMins"></td>
         <td><input type="text" name="repeatDays" value="@alarm.repeatDays"></td>
         <td>
             <button class="update" action="@routes.Alarms.update(alarm.id.get)" dataRef="#alarm-update-@alarm.id.get" ref="#alarm-list">Update</button>
@@ -33,6 +36,7 @@
         <td><input type="text" name="name"></td>
         <td><input type="text" name="nextDate"></td>
         <td><input type="text" name="repeatDays"></td>
+        <td><input type="text" name="durationMins" value="15"></td>
         <td>
             <button class="create" action="@routes.Alarms.create" dataRef="#alarm-create" ref="#alarm-list">Add</button>
         </td>

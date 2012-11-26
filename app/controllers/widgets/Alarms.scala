@@ -46,7 +46,7 @@ object Alarms extends Widget[AlarmsConfig] {
         alarm.repeatDays.map {
           repeatDays =>
             val nextDate = new DateTime(alarm.nextDate.getTime).plusDays(repeatDays)
-            val newAlarm = Alarm(alarm.id, alarm.name, nextDate.toDate, Some(repeatDays))
+            val newAlarm = Alarm(alarm.id, alarm.name, nextDate.toDate, alarm.durationMins, Some(repeatDays))
             newAlarm.update
         }
     }

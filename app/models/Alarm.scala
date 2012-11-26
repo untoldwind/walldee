@@ -16,8 +16,8 @@ import models.DateMapper.date2timestamp
 import org.scalaquery.ql.Query
 import globals.Global
 
-case class Alarm(id: Option[Long], name: String, nextDate: Date, repeatDays: Option[Int]) {
-  def this() = this(None, "", new Timestamp(System.currentTimeMillis()), None)
+case class Alarm(id: Option[Long], name: String, nextDate: Date, durationMins:Int, repeatDays: Option[Int]) {
+  def this() = this(None, "", new Timestamp(System.currentTimeMillis()), 15, None)
 
   def insert = {
     Alarm.database.withSession {
@@ -53,13 +53,15 @@ object Alarm extends Table[Alarm]("ALARM") {
 
   def nextDate = column[Date]("NEXTDATE", O NotNull)
 
+  def durationMins = column[Int]("DURATIONMINS", O NotNull)
+
   def repeatDays = column[Int]("REPEATDAYS")
 
-  def * = id.? ~ name ~ nextDate ~ repeatDays.? <>((apply _).tupled, unapply _)
+  def * = id.? ~ name ~ nextDate ~ durationMins ~ repeatDays.? <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 
-  def findAll = database.withSession {
+  def findAll: Seq[Alarm] = database.withSession {
     implicit db: Session =>
       query.orderBy(nextDate.asc).list
   }
