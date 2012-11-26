@@ -95,7 +95,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     request =>
       DisplayItem.findById(displayItemId).map {
         displayItem =>
-          request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
+          request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
             var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
             var statusMonitorsWithValues = statusMonitors.map {
               statusMonitor =>

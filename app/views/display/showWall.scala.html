@@ -23,9 +23,12 @@
 
     @if(display.useLongPolling) {
         <script type="text/javascript">
-            var applyUpdates = function(updates) {
-                console.log(updates);
-                $.each(updates, function(idx, update) {
+            var applyUpdates = function(displayUpdate) {
+                console.log(displayUpdate);
+                $.each(displayUpdate.removeWidgets, function(idx, removedWidgetId) {
+                    $("#" + removedWidgetId).remove();
+                });
+                $.each(displayUpdate.changedWidgets, function(idx, update) {
                     var selector = "#" + update.id;
                     if ( $(selector).length == 0 ) {
                         $("#displayItems").append("<div id=\"" + update.id + "\"></div>");
@@ -33,9 +36,10 @@
                     $(selector).attr("class", "widget");
                     $(selector).addClass(update.style);
                     $(selector).attr("etag", update.etag);
-                    $(selector).offset({ left: update.posx + "px", top: update.posy + "px" });
-                    $(selector).width(update.width + "px");
-                    $(selector).height(update.height + "px");
+                    $(selector).css("left", update.posx + "px");
+                    $(selector).css("top", update.posy + "px");
+                    $(selector).css("width", update.width + "px");
+                    $(selector).css("height", update.height + "px");
                     $(selector).html(update.content);
                 });
             }

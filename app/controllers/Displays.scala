@@ -4,7 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.{RenderedWidget, DataDigest}
+import utils.{DisplayUpdate, RenderedWidget, DataDigest}
 import widgets.Widget
 import play.api.libs.concurrent.Promise
 import globals.Global
@@ -68,12 +68,12 @@ object Displays extends Controller {
       Display.findById(displayId).map {
         display =>
           Async {
-            val changes = Promise[Seq[RenderedWidget]]()
+            val result = Promise[DisplayUpdate]()
 
-            Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], changes)
-            changes.map {
-              renderedWidgets =>
-                Ok(Json.stringify(Json.toJson(renderedWidgets)))
+            Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], result)
+            result.map {
+              displayUpdate =>
+                Ok(Json.stringify(Json.toJson(displayUpdate)))
             }
           }
       }.getOrElse(NotFound)

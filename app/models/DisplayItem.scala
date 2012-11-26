@@ -11,7 +11,7 @@ import org.scalaquery.ql.extended.{ExtendedTable => Table}
 import org.scalaquery.ql.extended.H2Driver.Implicit._
 
 import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import org.scalaquery.ql.{SimpleFunction, Query}
 import scala.Some
 import globals.Global
 
@@ -99,11 +99,14 @@ case class DisplayItem(
   }
 
   def insert = {
-    DisplayItem.database.withSession {
+    val insertedId = DisplayItem.database.withSession {
       implicit db: Session =>
         DisplayItem.insert(this)
+        Query(DisplayItem.seqID).first
     }
-    Global.displayUpdater ! this
+    val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum, widgetConfigJson)
+    Global.displayUpdater ! result
+    result
   }
 
   def update = {
@@ -124,6 +127,8 @@ case class DisplayItem(
 }
 
 object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
+  lazy val seqID = SimpleFunction.nullary[Long]("identity")
+
   lazy val database = Database.forDataSource(DB.getDataSource())
 
   def id = column[Long]("ID", O PrimaryKey, O AutoInc)

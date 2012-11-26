@@ -32,7 +32,7 @@ case class RenderedWidget(displayItem: DisplayItem,
 
 object RenderedWidget {
 
-  implicit object SprintCounterFormat extends Writes[RenderedWidget] {
+  implicit object RenderedWidgetFormat extends Writes[RenderedWidget] {
 
     override def writes(renderedWidget: RenderedWidget): JsValue = JsObject(Seq(
       "id" -> JsString(renderedWidget.id),
