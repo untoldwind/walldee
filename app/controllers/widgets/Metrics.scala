@@ -95,12 +95,12 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     request =>
       DisplayItem.findById(displayItemId).map {
         displayItem =>
-          request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+          request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
             var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
             var statusMonitorsWithValues = statusMonitors.map {
               statusMonitor =>
                 (statusMonitor,
-                  StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
+                  StatusValue.findAllForStatusMonitor(statusMonitor.id.get))
             }
 
             val config = displayItem.metricsConfig.getOrElse(MetricsConfig())
@@ -145,26 +145,56 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     dataDigest.base64Digest()
   }
 
-  private def createCoverageChart(statusMonitors: Seq[(StatusMonitor, Option[StatusValue])],
+  private def createCoverageChart(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
                                   style: DisplayStyles.Type, width: Int,
                                   config: MetricsConfig, item: MetricsItem): JFreeChart = {
     val titleFont = new Font("SansSerif", Font.BOLD, (width / 6.4).toInt)
     val valueFont = new Font("SansSerif", Font.BOLD, (width / 3.6).toInt)
 
-    val coverage = statusMonitors.map {
+    val lastCoverage = if (statusMonitors.isEmpty)
+      0.0
+    else statusMonitors.map {
       case (statusMonitor, statusValues) =>
-        statusValues.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
+        statusValues.headOption.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
     }.max
+    val minCoverage = if (statusMonitors.isEmpty)
+      0.0
+    else
+      statusMonitors.map {
+        case (statusMonitor, statusValues) =>
+          if (statusValues.isEmpty)
+            0.0
+          else
+            statusValues.flatMap(_.metricStatus).map(_.coverage).min
+      }.min
+    val maxCoverage = if (statusMonitors.isEmpty)
+      0.0
+    else
+      statusMonitors.map {
+        case (statusMonitor, statusValues) =>
+          if (statusValues.isEmpty)
+            0.0
+          else
+            statusValues.flatMap(_.metricStatus).map(_.coverage).max
+      }.max
+
     val warnAt = item.warnAt.getOrElse(75)
-    val dataSet = new DefaultValueDataset(coverage)
     val plot = new DialPlot
     val frame = new ThreeQuartersDialFrame("Coverage", titleFont)
     plot.setDialFrame(frame)
-    plot.addScale(0, new CoverageScale)
-    plot.addLayer(new FillPointer(if (coverage > warnAt) okColor else warnColor))
+    plot.addScale(0, new FilledScale(100.0, Color.darkGray))
+    if (lastCoverage < maxCoverage) {
+      plot.addLayer(new FillPointer(2, if (lastCoverage > warnAt) warnColor else warnHighlight))
+      plot.addLayer(new FillPointer(0, if (lastCoverage > warnAt) okColor else warnColor))
+    } else {
+      plot.addLayer(new FillPointer(0, if (lastCoverage > warnAt) okHighlight else warnHighlight))
+      plot.addLayer(new FillPointer(1, if (lastCoverage > warnAt) okColor else warnColor))
+    }
     val valueIndicator = new CoverageDialValueIndicator(valueFont)
     plot.addLayer(valueIndicator)
-    plot.setDataset(dataSet)
+    plot.setDataset(0, new DefaultValueDataset(lastCoverage))
+    plot.setDataset(1, new DefaultValueDataset(minCoverage))
+    plot.setDataset(2, new DefaultValueDataset(maxCoverage))
     plot.setBackgroundPaint(null)
 
     val chart = new JFreeChart(null, titleFont, plot, false)
@@ -172,24 +202,41 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     chart
   }
 
-  private def createViolationDetailChart(statusMonitors: Seq[(StatusMonitor, Option[StatusValue])],
+  private def createViolationDetailChart(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
                                          style: DisplayStyles.Type, width: Int,
                                          config: MetricsConfig, item: MetricsItem): JFreeChart = {
     val titleFont = new Font("SansSerif", Font.BOLD, (width / 6.4).toInt)
     val valueFont = new Font("SansSerif", Font.BOLD, (width / 3.6).toInt)
 
-    val violations = statusMonitors.map {
+    val currentViolations = if (statusMonitors.isEmpty)
+      0
+    else statusMonitors.map {
       case (statusMonitor, statusValues) =>
-        val violations = statusValues.flatMap(_.metricStatus).map(_.violations).getOrElse(Seq.empty)
+        val violations = statusValues.headOption.flatMap(_.metricStatus).map(_.violations).getOrElse(Seq.empty)
         violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
-    }.sum
+    }.max
+    val maxViolations = if (statusMonitors.isEmpty)
+      1
+    else statusMonitors.map {
+      case (statusMonitor, statusValues) =>
+        if (statusValues.isEmpty)
+          1
+        else statusValues.map {
+          statusValue =>
+            statusValue.metricStatus.map {
+              metricStatus =>
+                val violationCount = metricStatus.violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
+                if ( violationCount <= 0) 1 else violationCount
+            }.getOrElse(1)
+        }.max
+    }.max
     val warnAt = item.warnAt.getOrElse(0)
-    val dataSet = new DefaultValueDataset(violations)
+    val dataSet = new DefaultValueDataset(currentViolations)
     val plot = new DialPlot
     val frame = new ThreeQuartersDialFrame(item.severities.head.toString, titleFont)
     plot.setDialFrame(frame)
-    plot.addScale(0, new CoverageScale)
-    plot.addLayer(new FillPointer(if (violations > warnAt) warnColor else okColor))
+    plot.addScale(0, new FilledScale(maxViolations, if (currentViolations > warnAt) warnColor else okColor))
+    plot.addLayer(new FillPointer(0, if (currentViolations > warnAt) warnHighlight else warnColor))
     val valueIndicator = new ViolationsDialValueIndicator(valueFont)
     plot.addLayer(valueIndicator)
     plot.setDataset(dataSet)
@@ -200,7 +247,11 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     chart
   }
 
-  private val okColor = Color.decode("#00AA00")
+  private val okHighlight = Color.decode("#00FF00")
 
-  private val warnColor = Color.decode("#AA0000")
+  private val okColor = Color.decode("#008800")
+
+  private val warnHighlight = Color.decode("#FF0000")
+
+  private val warnColor = Color.decode("#880000")
 }
