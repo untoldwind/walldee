@@ -95,7 +95,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     request =>
       DisplayItem.findById(displayItemId).map {
         displayItem =>
-          request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+          request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
             var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
             var statusMonitorsWithValues = statusMonitors.map {
               statusMonitor =>
@@ -148,8 +148,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
   private def createCoverageChart(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
                                   style: DisplayStyles.Type, width: Int,
                                   config: MetricsConfig, item: MetricsItem): JFreeChart = {
-    val titleFont = new Font("SansSerif", Font.BOLD, (width / 6.4).toInt)
-    val valueFont = new Font("SansSerif", Font.BOLD, (width / 3.6).toInt)
+    val titleFont = new Font(config.labelFont.getOrElse("SansSerif"), Font.BOLD, (width / 6.4).toInt)
+    val valueFont = new Font(item.valueFont.getOrElse("SansSerif"), Font.BOLD, (width / 3.6).toInt)
 
     val lastCoverage = if (statusMonitors.isEmpty)
       0.0
@@ -205,8 +205,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
   private def createViolationDetailChart(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
                                          style: DisplayStyles.Type, width: Int,
                                          config: MetricsConfig, item: MetricsItem): JFreeChart = {
-    val titleFont = new Font("SansSerif", Font.BOLD, (width / 6.4).toInt)
-    val valueFont = new Font("SansSerif", Font.BOLD, (width / 3.6).toInt)
+    val titleFont = new Font(config.labelFont.getOrElse("SansSerif"), Font.BOLD, (width / 6.4).toInt)
+    val valueFont = new Font(item.valueFont.getOrElse("SansSerif"), Font.BOLD, (width / 3.6).toInt)
 
     val currentViolations = if (statusMonitors.isEmpty)
       0
