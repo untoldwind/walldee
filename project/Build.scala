@@ -8,10 +8,11 @@ object ApplicationBuild extends Build {
   val appVersion = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
-    "com.h2database" % "h2" % "1.3.167",
+    jdbc,
+    "com.h2database" % "h2" % "1.3.170",
 
     "org.jfree" % "jfreechart" % "1.0.14",
-    "org.scalaquery" %% "scalaquery" % "0.10.0-M1",
+    "com.typesafe" % "slick_2.10.0-RC5" % "0.11.2",
     "org.mockito" % "mockito-all" % "1.9.0" % "test"
   )
 

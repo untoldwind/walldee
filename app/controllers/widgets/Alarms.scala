@@ -6,11 +6,13 @@ import models.widgetConfigs.AlarmsConfig
 import models.{Alarm, DisplayItem, Display}
 import play.api.templates.Html
 import org.joda.time.DateTime
-import play.api.libs.concurrent.Akka
-import akka.util.duration._
+import scala.concurrent.duration._
 import globals.Global
+import play.libs.Akka
 
 object Alarms extends Widget[AlarmsConfig] {
+  implicit val executor = Akka.system.dispatcher
+
   val configMapping = mapping(
     "labelFont" -> optional(text),
     "labelSize" -> optional(number),

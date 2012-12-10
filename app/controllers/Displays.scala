@@ -4,14 +4,17 @@ import play.api.mvc.{Action, Controller}
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.{DisplayUpdate, RenderedWidget, DataDigest}
+import utils.{DisplayUpdate, DataDigest}
 import widgets.Widget
-import play.api.libs.concurrent.Promise
 import globals.Global
 import actors.DisplayUpdater
 import play.api.libs.json.Json
+import concurrent.Promise
+import play.libs.Akka
 
 object Displays extends Controller {
+  implicit val executor = Akka.system.dispatcher
+
   def index = Action {
     Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, displayForm()))
   }
@@ -71,7 +74,7 @@ object Displays extends Controller {
             val result = Promise[DisplayUpdate]()
 
             Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], result)
-            result.map {
+            result.future.map {
               displayUpdate =>
                 Ok(Json.stringify(Json.toJson(displayUpdate)))
             }

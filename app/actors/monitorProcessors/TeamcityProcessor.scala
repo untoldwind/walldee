@@ -2,20 +2,21 @@ package actors.monitorProcessors
 
 import models.{StatusTypes, StatusMonitor}
 import play.api.libs.ws.Response
-import play.api.libs.json.{JsValue, Reads, Json}
+import play.api.libs.json._
 import models.statusValues.BuildStatus
+import play.api.libs.ws.Response
 
 case class TeamcityBuild(id: Long, number: String, status: String)
 
 object TeamcityBuild {
 
   implicit object TeamcityBuildReads extends Reads[TeamcityBuild] {
-    override def reads(json: JsValue): TeamcityBuild =
-      TeamcityBuild(
+    override def reads(json: JsValue): JsResult[TeamcityBuild] =
+      JsSuccess(TeamcityBuild(
         (json \ "id").as[Long],
         (json \ "number").as[String],
         (json \ "status").as[String]
-      )
+      ))
   }
 
 }

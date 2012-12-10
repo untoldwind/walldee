@@ -2,14 +2,7 @@ package models
 
 import play.api.db._
 import play.api.Play.current
-
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import scala.slick.driver.H2Driver.simple._
 import java.util.Date
 import models.DateMapper.date2timestamp
 import play.api.libs.json.{Json, JsValue}
@@ -31,7 +24,7 @@ case class StatusValue(id: Option[Long],
 
   def buildStatus = {
     if (status != StatusTypes.Unknown) {
-      Some(Json.fromJson[BuildStatus](statusValues))
+      Json.fromJson[BuildStatus](statusValues).asOpt
     } else {
       None
     }
@@ -39,7 +32,7 @@ case class StatusValue(id: Option[Long],
 
   def hostsStatus = {
     if (status != StatusTypes.Unknown) {
-      Some(Json.fromJson[HostsStatus](statusValues))
+      Json.fromJson[HostsStatus](statusValues).asOpt
     } else {
       None
     }
@@ -47,7 +40,7 @@ case class StatusValue(id: Option[Long],
 
   def metricStatus = {
     if (status != StatusTypes.Unknown) {
-      Some(Json.fromJson[MetricStatus](statusValues))
+      Json.fromJson[MetricStatus](statusValues).asOpt
     } else {
       None
     }
@@ -97,11 +90,11 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
 
   def findAllForStatusMonitor(statusMonitorId: Long): Seq[StatusValue] = database.withSession {
     implicit db: Session =>
-      query.where(s => s.statusMonitorId === statusMonitorId).orderBy(id.desc).list
+      query.where(s => s.statusMonitorId === statusMonitorId).sortBy(s => s.id.desc).list
   }
 
   def findLastForStatusMonitor(statusMonitorId: Long): Option[StatusValue] = database.withSession {
     implicit db: Session =>
-      query.where(s => s.statusMonitorId === statusMonitorId).orderBy(id.desc).firstOption
+      query.where(s => s.statusMonitorId === statusMonitorId).sortBy(s => s.id.desc).firstOption
   }
 }

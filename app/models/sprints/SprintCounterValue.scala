@@ -9,10 +9,10 @@ case class SprintCounterValue(name: String, value: Int)
 object SprintCounterValue {
 
   implicit object SprintCounterValueFormat extends Format[SprintCounterValue] {
-    override def reads(json: JsValue): SprintCounterValue =
-      SprintCounterValue(
+    override def reads(json: JsValue): JsResult[SprintCounterValue] =
+      JsSuccess(SprintCounterValue(
         (json \ "name").as[String],
-        (json \ "value").as[Int])
+        (json \ "value").as[Int]))
 
     override def writes(sprintCounter: SprintCounterValue): JsValue = JsObject(Seq(
       "name" -> JsString(sprintCounter.name),

@@ -3,10 +3,9 @@ package globals
 import actors.{DisplayUpdater, Backup, StatusMonitorUpdater}
 import akka.actor.Props
 import play.api.Play.current
-import play.api.libs.concurrent.Akka
 import play.api.{Application, GlobalSettings}
-
-import akka.util.duration._
+import scala.concurrent.duration._
+import play.libs.Akka
 
 object Global extends GlobalSettings {
   lazy val displayUpdater = Akka.system.actorOf(Props(new DisplayUpdater))
@@ -16,6 +15,7 @@ object Global extends GlobalSettings {
   lazy val statusMonitorUpdater = Akka.system.actorOf(Props(new StatusMonitorUpdater))
 
   override def onStart(app: Application) {
+    implicit val executor = Akka.system.dispatcher
 
     Akka.system.scheduler.schedule(1 minutes, 1 hour, backup, Backup.CheckBackup())
 

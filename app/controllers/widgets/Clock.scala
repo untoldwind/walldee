@@ -5,11 +5,13 @@ import play.api.data.Forms._
 import models.widgetConfigs.ClockConfig
 import models.{DisplayItem, Display}
 import play.api.templates.Html
-import play.api.libs.concurrent.Akka
 import globals.Global
-import akka.util.duration._
+import scala.concurrent.duration._
+import play.libs.Akka
 
 object Clock extends Widget[ClockConfig] {
+  implicit val executor = Akka.system.dispatcher
+
   val configMapping = mapping(
     "labelFont" -> optional(text),
     "labelSize" -> optional(number)

@@ -19,14 +19,14 @@ case class MetricsItem(itemType: MetricsItemTypes.Type,
 object MetricsItem {
 
   implicit object MetricsConfigFormat extends Format[MetricsItem] {
-    override def reads(json: JsValue): MetricsItem =
-      MetricsItem(
+    override def reads(json: JsValue): JsResult[MetricsItem] =
+      JsSuccess(MetricsItem(
         MetricsItemTypes((json \ "itemType").as[Int]),
         (json \ "asGauge").asOpt[Boolean],
         (json \ "valueFont").asOpt[String],
         (json \ "valueSize").asOpt[Int],
         (json \ "warnAt").asOpt[Int],
-        (json \ "severities").as[Seq[Int]].map(MetricSeverityTypes(_)))
+        (json \ "severities").as[Seq[Int]].map(MetricSeverityTypes(_))))
 
     override def writes(metricsItem: MetricsItem): JsValue = JsObject(
       Seq("itemType" -> JsNumber(metricsItem.itemType.id),
@@ -50,12 +50,12 @@ case class MetricsConfig(labelFont: Option[String] = None,
 object MetricsConfig {
 
   implicit object MetricsConfigFormat extends Format[MetricsConfig] {
-    override def reads(json: JsValue): MetricsConfig =
-      MetricsConfig(
+    override def reads(json: JsValue): JsResult[MetricsConfig] =
+      JsSuccess(MetricsConfig(
         (json \ "labelFont").asOpt[String],
         (json \ "labelSize").asOpt[Int],
         (json \ "columns").asOpt[Int],
-        (json \ "items").as[Seq[MetricsItem]])
+        (json \ "items").as[Seq[MetricsItem]]))
 
     override def writes(metricsConfig: MetricsConfig): JsValue = JsObject(
       metricsConfig.labelFont.map("labelFont" -> JsString(_)).toSeq ++

@@ -10,9 +10,12 @@ import play.api.libs.concurrent.{Redeemable, Redeemed}
 import utils.{DisplayUpdate, RenderedWidget}
 import actors.DisplayUpdater.{CheckListeners, FindUpdates}
 import scala.collection.mutable
+import concurrent.{Promise, ExecutionContext}
 
 class DisplayUpdater extends Actor with SLF4JLogging {
   val listeners = mutable.ListBuffer.empty[FindUpdates]
+
+  implicit def executor = context.dispatcher
 
   def receive = {
     case alarm: Alarm =>
@@ -98,8 +101,8 @@ class DisplayUpdater extends Actor with SLF4JLogging {
 
 object DisplayUpdater {
 
-  case class FindUpdates(display: Display, state: Map[String, String], result: Redeemable[DisplayUpdate]) {
-    def check(renderedWidgets: Seq[RenderedWidget]) = {
+  case class FindUpdates(display: Display, state: Map[String, String], result: Promise[DisplayUpdate]) {
+    def check(renderedWidgets: Seq[RenderedWidget])(implicit executor: ExecutionContext) = {
       val changed = renderedWidgets.filter {
         renderedWidget =>
           state.get(renderedWidget.id).map(_ != renderedWidget.etag).getOrElse(true)
@@ -107,7 +110,7 @@ object DisplayUpdater {
       val widgetIds = renderedWidgets.map(_.id).toSet
       val removedIds = state.keys.filter(!widgetIds.contains(_)).toSeq
       if (!changed.isEmpty || !removedIds.isEmpty) {
-        result.redeem {
+        result.success {
           DisplayUpdate(removedIds, changed)
         }
         true

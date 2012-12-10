@@ -1,8 +1,6 @@
 package models.utils
 
 import play.api.libs.json._
-import play.api.libs.json.JsString
-import models.utils.RenderedWidget
 import play.api.libs.json.JsObject
 
 case class DisplayUpdate(removeWidgets: Seq[String], changedWidgets: Seq[RenderedWidget])

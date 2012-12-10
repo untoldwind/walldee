@@ -2,8 +2,10 @@ package actors.monitorProcessors
 
 import models.{StatusTypes, StatusValue, StatusMonitor}
 import play.api.libs.ws.Response
-import play.api.libs.json.{JsObject, Json, JsValue, Reads}
+import play.api.libs.json._
 import models.statusValues.{BuildStatus, MetricStatus, MetricSeverityTypes, MetricViolation}
+import play.api.libs.ws.Response
+import play.api.libs.json.JsObject
 
 object SonarMetricTypes extends Enumeration {
   type Type = Value
@@ -15,11 +17,11 @@ case class SonarMetrics(key: SonarMetricTypes.Type, value: Double)
 object SonarMetrics {
 
   implicit object SonarMetricsReads extends Reads[SonarMetrics] {
-    override def reads(json: JsValue): SonarMetrics =
-      SonarMetrics(
+    override def reads(json: JsValue): JsResult[SonarMetrics] =
+      JsSuccess(SonarMetrics(
         SonarMetricTypes.withName((json \ "key").as[String]),
         (json \ "val").as[Double]
-      )
+      ))
   }
 
 }
@@ -29,13 +31,13 @@ case class SonarResource(id: Long, key: String, name: String, metrics: Seq[Sonar
 object SonarResource {
 
   implicit object SonarResourceReads extends Reads[SonarResource] {
-    override def reads(json: JsValue): SonarResource =
-      SonarResource(
+    override def reads(json: JsValue): JsResult[SonarResource] =
+      JsSuccess(SonarResource(
         (json \ "id").as[Long],
         (json \ "key").as[String],
         (json \ "name").as[String],
         (json \ "msr").as[Seq[SonarMetrics]]
-      )
+      ))
   }
 
 }

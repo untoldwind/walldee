@@ -10,10 +10,10 @@ case class BuildStatusConfig(labelFont: Option[String] = None,
 object BuildStatusConfig {
 
   implicit object BuildStatusConfigFormat extends Format[BuildStatusConfig] {
-    override def reads(json: JsValue): BuildStatusConfig =
-      BuildStatusConfig(
+    override def reads(json: JsValue): JsResult[BuildStatusConfig] =
+      JsSuccess(BuildStatusConfig(
         (json \ "labelFont").asOpt[String],
-        (json \ "labelSize").asOpt[Int])
+        (json \ "labelSize").asOpt[Int]))
 
     override def writes(buildStatusConfig: BuildStatusConfig): JsValue = JsObject(
       buildStatusConfig.labelFont.map("labelFont" -> JsString(_)).toSeq ++
