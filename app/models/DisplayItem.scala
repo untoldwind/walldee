@@ -24,9 +24,10 @@ case class DisplayItem(
                         height: Int,
                         styleNum: Int,
                         widgetNum: Int,
+                        projectId: Option[Long],
                         widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
@@ -104,7 +105,8 @@ case class DisplayItem(
         DisplayItem.insert(this)
         Query(DisplayItem.seqID).first
     }
-    val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum, widgetConfigJson)
+    val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum,
+      projectId, widgetConfigJson)
     Global.displayUpdater ! result
     result
   }
@@ -147,9 +149,12 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def widgetNum = column[Int]("WIDGETNUM", O NotNull)
 
+  def projectId = column[Long]("PROJECTID")
+
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
-  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ widgetConfigJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~
+    widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
                 displayId: Long,
@@ -159,6 +164,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 height: Int,
                 styleNum: Int,
                 widgetNum: Int,
+                projectId: Option[Long],
                 burndownChartConfig: Option[BurndownChartConfig],
                 sprintTitleConfig: Option[SprintTitleConfig],
                 clockConfig: Option[ClockConfig],
@@ -179,7 +185,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       case DisplayWidgets.Metrics => Json.toJson(metricsConfig.getOrElse(MetricsConfig()))
     }
 
-    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, Json.stringify(widgetConfig))
+    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, Json.stringify(widgetConfig))
   }
 
   def formUnapply(displayItem: DisplayItem) =
@@ -192,6 +198,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.height,
       displayItem.styleNum,
       displayItem.widgetNum,
+      displayItem.projectId,
       displayItem.burndownChartConfig,
       displayItem.sprintTitleConfig,
       displayItem.clockConfig,

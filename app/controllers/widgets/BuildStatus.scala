@@ -13,7 +13,8 @@ object BuildStatus extends Widget[BuildStatusConfig] {
   )(BuildStatusConfig.apply)(BuildStatusConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    display.projectId.map {
+    val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
+    projectIdOpt.map {
       projectId =>
         var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Jenkins, StatusMonitorTypes.Teamcity))
         var statusMonitorsWithStatus = statusMonitors.map {
@@ -21,7 +22,7 @@ object BuildStatus extends Widget[BuildStatusConfig] {
             (statusMonitor,
               StatusValue.findLastForStatusMonitor(statusMonitor.id.get).map(_.status).getOrElse(StatusTypes.Unknown))
         }
-        views.html.display.widgets.buildStatus(display, displayItem, statusMonitorsWithStatus)
+        views.html.display.widgets.buildStatus(display, displayItem, projectId, statusMonitorsWithStatus)
     }.getOrElse(Html(""))
   }
 }

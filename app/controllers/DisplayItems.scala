@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Display, DisplayItem}
+import models.{Project, Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
 import widgets.{Clock, SprintTitle, BurndownChart}
@@ -26,7 +26,7 @@ object DisplayItems extends Controller {
       display =>
         DisplayItem.findById(displayItemId).map {
           displayItem =>
-            Ok(views.html.displayItem.edit(display, displayItem, displayItemForm(displayItem)))
+            Ok(views.html.displayItem.edit(display, displayItem, Project.findAll, displayItemForm(displayItem)))
         }
     }.getOrElse(NotFound)
   }
@@ -38,7 +38,7 @@ object DisplayItems extends Controller {
           DisplayItem.findById(displayItemId).map {
             displayItem =>
               displayItemForm(displayItem).bindFromRequest.fold(
-              formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, formWithErrors)), {
+              formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Project.findAll, formWithErrors)), {
                 displayItem =>
                   displayItem.update
                   Redirect(routes.Displays.showConfig(displayId))
@@ -60,7 +60,7 @@ object DisplayItems extends Controller {
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, "{}"))
+    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
@@ -72,6 +72,7 @@ object DisplayItems extends Controller {
       "height" -> number(min = 0),
       "style" -> number,
       "widget" -> number,
+      "projectId" -> optional(longNumber),
       "burndownChartConfig" -> optional(BurndownChart.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
       "clockConfig" -> optional(Clock.configMapping),

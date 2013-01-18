@@ -79,7 +79,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
   )(MetricsConfig.apply)(MetricsConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem) = {
-    display.projectId.map {
+    val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
+    projectIdOpt.map {
       projectId =>
         var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
         var statusMonitorsWithValues = statusMonitors.map {
@@ -87,7 +88,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
             (statusMonitor,
               StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
         }
-        views.html.display.widgets.metrics(display, displayItem, statusMonitorsWithValues, calculateETag(displayItem, statusMonitorsWithValues))
+        views.html.display.widgets.metrics(display, displayItem, projectId, statusMonitorsWithValues,
+          calculateETag(displayItem, projectId, statusMonitorsWithValues))
     }.getOrElse(Html(""))
   }
 
@@ -122,7 +124,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
       }.getOrElse(NotFound)
   }
 
-  private def calculateETag(displayItem: DisplayItem, statusMonitors: Seq[(StatusMonitor, Option[StatusValue])]): String = {
+  private def calculateETag(displayItem: DisplayItem, projectId: Long,
+                            statusMonitors: Seq[(StatusMonitor, Option[StatusValue])]): String = {
 
     val dataDigest = DataDigest()
 
@@ -130,6 +133,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     dataDigest.update(displayItem.width)
     dataDigest.update(displayItem.height)
     dataDigest.update(displayItem.widgetConfigJson)
+    dataDigest.update(projectId)
     statusMonitors.foreach {
       case (statusMonitor, statusValueOpt) =>
         dataDigest.update(statusMonitor.id)
@@ -226,7 +230,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
             statusValue.metricStatus.map {
               metricStatus =>
                 val violationCount = metricStatus.violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
-                if ( violationCount <= 0) 1 else violationCount
+                if (violationCount <= 0) 1 else violationCount
             }.getOrElse(1)
         }.max
     }.max

@@ -1,4 +1,4 @@
-@(display:Display, displayItem:DisplayItem, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
+@(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
 
 @defining(displayItem.hostStatusConfig) { config =>
 <ul class="hostStatus">

@@ -23,7 +23,8 @@ object HostStatus extends Widget[HostStatusConfig] {
   )(HostStatusConfig.apply)(HostStatusConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    display.projectId.map {
+    val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
+    projectIdOpt.map {
       projectId =>
         var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Icinga))
         var statusMonitorsWithValues = statusMonitors.map {
@@ -31,7 +32,7 @@ object HostStatus extends Widget[HostStatusConfig] {
             (statusMonitor,
               StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
         }
-        views.html.display.widgets.hostStatus(display, displayItem, statusMonitorsWithValues)
+        views.html.display.widgets.hostStatus(display, displayItem, projectId, statusMonitorsWithValues)
     }.getOrElse(Html(""))
   }
 }
