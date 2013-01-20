@@ -18,6 +18,7 @@
     @helper.select(displayItemForm("projectId"),
         ("" -> "<Use display setting>") +:
         projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
+    @helper.checkbox(displayItemForm("appearsInFeed"))
 </fieldset>
 <input type="hidden" name="@displayItemForm("widget").name" value="@displayItemForm("widget").value">
 @{displayItem.widget match {

@@ -1,28 +1,25 @@
 package controllers.widgets
 
+import play.api.Play.current
 import metrics._
 import play.api.data.Forms._
 import models.statusValues.MetricSeverityTypes
 import models._
 import play.api.templates.Html
-import play.api.mvc.{Controller, Action}
-import utils.DataDigest
+import play.api.mvc.{RequestHeader, Controller, Action}
+import utils.{AtomState, DataDigest}
 import widgetConfigs.{MetricsConfig, MetricsItem, MetricsItemTypes}
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import org.jfree.chart.JFreeChart
-import java.awt.{BasicStroke, Graphics2D, Font, Color}
+import java.awt.{Font, Color}
 import org.jfree.data.general.DefaultValueDataset
 import org.jfree.chart.plot.dial._
 import scala.Some
-import java.awt.geom.{Point2D, Arc2D, Rectangle2D}
-import org.jfree.chart.plot.dial.DialPointer.Pin
-import org.jfree.ui.{TextAnchor, Size2D, RectangleAnchor}
-import org.jfree.chart.plot.XYPlot
-import org.jfree.text.TextUtilities
-import java.text.{DecimalFormatSymbols, DecimalFormat}
-import java.util.Locale
-import scala.Some
+import xml.NodeSeq
+import play.api.cache.Cache
+import org.joda.time.format.ISODateTimeFormat
+import collection.immutable.SortedSet
 
 object Metrics extends Controller with Widget[MetricsConfig] {
   def itemTypeMapping = number.transform[MetricsItemTypes.Type](
@@ -78,19 +75,47 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     "items" -> seq(metricsItemMapping)
   )(MetricsConfig.apply)(MetricsConfig.unapply)
 
-  def renderHtml(display: Display, displayItem: DisplayItem) = {
+  override def renderHtml(display: Display, displayItem: DisplayItem) = {
     val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
     projectIdOpt.map {
       projectId =>
-        var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
-        var statusMonitorsWithValues = statusMonitors.map {
-          statusMonitor =>
-            (statusMonitor,
-              StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
-        }
+        val statusMonitorsWithValues = getStatusMonitorsWithValues(projectId)
         views.html.display.widgets.metrics(display, displayItem, projectId, statusMonitorsWithValues,
           calculateETag(displayItem, projectId, statusMonitorsWithValues))
     }.getOrElse(Html(""))
+  }
+
+  override def renderAtom(display: Display, displayItem: DisplayItem)
+                         (implicit request: RequestHeader): (NodeSeq, Long) = {
+    val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
+    projectIdOpt.map {
+      projectId =>
+        val html = renderHtml(display, displayItem)
+        val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
+        val lastUpdate = atomLastUpdate(display, displayItem, html)
+        val title = displayItem.metricsConfig.map {
+          metricsConfig =>
+            "Metrics: " + metricsConfig.items.foldLeft(SortedSet.newBuilder[String]) {
+            (set, item) =>
+              set += item.itemType.toString
+              set
+          }.result().mkString(", ")
+        }.getOrElse("Metrics")
+
+        (<entry>
+          <title>
+            {title}
+          </title>
+          <id>
+            {controllers.routes.DisplayItems.show(display.id.get, displayItem.id.get).absoluteURL()}
+          </id>
+          <link href={controllers.routes.DisplayItems.show(display.id.get, displayItem.id.get).absoluteURL()}></link>
+          <updated>
+            {dateFormat.print(lastUpdate)}
+          </updated>
+          <content type="html">{html}</content>
+        </entry>, 0L)
+    }.getOrElse((NodeSeq.Empty, 0L))
   }
 
   def getGaugePng(displayItemId: Long, projectId: Long, itemIdx: Int, etag: String) = Action {
@@ -98,8 +123,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
       DisplayItem.findById(displayItemId).map {
         displayItem =>
           request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-            var statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
-            var statusMonitorsWithValues = statusMonitors.map {
+            val statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
+            val statusMonitorsWithValues = statusMonitors.map {
               statusMonitor =>
                 (statusMonitor,
                   StatusValue.findAllForStatusMonitor(statusMonitor.id.get))
@@ -122,6 +147,15 @@ object Metrics extends Controller with Widget[MetricsConfig] {
             Ok(content = out.toByteArray).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
           }
       }.getOrElse(NotFound)
+  }
+
+  private def getStatusMonitorsWithValues(projectId: Long): Seq[(StatusMonitor, Option[StatusValue])] = {
+    val statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
+    statusMonitors.map {
+      statusMonitor =>
+        (statusMonitor,
+          StatusValue.findLastForStatusMonitor(statusMonitor.id.get))
+    }
   }
 
   private def calculateETag(displayItem: DisplayItem, projectId: Long,
@@ -249,6 +283,19 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     val chart = new JFreeChart(null, titleFont, plot, false)
     chart.setBackgroundPaint(null)
     chart
+  }
+
+  private def atomLastUpdate(display: Display, displayItem: DisplayItem, html: Html): Long = {
+    val key = "Metrics-%d-%d".format(display.id.get, displayItem.id.get)
+    val etag = DataDigest.etag(html)
+    var state = Cache.getOrElse(key) {
+      AtomState(etag, System.currentTimeMillis())
+    }
+    if (state.etag != etag) {
+      state = AtomState(etag, System.currentTimeMillis())
+      Cache.set(key, state)
+    }
+    state.lastUpdate
   }
 
   private val okHighlight = Color.decode("#00FF00")

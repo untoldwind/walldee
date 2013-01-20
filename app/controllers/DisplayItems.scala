@@ -4,7 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models.{Project, Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
-import widgets.{Clock, SprintTitle, BurndownChart}
+import widgets.{Widget, Clock, SprintTitle, BurndownChart}
 import models.widgetConfigs.SprintTitleConfig
 
 object DisplayItems extends Controller {
@@ -19,6 +19,18 @@ object DisplayItems extends Controller {
               Redirect(routes.Displays.showConfig(displayId))
           })
       }.getOrElse(NotFound)
+  }
+
+  def show(displayId: Long, displayItemId: Long) = Action {
+    Display.findById(displayId).flatMap {
+      display =>
+        DisplayItem.findById(displayItemId).map {
+          displayItem =>
+            def renderedWidget = Widget.forDisplayItem(displayItem).render(display, displayItem)
+
+            Ok(views.html.displayItem.show(display, displayItem, renderedWidget))
+        }
+    }.getOrElse(NotFound)
   }
 
   def edit(displayId: Long, displayItemId: Long) = Action {
@@ -60,7 +72,7 @@ object DisplayItems extends Controller {
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, "{}"))
+    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, false, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
@@ -73,6 +85,7 @@ object DisplayItems extends Controller {
       "style" -> number,
       "widget" -> number,
       "projectId" -> optional(longNumber),
+      "appearsInFeed" -> boolean,
       "burndownChartConfig" -> optional(BurndownChart.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
       "clockConfig" -> optional(Clock.configMapping),

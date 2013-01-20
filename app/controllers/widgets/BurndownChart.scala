@@ -1,6 +1,6 @@
 package controllers.widgets
 
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{RequestHeader, Action, Controller}
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.XYPlot
 import java.awt.{BasicStroke, Stroke, Color, Font}
@@ -22,6 +22,7 @@ import java.security.MessageDigest
 import org.bouncycastle.util.encoders.HexEncoder
 import org.apache.commons.codec.digest.DigestUtils
 import models.utils.DataDigest
+import xml.NodeSeq
 
 object BurndownChart extends Controller with Widget[BurndownChartConfig] {
   val configMapping = mapping(
@@ -33,7 +34,7 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
     "lineWidth" -> optional(number)
   )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
 
-  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
+  override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     Sprint.findById(display.sprintId).map {
       sprint =>
         views.html.display.widgets.burndownChart.render(display, displayItem, calculateETag(displayItem, sprint))

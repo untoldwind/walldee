@@ -15,19 +15,19 @@ import org.scalaquery.ql.{SimpleFunction, Query}
 import scala.Some
 import globals.Global
 
-case class DisplayItem(
-                        id: Option[Long],
-                        displayId: Long,
-                        posx: Int,
-                        posy: Int,
-                        width: Int,
-                        height: Int,
-                        styleNum: Int,
-                        widgetNum: Int,
-                        projectId: Option[Long],
-                        widgetConfigJson: String) {
+case class DisplayItem(id: Option[Long],
+                       displayId: Long,
+                       posx: Int,
+                       posy: Int,
+                       width: Int,
+                       height: Int,
+                       styleNum: Int,
+                       widgetNum: Int,
+                       projectId: Option[Long],
+                       appearsInFeed: Boolean,
+                       widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, false, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
@@ -106,7 +106,7 @@ case class DisplayItem(
         Query(DisplayItem.seqID).first
     }
     val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum,
-      projectId, widgetConfigJson)
+      projectId, appearsInFeed, widgetConfigJson)
     Global.displayUpdater ! result
     result
   }
@@ -149,11 +149,13 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def widgetNum = column[Int]("WIDGETNUM", O NotNull)
 
-  def projectId = column[Long]("PROJECTID")
+  def projectId = column[Long]("PROJECTID", O Nullable)
+
+  def appearsInFeed = column[Boolean]("APPEARSINFEED", O NotNull)
 
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
-  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~
+  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~ appearsInFeed ~
     widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
@@ -165,6 +167,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 styleNum: Int,
                 widgetNum: Int,
                 projectId: Option[Long],
+                appearsInFeed: Boolean,
                 burndownChartConfig: Option[BurndownChartConfig],
                 sprintTitleConfig: Option[SprintTitleConfig],
                 clockConfig: Option[ClockConfig],
@@ -185,7 +188,8 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       case DisplayWidgets.Metrics => Json.toJson(metricsConfig.getOrElse(MetricsConfig()))
     }
 
-    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, Json.stringify(widgetConfig))
+    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, appearsInFeed,
+      Json.stringify(widgetConfig))
   }
 
   def formUnapply(displayItem: DisplayItem) =
@@ -199,6 +203,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.styleNum,
       displayItem.widgetNum,
       displayItem.projectId,
+      displayItem.appearsInFeed,
       displayItem.burndownChartConfig,
       displayItem.sprintTitleConfig,
       displayItem.clockConfig,
@@ -213,6 +218,11 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
   def findAllForDisplay(displayId: Long): Seq[DisplayItem] = database.withSession {
     implicit db: Session =>
       query.where(d => d.displayId === displayId).orderBy(id.asc).list
+  }
+
+  def findAllForDisplayFeed(displayId: Long): Seq[DisplayItem] = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.displayId === displayId && d.appearsInFeed).orderBy(id.asc).list
   }
 
   def findById(displayItemId: Long): Option[DisplayItem] = database.withSession {

@@ -10,6 +10,8 @@ import play.api.libs.concurrent.Promise
 import globals.Global
 import actors.DisplayUpdater
 import play.api.libs.json.Json
+import xml.NodeSeq
+import org.joda.time.format.ISODateTimeFormat
 
 object Displays extends Controller {
   def index = Action {
@@ -76,6 +78,30 @@ object Displays extends Controller {
                 Ok(Json.stringify(Json.toJson(displayUpdate)))
             }
           }
+      }.getOrElse(NotFound)
+  }
+
+  def atomFeed(displayId: Long) = Action {
+    implicit request =>
+      Display.findById(displayId).map {
+        display =>
+          val entries = Seq.newBuilder[NodeSeq]
+          var maxLastUpdate = 0L
+          val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
+          DisplayItem.findAllForDisplayFeed(displayId).foreach {
+            displayItem =>
+              var (entry, lastUpdate) = Widget.forDisplayItem(displayItem).renderAtom(display, displayItem)
+              entries += entry
+              if (lastUpdate > maxLastUpdate)
+                maxLastUpdate = lastUpdate
+          }
+          Ok(<feed xmlns="http://www.w3.org/2005/Atom">
+            <title>{display.name}</title>
+            <id>{routes.Displays.atomFeed(displayId).absoluteURL()}</id>
+            <updated>
+              {dateFormat.print(maxLastUpdate)}
+            </updated>{entries}
+          </feed>).as("application/atom+xml")
       }.getOrElse(NotFound)
   }
 

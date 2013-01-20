@@ -3,6 +3,7 @@ package models.utils
 import java.security.MessageDigest
 import org.apache.commons.codec.binary.Base64
 import com.google.common.base.Charsets
+import play.api.templates.Html
 
 class DataDigest {
   val messageDigest = MessageDigest.getInstance("SHA-256")
@@ -50,4 +51,10 @@ class DataDigest {
 
 object DataDigest {
   def apply() = new DataDigest()
+
+  def etag(html: Html): String = {
+    val digest = new DataDigest()
+    digest.update(html.toString())
+    digest.base64Digest()
+  }
 }

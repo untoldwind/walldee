@@ -8,6 +8,7 @@ import play.api.templates.Html
 import play.api.libs.concurrent.Akka
 import globals.Global
 import akka.util.duration._
+import xml.NodeSeq
 
 object Clock extends Widget[ClockConfig] {
   val configMapping = mapping(
@@ -15,7 +16,7 @@ object Clock extends Widget[ClockConfig] {
     "labelSize" -> optional(number)
   )(ClockConfig.apply)(ClockConfig.unapply)
 
-  def renderHtml(display: Display, displayItem: DisplayItem): Html = {
+  override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     val next = 60L * 1000L + 50 - (System.currentTimeMillis() % (60L * 1000))
     Akka.system.scheduler.scheduleOnce(next millis, Global.displayUpdater, displayItem)
     views.html.display.widgets.clock.render(display, displayItem)
