@@ -1,7 +1,7 @@
 package controllers.widgets
 
 import play.api.Play.current
-import models.widgetConfigs.{HostStatusConfig, BuildStatusConfig}
+import models.widgetConfigs.HostStatusConfig
 import play.api.data.Forms._
 import models._
 import play.api.templates.Html

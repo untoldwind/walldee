@@ -23,6 +23,7 @@
 
     @if(display.useLongPolling) {
         <script type="text/javascript">
+            window.setTimeout("location.reload(true);",4 * 3600 * 1000);
             var applyUpdates = function(displayUpdate) {
                 console.log(displayUpdate);
                 $.each(displayUpdate.removeWidgets, function(idx, removedWidgetId) {
