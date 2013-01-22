@@ -14,7 +14,8 @@ case class MetricsItem(itemType: MetricsItemTypes.Type,
                        valueFont: Option[String] = None,
                        valueSize: Option[Int] = None,
                        warnAt: Option[Int] = None,
-                       severities: Seq[MetricSeverityTypes.Type] = Seq.empty)
+                       severities: Seq[MetricSeverityTypes.Type] = Seq.empty,
+                       showTrend: Option[Boolean] = None)
 
 object MetricsItem {
 
@@ -26,7 +27,8 @@ object MetricsItem {
         (json \ "valueFont").asOpt[String],
         (json \ "valueSize").asOpt[Int],
         (json \ "warnAt").asOpt[Int],
-        (json \ "severities").as[Seq[Int]].map(MetricSeverityTypes(_)))
+        (json \ "severities").as[Seq[Int]].map(MetricSeverityTypes(_)),
+        (json \ "showTrend").asOpt[Boolean])
 
     override def writes(metricsItem: MetricsItem): JsValue = JsObject(
       Seq("itemType" -> JsNumber(metricsItem.itemType.id),
@@ -34,8 +36,8 @@ object MetricsItem {
         metricsItem.asGauge.map("asGauge" -> JsBoolean(_)).toSeq ++
         metricsItem.valueFont.map("valueFont" -> JsString(_)).toSeq ++
         metricsItem.valueSize.map("valueSize" -> JsNumber(_)).toSeq ++
-        metricsItem.warnAt.map("warnAt" -> JsNumber(_)).toSeq
-
+        metricsItem.warnAt.map("warnAt" -> JsNumber(_)).toSeq ++
+        metricsItem.showTrend.map("showTrend" -> JsBoolean(_)).toSeq
     )
   }
 

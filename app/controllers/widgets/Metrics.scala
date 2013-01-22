@@ -65,7 +65,8 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     "valueFont" -> optional(text),
     "valueSize" -> optional(number),
     "warnAt" -> optional(number),
-    "severities" -> severityMapping
+    "severities" -> severityMapping,
+    "showTrend" -> optional(boolean)
   )(MetricsItem.apply)(MetricsItem.unapply)
 
   def configMapping = mapping(
@@ -96,10 +97,10 @@ object Metrics extends Controller with Widget[MetricsConfig] {
         val title = displayItem.metricsConfig.map {
           metricsConfig =>
             "Metrics: " + metricsConfig.items.foldLeft(SortedSet.newBuilder[String]) {
-            (set, item) =>
-              set += item.itemType.toString
-              set
-          }.result().mkString(", ")
+              (set, item) =>
+                set += item.itemType.toString
+                set
+            }.result().mkString(", ")
         }.getOrElse("Metrics")
 
         (<entry>
@@ -113,7 +114,9 @@ object Metrics extends Controller with Widget[MetricsConfig] {
           <updated>
             {dateFormat.print(lastUpdate)}
           </updated>
-          <content type="html">{html}</content>
+          <content type="html">
+            {html}
+          </content>
         </entry>, 0L)
     }.getOrElse((NodeSeq.Empty, 0L))
   }
@@ -122,7 +125,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     request =>
       DisplayItem.findById(displayItemId).map {
         displayItem =>
-          request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+          request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
             val statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
             val statusMonitorsWithValues = statusMonitors.map {
               statusMonitor =>
@@ -230,6 +233,21 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     }
     val valueIndicator = new CoverageDialValueIndicator(valueFont)
     plot.addLayer(valueIndicator)
+    if (item.showTrend.getOrElse(false)) {
+      val prevCoverage = if (statusMonitors.isEmpty)
+        0.0
+      else
+        statusMonitors.map {
+          case (statusMonitor, statusValues) =>
+            if (statusValues.length < 2) 0.0 else statusValues(1).metricStatus.map(_.coverage).getOrElse(0.0)
+        }.max
+
+      if (lastCoverage < prevCoverage) {
+        plot.addLayer(new TrendIndicator(false, warnHighlight))
+      } else if (lastCoverage > prevCoverage) {
+        plot.addLayer(new TrendIndicator(true, okHighlight))
+      }
+    }
     plot.setDataset(0, new DefaultValueDataset(lastCoverage))
     plot.setDataset(1, new DefaultValueDataset(minCoverage))
     plot.setDataset(2, new DefaultValueDataset(maxCoverage))
@@ -277,6 +295,24 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     plot.addLayer(new FillPointer(0, if (currentViolations > warnAt) warnHighlight else warnColor))
     val valueIndicator = new ViolationsDialValueIndicator(valueFont)
     plot.addLayer(valueIndicator)
+    if (item.showTrend.getOrElse(false)) {
+      val prevViolations = if (statusMonitors.isEmpty)
+        0.0
+      else
+        statusMonitors.map {
+          case (statusMonitor, statusValues) =>
+            val violations = if(statusValues.length < 2)
+              Seq.empty
+            else statusValues(2).metricStatus.map(_.violations).getOrElse(Seq.empty)
+            violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
+        }.max
+
+      if (currentViolations < prevViolations) {
+        plot.addLayer(new TrendIndicator(false, okHighlight))
+      } else if (currentViolations > prevViolations) {
+        plot.addLayer(new TrendIndicator(true, warnHighlight))
+      }
+    }
     plot.setDataset(dataSet)
     plot.setBackgroundPaint(null)
 
