@@ -8,19 +8,13 @@ import play.api.templates.Html
 import play.api.mvc.{RequestHeader, Controller, Action}
 import utils.{AtomState, DataDigest}
 import widgetConfigs.{MetricsConfig, MetricsItem, MetricsItemTypes}
-import java.io.ByteArrayOutputStream
-import javax.imageio.ImageIO
-import org.jfree.chart.JFreeChart
-import java.awt.{Font, Color}
-import org.jfree.data.general.DefaultValueDataset
-import org.jfree.chart.plot.dial._
+import java.awt.Color
 import xml.NodeSeq
 import play.api.cache.Cache
 import org.joda.time.format.ISODateTimeFormat
 import collection.immutable.SortedSet
 import charts.metrics._
 import scala.Some
-import charts.Chart
 
 object Metrics extends Controller with Widget[MetricsConfig] {
   def itemTypeMapping = number.transform[MetricsItemTypes.Type](

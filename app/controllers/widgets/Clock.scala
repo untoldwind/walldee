@@ -8,7 +8,6 @@ import play.api.templates.Html
 import play.api.libs.concurrent.Akka
 import globals.Global
 import akka.util.duration._
-import xml.NodeSeq
 
 object Clock extends Widget[ClockConfig] {
   val configMapping = mapping(

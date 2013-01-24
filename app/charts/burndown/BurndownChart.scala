@@ -1,68 +1,24 @@
-package controllers.widgets
+package charts.burndown
 
-import play.api.mvc.{RequestHeader, Action, Controller}
-import org.jfree.chart.JFreeChart
-import org.jfree.chart.plot.XYPlot
-import java.awt.{BasicStroke, Stroke, Color, Font}
-import org.jfree.chart.axis.{SymbolAxis, NumberAxis}
-import java.io.{DataOutputStream, ByteArrayOutputStream}
-import javax.imageio.ImageIO
+import charts.Chart
+import models.{DayCount, DisplayStyles, Sprint}
+import models.widgetConfigs.BurndownConfig
+import java.awt.{Color, BasicStroke, Font}
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
-import models._
-import sprints.{SprintCounter, SprintCounterSide}
-import play.api.data.Forms._
-import models.widgetConfigs.{AlarmsConfig, BurndownChartConfig}
+import org.jfree.chart.axis.{SymbolAxis, NumberAxis}
+import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.title.LegendTitle
-import org.jfree.ui.{RectangleAnchor, RectangleEdge, RectangleInsets}
+import org.jfree.ui.{RectangleAnchor, RectangleInsets}
 import org.jfree.chart.block.LineBorder
 import org.jfree.chart.annotations.XYTitleAnnotation
-import play.api.templates.Html
-import java.security.MessageDigest
-import org.bouncycastle.util.encoders.HexEncoder
-import org.apache.commons.codec.digest.DigestUtils
-import models.utils.DataDigest
-import xml.NodeSeq
+import org.jfree.chart.JFreeChart
+import models.sprints.{SprintCounterSide, SprintCounter}
 
-object BurndownChart extends Controller with Widget[BurndownChartConfig] {
-  val configMapping = mapping(
-    "chartBackground" -> optional(text),
-    "plotBackground" -> optional(text),
-    "titleSize" -> optional(number),
-    "tickSize" -> optional(number),
-    "labelSize" -> optional(number),
-    "lineWidth" -> optional(number)
-  )(BurndownChartConfig.apply)(BurndownChartConfig.unapply)
+class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
+                    style: DisplayStyles.Type, config: BurndownConfig) extends Chart {
 
-  override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    Sprint.findById(display.sprintId).map {
-      sprint =>
-        views.html.display.widgets.burndownChart.render(display, displayItem, calculateETag(displayItem, sprint))
-    }.getOrElse(Html(""))
-  }
-
-  def getPng(displayItemId: Long, sprintId: Long, etag: String) = Action {
-    request =>
-      DisplayItem.findById(displayItemId).flatMap {
-        displayItem =>
-          Sprint.findById(sprintId).map {
-            sprint =>
-              request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-                val chart = createChart(sprint, displayItem.style,
-                  displayItem.burndownChartConfig.getOrElse(BurndownChartConfig()))
-
-                val image = chart.createBufferedImage(displayItem.width - 5, displayItem.height - 5)
-                val out = new ByteArrayOutputStream()
-
-                ImageIO.write(image, "png", out)
-
-                Ok(content = out.toByteArray).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
-              }
-          }
-      }.getOrElse(NotFound)
-  }
-
-  private def createChart(sprint: Sprint, style: DisplayStyles.Type, config: BurndownChartConfig): JFreeChart = {
+  def jfreeChart = {
     val titleFont = new Font("SansSerif", Font.BOLD, config.titleSize.getOrElse(12))
     val tickFont = new Font("SansSerif", Font.PLAIN, config.tickSize.getOrElse(12))
     val labelFont = new Font("SansSerif", Font.PLAIN, config.labelSize.getOrElse(12))
@@ -186,34 +142,5 @@ object BurndownChart extends Controller with Widget[BurndownChartConfig] {
         }
     }
     (leftSeries.result(), rightSeries.result())
-  }
-
-  private def calculateETag(displayItem: DisplayItem, sprint: Sprint): String = {
-
-    val dataDigest = DataDigest()
-
-    dataDigest.update(displayItem.id)
-    dataDigest.update(displayItem.width)
-    dataDigest.update(displayItem.height)
-    dataDigest.update(displayItem.widgetConfigJson)
-    dataDigest.update(sprint.id)
-    dataDigest.update(sprint.numberOfDays)
-    dataDigest.update(sprint.languageTag)
-    sprint.counters.foreach {
-      counter =>
-        dataDigest.update(counter.name)
-        dataDigest.update(counter.color)
-    }
-    DayCount.findAllForSprint(sprint.id.get).foreach {
-      dayCount =>
-        dataDigest.update(dayCount.id)
-        dataDigest.update(dayCount.dayNum)
-        dayCount.counterValues.foreach {
-          counterValue =>
-            dataDigest.update(counterValue.value)
-        }
-    }
-
-    dataDigest.base64Digest()
   }
 }

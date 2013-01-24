@@ -35,9 +35,9 @@ case class DisplayItem(id: Option[Long],
 
   def widgetConfig = Json.parse(widgetConfigJson)
 
-  def burndownChartConfig = {
-    if (widget == DisplayWidgets.BurndownChart) {
-      Some(Json.fromJson[BurndownChartConfig](widgetConfig))
+  def burndownConfig = {
+    if (widget == DisplayWidgets.Burndown) {
+      Some(Json.fromJson[BurndownConfig](widgetConfig))
     } else {
       None
     }
@@ -168,7 +168,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 widgetNum: Int,
                 projectId: Option[Long],
                 appearsInFeed: Boolean,
-                burndownChartConfig: Option[BurndownChartConfig],
+                burndownChartConfig: Option[BurndownConfig],
                 sprintTitleConfig: Option[SprintTitleConfig],
                 clockConfig: Option[ClockConfig],
                 alarmsConfig: Option[AlarmsConfig],
@@ -178,7 +178,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 metricsConfig: Option[MetricsConfig]): DisplayItem = {
 
     val widgetConfig = DisplayWidgets(widgetNum) match {
-      case DisplayWidgets.BurndownChart => Json.toJson(burndownChartConfig.getOrElse(BurndownChartConfig()))
+      case DisplayWidgets.Burndown => Json.toJson(burndownChartConfig.getOrElse(BurndownConfig()))
       case DisplayWidgets.SprintTitle => Json.toJson(sprintTitleConfig.getOrElse(SprintTitleConfig()))
       case DisplayWidgets.Clock => Json.toJson(clockConfig.getOrElse(ClockConfig()))
       case DisplayWidgets.Alarms => Json.toJson(alarmsConfig.getOrElse(AlarmsConfig()))
@@ -204,7 +204,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.widgetNum,
       displayItem.projectId,
       displayItem.appearsInFeed,
-      displayItem.burndownChartConfig,
+      displayItem.burndownConfig,
       displayItem.sprintTitleConfig,
       displayItem.clockConfig,
       displayItem.alarmsConfig,

@@ -29,7 +29,7 @@ object Widget {
 
   def forDisplayItem(displayItem: DisplayItem): Widget[_] = {
     displayItem.widget match {
-      case DisplayWidgets.BurndownChart => BurndownChart
+      case DisplayWidgets.Burndown => Burndown
       case DisplayWidgets.SprintTitle => SprintTitle
       case DisplayWidgets.Clock => Clock
       case DisplayWidgets.Alarms => Alarms

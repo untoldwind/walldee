@@ -4,8 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models.{Project, Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
-import widgets.{Widget, Clock, SprintTitle, BurndownChart}
-import models.widgetConfigs.SprintTitleConfig
+import widgets.{Widget, Clock, SprintTitle, Burndown}
 
 object DisplayItems extends Controller {
   def create(displayId: Long) = Action {
@@ -86,7 +85,7 @@ object DisplayItems extends Controller {
       "widget" -> number,
       "projectId" -> optional(longNumber),
       "appearsInFeed" -> boolean,
-      "burndownChartConfig" -> optional(BurndownChart.configMapping),
+      "burndownConfig" -> optional(Burndown.configMapping),
       "sprintTitleConfig" -> optional(SprintTitle.configMapping),
       "clockConfig" -> optional(Clock.configMapping),
       "alarmsConfig" -> optional(widgets.Alarms.configMapping),

@@ -22,7 +22,7 @@
 </fieldset>
 <input type="hidden" name="@displayItemForm("widget").name" value="@displayItemForm("widget").value">
 @{displayItem.widget match {
-    case DisplayWidgets.BurndownChart => widgets.burndownChartConfig(displayItemForm("burndownChartConfig"))
+    case DisplayWidgets.Burndown => widgets.burndownConfig(displayItemForm("burndownConfig"))
     case DisplayWidgets.SprintTitle => widgets.sprintTitleConfig(displayItemForm("sprintTitleConfig"))
     case DisplayWidgets.Clock => widgets.clockConfig(displayItemForm("clockConfig"))
     case DisplayWidgets.Alarms => widgets.alarmsConfig(displayItemForm("alarmsConfig"))
