@@ -1,9 +1,9 @@
-@(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, StatusTypes.Type)])
+@(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, StatusTypes.Type, Boolean)])
 
 @defining(displayItem.buildStatusConfig) { config =>
 <ul class="buildStatus">
-    @statusMonitors.map { case (statusMonitor, status) =>
-    <li class="@status.toString">
+    @statusMonitors.map { case (statusMonitor, status, running) =>
+    <li class="@{status.toString} @{if(running) "running" else "notRunning"}">
         <div style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
         @statusMonitor.name
         </div>

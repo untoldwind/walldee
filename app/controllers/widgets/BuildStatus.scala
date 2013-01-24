@@ -60,13 +60,15 @@ object BuildStatus extends Widget[BuildStatusConfig] {
     }.getOrElse((NodeSeq.Empty, 0L))
   }
 
-  private def getStatusMonitorsWithStatus(projectId: Long): Seq[(StatusMonitor, StatusTypes.Type)] = {
+  private def getStatusMonitorsWithStatus(projectId: Long): Seq[(StatusMonitor, StatusTypes.Type, Boolean)] = {
     val statusMonitors = StatusMonitor.finaAllForProject(projectId,
       Seq(StatusMonitorTypes.Jenkins, StatusMonitorTypes.Teamcity))
     statusMonitors.map {
       statusMonitor =>
+        val statusValue = StatusValue.findLastForStatusMonitor(statusMonitor.id.get)
         (statusMonitor,
-          StatusValue.findLastForStatusMonitor(statusMonitor.id.get).map(_.status).getOrElse(StatusTypes.Unknown))
+          statusValue.map(_.status).getOrElse(StatusTypes.Unknown),
+          statusValue.flatMap(_.buildStatus).map(_.running).getOrElse(false))
     }
   }
 

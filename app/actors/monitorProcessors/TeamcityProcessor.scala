@@ -5,7 +5,7 @@ import play.api.libs.ws.Response
 import play.api.libs.json.{JsValue, Reads, Json}
 import models.statusValues.BuildStatus
 
-case class TeamcityBuild(id: Long, number: String, status: String)
+case class TeamcityBuild(id: Long, number: String, status: String, running: Boolean)
 
 object TeamcityBuild {
 
@@ -14,7 +14,8 @@ object TeamcityBuild {
       TeamcityBuild(
         (json \ "id").as[Long],
         (json \ "number").as[String],
-        (json \ "status").as[String]
+        (json \ "status").as[String],
+        (json \ "running").asOpt[Boolean].getOrElse(false)
       )
   }
 
@@ -25,14 +26,14 @@ object TeamcityProcessor extends MonitorProcessor {
 
   override def apiUrl(url: String) = url match {
     case UrlPattern(proto, base, id) =>
-      proto + "://" + base + "/httpAuth/app/rest/builds/buildType:" + id
+      proto + "://" + base + "/httpAuth/app/rest/builds/buildType:" + id + ",running:any"
     case url => url
   }
 
   def process(statusMonitor: StatusMonitor, response: Response) {
     val teamcityBuild = response.json.as[TeamcityBuild]
 
-    val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt))
+    val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running))
     teamcityBuild.status match {
       case "SUCCESS" =>
         updateStatus(statusMonitor, StatusTypes.Ok, json)

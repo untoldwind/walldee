@@ -4,8 +4,9 @@
     <thead>
     <tr>
         <th>Status</th>
-        <td>Retrieved at</td>
-        <td>Build number</td>
+        <th>Retrieved at</th>
+        <th>Build number</th>
+        <th>Running</th>
     </tr>
     </thead>
     <tbody>
@@ -14,6 +15,7 @@
         <td>@statusValue.status</td>
         <td>@views.utils.dateFormat(statusValue.retrievedAt)</td>
         <td>@statusValue.buildStatus.map(_.number.toString).getOrElse("--")</td>
+        <td>@statusValue.buildStatus.map(_.running.toString).getOrElse("--")</td>
     </tr>
     }
     </tbody>
