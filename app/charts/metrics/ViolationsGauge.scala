@@ -3,7 +3,7 @@ package charts.metrics
 import models.{DisplayStyles, StatusValue, StatusMonitor}
 import models.widgetConfigs.{MetricsItem, MetricsConfig}
 import org.jfree.chart.JFreeChart
-import java.awt.Font
+import java.awt.{Color, Font}
 import org.jfree.data.general.DefaultValueDataset
 import org.jfree.chart.plot.dial.DialPlot
 import charts.Chart
@@ -44,8 +44,8 @@ class ViolationsGauge(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
     val plot = new DialPlot
     val frame = new ThreeQuartersDialFrame(item.severities.head.toString, titleFont)
     plot.setDialFrame(frame)
-    plot.addScale(0, new FilledScale(maxViolations, if (currentViolations > warnAt) Colors.warnColor else Colors.okColor))
-    plot.addLayer(new FillPointer(0, if (currentViolations > warnAt) Colors.warnHighlight else Colors.warnColor))
+    plot.addScale(0, new FilledScale(maxViolations, if (currentViolations > warnAt) Color.darkGray else Colors.okColor))
+    plot.addLayer(new FillPointer(0, if (currentViolations > warnAt) Colors.warnHighlight else Colors.okHighlight))
     val valueIndicator = new ViolationsDialValueIndicator(valueFont)
     plot.addLayer(valueIndicator)
     if (item.showTrend.getOrElse(false)) {
