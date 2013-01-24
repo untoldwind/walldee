@@ -5,6 +5,11 @@
 @import "libs/_editWidget.less";
 @import "libs/_feedWidget.less";
 
+
+body {
+    font-family: 'Whitney SSm A', 'Whitney SSm B', "ff-meta-web-pro", sans-serif;
+}
+
 #header {
     position: absolute;
     border-bottom: 1px solid black;
@@ -39,16 +44,34 @@ form {
         display: inline-block;
 
         dt {
-            display: inline-block;
+            font-weight: bold;
+            display: block;
         }
         dd {
-            display: inline-block;
+            display: block;
             margin: 0px 2px 0px 2px;
         }
         dd.info {
             display: none;
         }
     }
+}
+
+#index ul {
+    list-style-type: none;
+
+    li {
+        margin-top: .5em;
+        margin-bottom: .5em;
+        .desc {
+            color: grey;
+            font-size: smaller;
+        }
+    }
+}
+
+fieldset ul {
+    list-style-type: none;
 }
 
 tr.update {
