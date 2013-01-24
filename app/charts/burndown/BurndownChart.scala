@@ -5,7 +5,7 @@ import models.{DayCount, DisplayStyles, Sprint}
 import models.widgetConfigs.BurndownConfig
 import java.awt.{Color, BasicStroke, Font}
 import org.jfree.data.xy.{XYSeries, DefaultTableXYDataset}
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
+import org.jfree.chart.renderer.xy.{StackedXYAreaRenderer2, XYAreaRenderer, StackedXYAreaRenderer, XYLineAndShapeRenderer}
 import org.jfree.chart.axis.{SymbolAxis, NumberAxis}
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.title.LegendTitle
@@ -29,30 +29,44 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
     val (leftSeries, rightSeries) = splitLeftRight(seriesSeq)
 
     val leftDataset = new DefaultTableXYDataset
+    val leftStackDataset = new DefaultTableXYDataset
     val rendererLeft = new XYLineAndShapeRenderer
+    val rendererLeftStack = new StackedXYAreaRenderer2
     val rangeAxisLeft = new NumberAxis(leftSeries.map(_._1.name).mkString(", "))
     rangeAxisLeft.setStandardTickUnits(NumberAxis.createIntegerTickUnits())
     leftSeries.foreach {
-      case (counter, series) =>
+      case (counter, series, false) =>
         val idx = leftDataset.getSeriesCount
         leftDataset.addSeries(series)
         rendererLeft.setSeriesPaint(idx, Color.decode(counter.color))
         rendererLeft.setSeriesStroke(idx, lineStroke)
+      case (counter, series, true) =>
+        val idx = leftStackDataset.getSeriesCount
+        println(">>>>>>>>>>> " + counter.name + " " + series)
+        leftStackDataset.addSeries(series)
+        rendererLeftStack.setSeriesPaint(idx, Color.decode(counter.color))
     }
     rangeAxisLeft.setLabelFont(labelFont)
     rangeAxisLeft.setTickLabelFont(tickFont)
 
     val rightDataset = new DefaultTableXYDataset
+    val rightStackDataset = new DefaultTableXYDataset
     val rendererRight = new XYLineAndShapeRenderer
+    val rendererRightStack = new StackedXYAreaRenderer2
     val rangeAxisRight = new NumberAxis(rightSeries.map(_._1.name).mkString(", "))
     var maxY = 0.0
     rangeAxisRight.setStandardTickUnits(NumberAxis.createIntegerTickUnits())
     rightSeries.foreach {
-      case (counter, series) =>
+      case (counter, series, false) =>
         val idx = rightDataset.getSeriesCount
         rightDataset.addSeries(series)
         rendererRight.setSeriesPaint(idx, Color.decode(counter.color))
         rendererRight.setSeriesStroke(idx, lineStroke)
+        maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
+      case (counter, series, true) =>
+        val idx = rightStackDataset.getSeriesCount
+        rightStackDataset.addSeries(series)
+        rendererRightStack.setSeriesPaint(idx, Color.decode(counter.color))
         maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
     }
     rangeAxisRight.setRange(0.0, maxY * 1.1)
@@ -61,16 +75,22 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
 
     val plot = new XYPlot
     plot.setDataset(0, leftDataset)
+    plot.setDataset(2, leftStackDataset)
     plot.setRangeAxis(0, rangeAxisLeft)
     plot.setDomainGridlinesVisible(true)
     plot.mapDatasetToRangeAxis(0, 0)
+    plot.mapDatasetToRangeAxis(2, 0)
 
     plot.setRangeAxis(1, rangeAxisRight)
     plot.setDataset(1, rightDataset)
+    plot.setDataset(3, rightStackDataset)
     plot.mapDatasetToRangeAxis(1, 1)
+    plot.mapDatasetToRangeAxis(3, 1)
 
     plot.setRenderer(0, rendererLeft)
     plot.setRenderer(1, rendererRight)
+    plot.setRenderer(2, rendererLeftStack)
+    plot.setRenderer(3, rendererRightStack)
 
     val domainAxis = new SymbolAxis(null, sprint.dayLabels.toArray)
     domainAxis.setStandardTickUnits(
@@ -128,17 +148,22 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
   }
 
   private def splitLeftRight(seriesSeq: Seq[(SprintCounter, XYSeries)]):
-  (Seq[(SprintCounter, XYSeries)], Seq[(SprintCounter, XYSeries)]) = {
-    val leftSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
-    val rightSeries = Seq.newBuilder[(SprintCounter, XYSeries)]
+  (Seq[(SprintCounter, XYSeries, Boolean)], Seq[(SprintCounter, XYSeries, Boolean)]) = {
+    val leftSeries = Seq.newBuilder[(SprintCounter, XYSeries, Boolean)]
+    val rightSeries = Seq.newBuilder[(SprintCounter, XYSeries, Boolean)]
 
     seriesSeq.foreach {
       case (counter, series) =>
         counter.side match {
           case SprintCounterSide.Left =>
-            leftSeries += counter -> series
+            leftSeries += ((counter, series, false))
           case SprintCounterSide.Right =>
-            rightSeries += counter -> series
+            rightSeries += ((counter, series, false))
+          case SprintCounterSide.LeftStack =>
+            leftSeries += ((counter, series, true))
+          case SprintCounterSide.RightStack =>
+            rightSeries += ((counter, series, true))
+
         }
     }
     (leftSeries.result(), rightSeries.result())
