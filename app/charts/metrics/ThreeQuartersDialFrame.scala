@@ -1,4 +1,4 @@
-package controllers.widgets.metrics
+package charts.metrics
 
 import java.awt.{BasicStroke, Color, Graphics2D, Font}
 import org.jfree.chart.plot.dial.{DialPlot, ArcDialFrame}

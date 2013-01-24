@@ -1,7 +1,6 @@
 package controllers.widgets
 
 import play.api.Play.current
-import metrics._
 import play.api.data.Forms._
 import models.statusValues.MetricSeverityTypes
 import models._
@@ -15,11 +14,13 @@ import org.jfree.chart.JFreeChart
 import java.awt.{Font, Color}
 import org.jfree.data.general.DefaultValueDataset
 import org.jfree.chart.plot.dial._
-import scala.Some
 import xml.NodeSeq
 import play.api.cache.Cache
 import org.joda.time.format.ISODateTimeFormat
 import collection.immutable.SortedSet
+import charts.metrics._
+import scala.Some
+import charts.Chart
 
 object Metrics extends Controller with Widget[MetricsConfig] {
   def itemTypeMapping = number.transform[MetricsItemTypes.Type](
@@ -138,16 +139,12 @@ object Metrics extends Controller with Widget[MetricsConfig] {
             val width = (displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1)
             val chart = configItem.itemType match {
               case MetricsItemTypes.Coverage =>
-                createCoverageChart(statusMonitorsWithValues, displayItem.style, width, config, configItem)
+                new CoverageGauge(statusMonitorsWithValues, displayItem.style, width, config, configItem)
               case MetricsItemTypes.ViolationsDetail =>
-                createViolationDetailChart(statusMonitorsWithValues, displayItem.style, width, config, configItem)
+              new ViolationsGauge(statusMonitorsWithValues, displayItem.style, width, config, configItem)
             }
-            val image = chart.createBufferedImage(width, width)
-            val out = new ByteArrayOutputStream()
 
-            ImageIO.write(image, "png", out)
-
-            Ok(content = out.toByteArray).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+            Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
           }
       }.getOrElse(NotFound)
   }
@@ -184,141 +181,6 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     }
 
     dataDigest.base64Digest()
-  }
-
-  private def createCoverageChart(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
-                                  style: DisplayStyles.Type, width: Int,
-                                  config: MetricsConfig, item: MetricsItem): JFreeChart = {
-    val titleFont = new Font(config.labelFont.getOrElse("SansSerif"), Font.BOLD, config.labelSize.getOrElse((width / 6.4).toInt))
-    val valueFont = new Font(item.valueFont.getOrElse("SansSerif"), Font.BOLD, item.valueSize.getOrElse((width / 3.6).toInt))
-
-    val lastCoverage = if (statusMonitors.isEmpty)
-      0.0
-    else statusMonitors.map {
-      case (statusMonitor, statusValues) =>
-        statusValues.headOption.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
-    }.max
-    val minCoverage = if (statusMonitors.isEmpty)
-      0.0
-    else
-      statusMonitors.map {
-        case (statusMonitor, statusValues) =>
-          if (statusValues.isEmpty)
-            0.0
-          else
-            statusValues.flatMap(_.metricStatus).map(_.coverage).min
-      }.min
-    val maxCoverage = if (statusMonitors.isEmpty)
-      0.0
-    else
-      statusMonitors.map {
-        case (statusMonitor, statusValues) =>
-          if (statusValues.isEmpty)
-            0.0
-          else
-            statusValues.flatMap(_.metricStatus).map(_.coverage).max
-      }.max
-
-    val warnAt = item.warnAt.getOrElse(75)
-    val plot = new DialPlot
-    val frame = new ThreeQuartersDialFrame("Coverage", titleFont)
-    plot.setDialFrame(frame)
-    plot.addScale(0, new FilledScale(100.0, Color.darkGray))
-    if (lastCoverage < maxCoverage) {
-      plot.addLayer(new FillPointer(2, if (lastCoverage > warnAt) warnColor else warnHighlight))
-      plot.addLayer(new FillPointer(0, if (lastCoverage > warnAt) okColor else warnColor))
-    } else {
-      plot.addLayer(new FillPointer(0, if (lastCoverage > warnAt) okHighlight else warnHighlight))
-      plot.addLayer(new FillPointer(1, if (lastCoverage > warnAt) okColor else warnColor))
-    }
-    val valueIndicator = new CoverageDialValueIndicator(valueFont)
-    plot.addLayer(valueIndicator)
-    if (item.showTrend.getOrElse(false)) {
-      val prevCoverage = if (statusMonitors.isEmpty)
-        0.0
-      else
-        statusMonitors.map {
-          case (statusMonitor, statusValues) =>
-            if (statusValues.length < 2) 0.0 else statusValues(1).metricStatus.map(_.coverage).getOrElse(0.0)
-        }.max
-
-      if (lastCoverage < prevCoverage) {
-        plot.addLayer(new TrendIndicator(false, warnHighlight))
-      } else if (lastCoverage > prevCoverage) {
-        plot.addLayer(new TrendIndicator(true, okHighlight))
-      }
-    }
-    plot.setDataset(0, new DefaultValueDataset(lastCoverage))
-    plot.setDataset(1, new DefaultValueDataset(minCoverage))
-    plot.setDataset(2, new DefaultValueDataset(maxCoverage))
-    plot.setBackgroundPaint(null)
-
-    val chart = new JFreeChart(null, titleFont, plot, false)
-    chart.setBackgroundPaint(null)
-    chart
-  }
-
-  private def createViolationDetailChart(statusMonitors: Seq[(StatusMonitor, Seq[StatusValue])],
-                                         style: DisplayStyles.Type, width: Int,
-                                         config: MetricsConfig, item: MetricsItem): JFreeChart = {
-    val titleFont = new Font(config.labelFont.getOrElse("SansSerif"), Font.BOLD, config.labelSize.getOrElse((width / 6.4).toInt))
-    val valueFont = new Font(item.valueFont.getOrElse("SansSerif"), Font.BOLD, item.valueSize.getOrElse((width / 3.6).toInt))
-
-    val currentViolations = if (statusMonitors.isEmpty)
-      0
-    else statusMonitors.map {
-      case (statusMonitor, statusValues) =>
-        val violations = statusValues.headOption.flatMap(_.metricStatus).map(_.violations).getOrElse(Seq.empty)
-        violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
-    }.max
-    val maxViolations = if (statusMonitors.isEmpty)
-      1
-    else statusMonitors.map {
-      case (statusMonitor, statusValues) =>
-        if (statusValues.isEmpty)
-          1
-        else statusValues.map {
-          statusValue =>
-            statusValue.metricStatus.map {
-              metricStatus =>
-                val violationCount = metricStatus.violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
-                if (violationCount <= 0) 1 else violationCount
-            }.getOrElse(1)
-        }.max
-    }.max
-    val warnAt = item.warnAt.getOrElse(0)
-    val dataSet = new DefaultValueDataset(currentViolations)
-    val plot = new DialPlot
-    val frame = new ThreeQuartersDialFrame(item.severities.head.toString, titleFont)
-    plot.setDialFrame(frame)
-    plot.addScale(0, new FilledScale(maxViolations, if (currentViolations > warnAt) warnColor else okColor))
-    plot.addLayer(new FillPointer(0, if (currentViolations > warnAt) warnHighlight else warnColor))
-    val valueIndicator = new ViolationsDialValueIndicator(valueFont)
-    plot.addLayer(valueIndicator)
-    if (item.showTrend.getOrElse(false)) {
-      val prevViolations = if (statusMonitors.isEmpty)
-        0.0
-      else
-        statusMonitors.map {
-          case (statusMonitor, statusValues) =>
-            val violations = if(statusValues.length < 2)
-              Seq.empty
-            else statusValues(2).metricStatus.map(_.violations).getOrElse(Seq.empty)
-            violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
-        }.max
-
-      if (currentViolations < prevViolations) {
-        plot.addLayer(new TrendIndicator(false, okHighlight))
-      } else if (currentViolations > prevViolations) {
-        plot.addLayer(new TrendIndicator(true, warnHighlight))
-      }
-    }
-    plot.setDataset(dataSet)
-    plot.setBackgroundPaint(null)
-
-    val chart = new JFreeChart(null, titleFont, plot, false)
-    chart.setBackgroundPaint(null)
-    chart
   }
 
   private def atomLastUpdate(display: Display, displayItem: DisplayItem, html: Html): Long = {

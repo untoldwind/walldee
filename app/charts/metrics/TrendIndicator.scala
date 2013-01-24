@@ -1,4 +1,4 @@
-package controllers.widgets.metrics
+package charts.metrics
 
 import org.jfree.chart.plot.dial.{DialPlot, AbstractDialLayer}
 import java.awt.{Paint, Graphics2D}
