@@ -31,7 +31,7 @@ object Burndown extends Controller with Widget[BurndownConfig] {
         displayItem =>
           Sprint.findById(sprintId).map {
             sprint =>
-              request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
+              request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
                 val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
                   displayItem.burndownConfig.getOrElse(BurndownConfig()))
 

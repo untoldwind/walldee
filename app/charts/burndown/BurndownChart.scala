@@ -104,7 +104,7 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
     legend.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0))
     legend.setFrame(new LineBorder())
     legend.setBackgroundPaint(Color.white)
-    val annotation = new XYTitleAnnotation(0.01, 0.01, legend, RectangleAnchor.BOTTOM_LEFT)
+    val annotation = new XYTitleAnnotation(0.99, 0.99, legend, RectangleAnchor.TOP_RIGHT)
     plot.addAnnotation(annotation)
 
     style match {
