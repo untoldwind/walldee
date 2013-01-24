@@ -38,13 +38,12 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
       case (counter, series, false) =>
         val idx = leftDataset.getSeriesCount
         leftDataset.addSeries(series)
-        rendererLeft.setSeriesPaint(idx, Color.decode(counter.color))
+        rendererLeft.setSeriesPaint(idx, color(counter.color))
         rendererLeft.setSeriesStroke(idx, lineStroke)
       case (counter, series, true) =>
         val idx = leftStackDataset.getSeriesCount
-        println(">>>>>>>>>>> " + counter.name + " " + series)
         leftStackDataset.addSeries(series)
-        rendererLeftStack.setSeriesPaint(idx, Color.decode(counter.color))
+        rendererLeftStack.setSeriesPaint(idx, color(counter.color, 0.7))
     }
     rangeAxisLeft.setLabelFont(labelFont)
     rangeAxisLeft.setTickLabelFont(tickFont)
@@ -60,13 +59,13 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
       case (counter, series, false) =>
         val idx = rightDataset.getSeriesCount
         rightDataset.addSeries(series)
-        rendererRight.setSeriesPaint(idx, Color.decode(counter.color))
+        rendererRight.setSeriesPaint(idx, color(counter.color))
         rendererRight.setSeriesStroke(idx, lineStroke)
         maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
       case (counter, series, true) =>
         val idx = rightStackDataset.getSeriesCount
         rightStackDataset.addSeries(series)
-        rendererRightStack.setSeriesPaint(idx, Color.decode(counter.color))
+        rendererRightStack.setSeriesPaint(idx, color(counter.color, 0.7))
         maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
     }
     rangeAxisRight.setRange(0.0, maxY * 1.1)
@@ -167,5 +166,13 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
         }
     }
     (leftSeries.result(), rightSeries.result())
+  }
+
+  private def color(colorStr: String): Color = Color.decode(colorStr)
+
+  private def color(colorStr: String, alpha: Double): Color = {
+    val c = color(colorStr)
+
+    new Color(c.getRed, c.getGreen, c.getBlue, (alpha * 255).toInt)
   }
 }
