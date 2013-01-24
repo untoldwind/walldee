@@ -52,5 +52,5 @@ GET     /displays/:displayId/items/:itemId/edit   controllers.DisplayItems.edit(
 POST    /displays/:displayId/items/:itemId        controllers.DisplayItems.update(displayId:Long, itemId:Long)
 DELETE  /displays/:displayId/items/:itemId        controllers.DisplayItems.delete(displayId:Long, itemId:Long)
 
-GET     /widgets/burndownChart/:itemId/:sprintId   controllers.widgets.BurndownChart.getPng(itemId:Long, sprintId:Long, etag:String ?= "")
+GET     /widgets/burndown/:itemId/:sprintId       controllers.widgets.Burndown.getPng(itemId:Long, sprintId:Long, etag:String ?= "")
 GET     /widgets/metrics/coverage/:itemId/:projectId/:itemIdx controllers.widgets.Metrics.getGaugePng(itemId:Long, projectId:Long, itemIdx:Int, etag:String ?= "")
