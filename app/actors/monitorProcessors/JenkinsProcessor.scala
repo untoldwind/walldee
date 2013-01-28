@@ -54,7 +54,7 @@ object JenkinsProcessor extends MonitorProcessor {
       lastCompletedBuild =>
         val running = jenkinsJob.lastBuild.map {
           lastBuild =>
-            lastCompletedBuild.number == lastBuild.number
+            lastCompletedBuild.number != lastBuild.number
         }.getOrElse(false)
         val json = Json.toJson(BuildStatus(lastCompletedBuild.number, running))
         jenkinsJob.lastStableBuild.map {
