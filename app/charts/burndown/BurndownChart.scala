@@ -66,7 +66,7 @@ class BurndownChart(val width: Int, val height: Int, sprint: Sprint,
         val idx = rightStackDataset.getSeriesCount
         rightStackDataset.addSeries(series)
         rendererRightStack.setSeriesPaint(idx, color(counter.color, 0.7))
-        maxY = if (series.getMaxY > maxY) series.getMaxY else maxY
+        maxY += series.getMaxY
     }
     rangeAxisRight.setRange(0.0, maxY * 1.1)
     rangeAxisRight.setLabelFont(labelFont)
