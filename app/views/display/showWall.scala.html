@@ -6,9 +6,8 @@
     <title>@display.name</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/display.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-    @if(display.useLongPolling) {
-        <script src="@routes.Assets.at("javascripts/jquery-1.8.3.min.js")" type="text/javascript"></script>
-    } else {
+    <script src="@routes.Assets.at("javascripts/jquery-1.8.3.min.js")" type="text/javascript"></script>
+    @if(!display.useLongPolling) {
         <meta http-equiv="refresh" content="@display.refreshTime">
     }
 </head>
@@ -20,6 +19,14 @@
         </div>
     }
     </div>
+
+    <script type="text/javascript">
+        function animateElements() {
+            $(".running").fadeTo(500, 0.3).fadeTo(500, 1.0, animateElements);
+        }
+
+        animateElements();
+    </script>
 
     @if(display.useLongPolling) {
         <script type="text/javascript">
@@ -43,6 +50,7 @@
                     $(selector).css("height", update.height + "px");
                     $(selector).html(update.content);
                 });
+                animateElements();
             }
             var getUpdates = function() {
                 var state = {};
