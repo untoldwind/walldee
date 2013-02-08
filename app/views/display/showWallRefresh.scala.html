@@ -7,6 +7,7 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/wallAbsolute.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
     <script src="@routes.Assets.at("javascripts/jquery-1.8.3.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/wallAnimations.js")"></script>
     <meta http-equiv="refresh" content="@display.refreshTime">
 </head>
 <body style="background: @display.backgroundColor;">
@@ -19,11 +20,9 @@
     </div>
 
     <script type="text/javascript">
-        function animateElements() {
-            $(".running").fadeTo(500, 0.3).fadeTo(500, 1.0, animateElements);
-        }
-
-        animateElements();
+        $(document).ready(function() {
+            animations.start();
+        });
     </script>
 </body>
 </html>

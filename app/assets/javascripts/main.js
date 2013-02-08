@@ -148,7 +148,7 @@ var utils = (function() {
             return _formatDate(date, format);
         }
     }
-})()
+})();
 
 window['utils'] = utils;
 
