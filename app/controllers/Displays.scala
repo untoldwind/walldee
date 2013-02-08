@@ -50,7 +50,7 @@ object Displays extends Controller {
               displayItem =>
                 Widget.forDisplayItem(displayItem).render(display, displayItem)
             }
-            Ok(views.html.display.showWall(display, renderedWidgets))
+            Ok(views.html.display.showWallPolling(display, renderedWidgets))
           } else {
             val etag = getEtag(display, displayItems)
 
@@ -59,7 +59,7 @@ object Displays extends Controller {
                 displayItem =>
                   Widget.forDisplayItem(displayItem).render(display, displayItem)
               }
-              Ok(views.html.display.showWall(display, renderedWidgets)).withHeaders(ETAG -> etag)
+              Ok(views.html.display.showWallRefresh(display, renderedWidgets)).withHeaders(ETAG -> etag)
             }
           }
       }.getOrElse(NotFound)
