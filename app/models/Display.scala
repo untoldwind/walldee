@@ -19,9 +19,10 @@ case class Display(id: Option[Long],
                    projectId: Option[Long],
                    backgroundColor: String,
                    refreshTime: Int,
-                   useLongPolling: Boolean) {
+                   useLongPolling: Boolean,
+                   relativeLayout: Boolean) {
 
-  def this() = this(None, "", 0, None, "#000000", 5, false)
+  def this() = this(None, "", 0, None, "#000000", 5, false, false)
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -62,7 +63,10 @@ object Display extends Table[Display]("DISPLAY") {
 
   def useLongPolling = column[Boolean]("USELONGPOLLING")
 
-  def * = id.? ~ name ~ sprintId ~ projectId.? ~ backgroundColor ~ refreshTime ~ useLongPolling <>((apply _).tupled, unapply _)
+  def relativeLayout = column[Boolean]("RELATIVELAYOUT")
+
+  def * = id.? ~ name ~ sprintId ~ projectId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
+    relativeLayout <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

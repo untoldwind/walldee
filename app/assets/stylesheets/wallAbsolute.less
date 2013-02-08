@@ -1,0 +1,73 @@
+@import 'libs/_utils.less';
+@import 'wallStyles/_normal.less';
+@import 'wallStyles/_black.less';
+
+body {
+  margin: 3px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+#displayItems {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+div.widget {
+    position:absolute;
+    overflow: hidden;
+    .rounded-corners(10px);
+    padding: 4px 4px 4px 4px;
+    margin: 0px 0px 0px 0px;
+    text-align: center;
+
+    ul.alarms {
+        margin: 0;
+        padding: 2px;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+        }
+    }
+
+    ul.buildStatus {
+        margin: 0;
+        padding: 2px;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+        }
+    }
+
+    ul.hostStatus {
+        margin: 0;
+        padding: 2px;
+        li {
+            list-style: none;
+            .rounded-corners(8px);
+            margin: 2px 0px 2px 0px;
+            padding: 2px 0px 2px 0px;
+            table.group {
+                .rounded-corners(4px);
+                padding: 2px;
+                width: 100%;
+            }
+            td {
+                .rounded-corners(2px);
+                padding: 1px;
+                margin: 1px;
+            }
+        }
+    }
+
+    table.metrics {
+        width: 100%;
+        padding: 0;
+    }
+}

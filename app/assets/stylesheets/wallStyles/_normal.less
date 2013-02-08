@@ -1,0 +1,42 @@
+div.normal {
+  background: #a9a9a9;
+  .gradient(#FFF, #AAA);
+
+  ul.alarms {
+    li {
+      background: #ffffff;
+    }
+    li.alert {
+      background: #ff4444;
+    }
+  }
+
+  ul.buildStatus {
+    li {
+      background: #ffffff;
+    }
+    li.Ok {
+      background: #44ff44;
+    }
+    li.Failure {
+      background: #ff4444;
+    }
+  }
+
+  ul.hostStatus {
+    li {
+      table.group {
+        background: #a9a9a9;
+      }
+      td.Up-Ok {
+        background: #44ff44;
+      }
+      td.Up-Warning {
+        background: #ffff44;
+      }
+      td.Down-Ok, td.Down-Warning, td.Down-Critical, td.Up-Critical {
+        background: #ff4444;
+      }
+    }
+  }
+}

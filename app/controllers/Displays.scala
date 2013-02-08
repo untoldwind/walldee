@@ -96,8 +96,12 @@ object Displays extends Controller {
                 maxLastUpdate = lastUpdate
           }
           Ok(<feed xmlns="http://www.w3.org/2005/Atom">
-            <title>{display.name}</title>
-            <id>{routes.Displays.atomFeed(displayId).absoluteURL()}</id>
+            <title>
+              {display.name}
+            </title>
+            <id>
+              {routes.Displays.atomFeed(displayId).absoluteURL()}
+            </id>
             <updated>
               {dateFormat.print(maxLastUpdate)}
             </updated>{entries}
@@ -154,6 +158,7 @@ object Displays extends Controller {
       "projectId" -> optional(longNumber),
       "backgroundColor" -> text,
       "refreshTime" -> number(min = 1, max = 3600),
-      "useLongPolling" -> boolean
+      "useLongPolling" -> boolean,
+      "relativeLayout" -> boolean
     )(Display.apply)(Display.unapply)).fill(display)
 }

@@ -1,0 +1,42 @@
+div.black {
+  background: #303040;
+  color: #ffffff;
+
+  ul.alarms {
+    li {
+      background: #111122;
+    }
+    li.alert {
+      background: #880000;
+    }
+  }
+
+  ul.buildStatus {
+    li {
+      background: #111122;
+    }
+    li.Ok {
+      background: #008800;
+    }
+    li.Failure {
+      background: #880000;
+    }
+  }
+
+  ul.hostStatus {
+    li {
+      table.group {
+        background: #111122;
+      }
+      td.Up-Ok {
+        background: #008800;
+      }
+      td.Up-Warning {
+        background: #888800;
+      }
+      td.Down-Ok, td.Down-Warning, td.Down-Critical, td.Up-Critical {
+        background: #880000;
+      }
+    }
+  }
+}
