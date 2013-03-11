@@ -10,10 +10,10 @@ import models.DisplayItem
 case class RenderedWidget(displayItem: DisplayItem,
                           content: Html) {
   val id = "displayItem-%d".format(displayItem.id.get)
-  val posx = displayItem.posx + 2
-  val posy = displayItem.posy + 2
-  val width = displayItem.width - 12
-  val height = displayItem.height - 12
+  val posx = displayItem.posx
+  val posy = displayItem.posy
+  val width = displayItem.width
+  val height = displayItem.height
   val style = displayItem.style.toString.toLowerCase
 
   lazy val etag = {

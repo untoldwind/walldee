@@ -16,58 +16,68 @@ body {
 }
 
 div.widget {
-    position:absolute;
+  position: absolute;
+  padding: 0px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
+
+  div.inner {
+    text-align: center;
+    position: absolute;
     overflow: hidden;
-    .rounded-corners(10px);
     padding: 4px 4px 4px 4px;
     margin: 0px 0px 0px 0px;
-    text-align: center;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    .rounded-corners(10px);
 
     ul.alarms {
-        margin: 0;
-        padding: 2px;
-        li {
-            list-style: none;
-            .rounded-corners(8px);
-            margin: 2px 0px 2px 0px;
-            padding: 2px 0px 2px 0px;
-        }
+      margin: 0;
+      padding: 2px;
+      li {
+        list-style: none;
+        .rounded-corners(8px);
+        margin: 2px 0px 2px 0px;
+        padding: 2px 0px 2px 0px;
+      }
     }
 
     ul.buildStatus {
-        margin: 0;
-        padding: 2px;
-        li {
-            list-style: none;
-            .rounded-corners(8px);
-            margin: 2px 0px 2px 0px;
-            padding: 2px 0px 2px 0px;
-        }
+      margin: 0;
+      padding: 2px;
+      li {
+        list-style: none;
+        .rounded-corners(8px);
+        margin: 2px 0px 2px 0px;
+        padding: 2px 0px 2px 0px;
+      }
     }
 
     ul.hostStatus {
-        margin: 0;
-        padding: 2px;
-        li {
-            list-style: none;
-            .rounded-corners(8px);
-            margin: 2px 0px 2px 0px;
-            padding: 2px 0px 2px 0px;
-            table.group {
-                .rounded-corners(4px);
-                padding: 2px;
-                width: 100%;
-            }
-            td {
-                .rounded-corners(2px);
-                padding: 1px;
-                margin: 1px;
-            }
+      margin: 0;
+      padding: 2px;
+      li {
+        list-style: none;
+        .rounded-corners(8px);
+        margin: 2px 0px 2px 0px;
+        padding: 2px 0px 2px 0px;
+        table.group {
+          .rounded-corners(4px);
+          padding: 2px;
+          width: 100%;
         }
+        td {
+          .rounded-corners(2px);
+          padding: 1px;
+          margin: 1px;
+        }
+      }
     }
 
     table.metrics {
-        width: 100%;
-        padding: 0;
+      width: 100%;
+      padding: 0;
     }
+  }
 }
