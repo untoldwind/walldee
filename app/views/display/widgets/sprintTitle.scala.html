@@ -1,7 +1,7 @@
 @(display:Display, displayItem:DisplayItem, sprint:Sprint)
 
 @defining(displayItem.sprintTitleConfig) { config =>
-<div style="width: @{displayItem.width - 12}px; height: @{displayItem.height - 12}px; vertical-align: middle; line-height: @{displayItem.height - 12}px; font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @(config.flatMap(_.labelSize).getOrElse(20))px;">
-    Sprint @sprint.num: @sprint.title
+<div class="bigText" style="top:2px; bottom:2px; left:2px; right:2px; vertical-align: middle; font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif");">
+    <span class="slabtext">Sprint @sprint.num: @sprint.title</span>
 </div>
 }

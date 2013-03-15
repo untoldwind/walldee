@@ -1,5 +1,5 @@
 var longPolling = function () {
-    function applyUpdates(displayUpdate) {
+    function applyUpdates(displayUpdate, unit) {
         console.log(displayUpdate);
         $.each(displayUpdate.removeWidgets, function (idx, removedWidgetId) {
             $("#" + removedWidgetId).remove();
@@ -12,16 +12,16 @@ var longPolling = function () {
             $(selector).attr("class", "widget");
             $(selector).addClass("outer");
             $(selector).attr("etag", update.etag);
-            $(selector).css("left", update.posx + "px");
-            $(selector).css("top", update.posy + "px");
-            $(selector).css("width", update.width + "px");
-            $(selector).css("height", update.height + "px");
+            $(selector).css("left", update.posx + unit);
+            $(selector).css("top", update.posy + unit);
+            $(selector).css("width", update.width + unit);
+            $(selector).css("height", update.height + unit);
             $(selector).html("<div class=\"inner " + update.style + "\">" + update.content + "</div>");
         });
         animations.start();
     }
 
-    function getUpdates(url) {
+    function getUpdates(url, unit) {
         var state = {};
         $("div.widget").each(function () {
             state[$(this).attr("id")] = $(this).attr("etag");
@@ -33,19 +33,19 @@ var longPolling = function () {
             contentType: "application/json",
             type: "POST",
             success: function (result) {
-                applyUpdates(result);
-                getUpdates(url);
+                applyUpdates(result, unit);
+                getUpdates(url, unit);
             },
             error: function (request, error, exception) {
-                getUpdates(url);
+                getUpdates(url, unit);
             }
         });
     }
 
     return {
-        start: function (url) {
+        start: function (url, unit) {
             window.setTimeout("location.reload(true);", 4 * 3600 * 1000);
-            getUpdates(url);
+            getUpdates(url, unit);
         }
     }
 }();
