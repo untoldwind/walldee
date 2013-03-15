@@ -25,9 +25,10 @@ case class DisplayItem(id: Option[Long],
                        widgetNum: Int,
                        projectId: Option[Long],
                        appearsInFeed: Boolean,
+                       animationCycles: Option[String],
                        widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, false, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, false, None, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
@@ -106,7 +107,7 @@ case class DisplayItem(id: Option[Long],
         Query(DisplayItem.seqID).first
     }
     val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum,
-      projectId, appearsInFeed, widgetConfigJson)
+      projectId, appearsInFeed, None, widgetConfigJson)
     Global.displayUpdater ! result
     result
   }
@@ -153,10 +154,12 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def appearsInFeed = column[Boolean]("APPEARSINFEED", O NotNull)
 
+  def animationCycles = column[String]("ANIMATIONCYCLES")
+
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
   def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~ appearsInFeed ~
-    widgetConfigJson <>((apply _).tupled, unapply _)
+    animationCycles.? ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
                 displayId: Long,
@@ -189,7 +192,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
     }
 
     DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, appearsInFeed,
-      Json.stringify(widgetConfig))
+      None, Json.stringify(widgetConfig))
   }
 
   def formUnapply(displayItem: DisplayItem) =

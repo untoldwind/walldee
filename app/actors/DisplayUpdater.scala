@@ -108,7 +108,7 @@ object DisplayUpdater {
       val removedIds = state.keys.filter(!widgetIds.contains(_)).toSeq
       if (!changed.isEmpty || !removedIds.isEmpty) {
         result.redeem {
-          DisplayUpdate(removedIds, changed)
+          DisplayUpdate(removedIds, changed, display.animationCycles, display.animationDelay)
         }
         true
       } else

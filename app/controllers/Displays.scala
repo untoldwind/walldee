@@ -167,6 +167,8 @@ object Displays extends Controller {
       "backgroundColor" -> text,
       "refreshTime" -> number(min = 1, max = 3600),
       "useLongPolling" -> boolean,
-      "relativeLayout" -> boolean
+      "relativeLayout" -> boolean,
+      "animationCycles" -> number,
+      "animationDelay" -> number
     )(Display.apply)(Display.unapply)).fill(display)
 }

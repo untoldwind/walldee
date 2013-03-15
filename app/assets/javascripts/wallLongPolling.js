@@ -18,7 +18,7 @@ var longPolling = function () {
             $(selector).css("height", update.height + unit);
             $(selector).html("<div class=\"inner " + update.style + "\">" + update.content + "</div>");
         });
-        animations.start();
+        animations.start(displayUpdate.animationCycles, displayUpdate.animationDelay);
     }
 
     function getUpdates(url, unit) {

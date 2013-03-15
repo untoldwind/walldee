@@ -24,7 +24,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            animations.start();
+            animations.start(@display.animationCycles, @display.animationDelay);
 
             longPolling.start("@routes.Displays.wallUpdates(display.id.get)", "%");
         })
