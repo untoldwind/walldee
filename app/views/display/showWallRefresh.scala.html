@@ -5,10 +5,9 @@
 <head>
     <title>@display.name</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/wallAbsolute.css")">
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/slabtext.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
     <script src="@routes.Assets.at("javascripts/jquery-1.8.3.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/jquery.slabtext.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/jquery.textfill.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/wallAnimations.js")"></script>
     <meta http-equiv="refresh" content="@display.refreshTime">
 </head>
@@ -25,8 +24,6 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $(".bigText").slabText();
-
             animations.start();
         });
     </script>
