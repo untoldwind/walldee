@@ -21,10 +21,9 @@ case class Display(id: Option[Long],
                    refreshTime: Int,
                    useLongPolling: Boolean,
                    relativeLayout: Boolean,
-                   animationCycles: Int,
-                   animationDelay: Int) {
+                   animationConfigJson: String) {
 
-  def this() = this(None, "", 0, None, "#000000", 5, false, false, 0, 0)
+  def this() = this(None, "", 0, None, "#000000", 5, false, false, "{}")
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -67,12 +66,10 @@ object Display extends Table[Display]("DISPLAY") {
 
   def relativeLayout = column[Boolean]("RELATIVELAYOUT")
 
-  def animationCycles = column[Int]("ANIMATIONCYCLES")
-
-  def animationDelay = column[Int]("ANIMATIONDELAY")
+  def animationConfig = column[String]("ANIMATIONCONFIG")
 
   def * = id.? ~ name ~ sprintId ~ projectId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
-    relativeLayout ~ animationCycles ~ animationDelay <>((apply _).tupled, unapply _)
+    relativeLayout ~ animationConfig <>((apply _).tupled, unapply _)
 
   def query = Query(this)
 

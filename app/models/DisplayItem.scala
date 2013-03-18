@@ -25,10 +25,10 @@ case class DisplayItem(id: Option[Long],
                        widgetNum: Int,
                        projectId: Option[Long],
                        appearsInFeed: Boolean,
-                       animationCycles: Option[String],
+                       hidden: Boolean,
                        widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, false, None, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, false, false, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
@@ -107,7 +107,7 @@ case class DisplayItem(id: Option[Long],
         Query(DisplayItem.seqID).first
     }
     val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum,
-      projectId, appearsInFeed, None, widgetConfigJson)
+      projectId, appearsInFeed, hidden, widgetConfigJson)
     Global.displayUpdater ! result
     result
   }
@@ -154,12 +154,12 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def appearsInFeed = column[Boolean]("APPEARSINFEED", O NotNull)
 
-  def animationCycles = column[String]("ANIMATIONCYCLES")
+  def hidden = column[Boolean]("HIDDEN", O NotNull)
 
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
   def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~ appearsInFeed ~
-    animationCycles.? ~ widgetConfigJson <>((apply _).tupled, unapply _)
+    hidden ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
                 displayId: Long,
@@ -171,28 +171,29 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 widgetNum: Int,
                 projectId: Option[Long],
                 appearsInFeed: Boolean,
-                burndownChartConfig: Option[BurndownConfig],
-                sprintTitleConfig: Option[SprintTitleConfig],
-                clockConfig: Option[ClockConfig],
-                alarmsConfig: Option[AlarmsConfig],
-                iframeConfig: Option[IFrameConfig],
-                buildStatusConfig: Option[BuildStatusConfig],
-                hostStatusConfig: Option[HostStatusConfig],
-                metricsConfig: Option[MetricsConfig]): DisplayItem = {
+                hidden: Boolean,
+                widgetConfig: (Option[BurndownConfig],
+                  Option[SprintTitleConfig],
+                  Option[ClockConfig],
+                  Option[AlarmsConfig],
+                  Option[IFrameConfig],
+                  Option[BuildStatusConfig],
+                  Option[HostStatusConfig],
+                  Option[MetricsConfig])): DisplayItem = {
 
-    val widgetConfig = DisplayWidgets(widgetNum) match {
-      case DisplayWidgets.Burndown => Json.toJson(burndownChartConfig.getOrElse(BurndownConfig()))
-      case DisplayWidgets.SprintTitle => Json.toJson(sprintTitleConfig.getOrElse(SprintTitleConfig()))
-      case DisplayWidgets.Clock => Json.toJson(clockConfig.getOrElse(ClockConfig()))
-      case DisplayWidgets.Alarms => Json.toJson(alarmsConfig.getOrElse(AlarmsConfig()))
-      case DisplayWidgets.IFrame => Json.toJson(iframeConfig.getOrElse(IFrameConfig()))
-      case DisplayWidgets.BuildStatus => Json.toJson(buildStatusConfig.getOrElse(BuildStatusConfig()))
-      case DisplayWidgets.HostStatus => Json.toJson(hostStatusConfig.getOrElse(HostStatusConfig()))
-      case DisplayWidgets.Metrics => Json.toJson(metricsConfig.getOrElse(MetricsConfig()))
+    val widgetConfigJson = DisplayWidgets(widgetNum) match {
+      case DisplayWidgets.Burndown => Json.toJson(widgetConfig._1.getOrElse(BurndownConfig()))
+      case DisplayWidgets.SprintTitle => Json.toJson(widgetConfig._2.getOrElse(SprintTitleConfig()))
+      case DisplayWidgets.Clock => Json.toJson(widgetConfig._3.getOrElse(ClockConfig()))
+      case DisplayWidgets.Alarms => Json.toJson(widgetConfig._4.getOrElse(AlarmsConfig()))
+      case DisplayWidgets.IFrame => Json.toJson(widgetConfig._5.getOrElse(IFrameConfig()))
+      case DisplayWidgets.BuildStatus => Json.toJson(widgetConfig._6.getOrElse(BuildStatusConfig()))
+      case DisplayWidgets.HostStatus => Json.toJson(widgetConfig._7.getOrElse(HostStatusConfig()))
+      case DisplayWidgets.Metrics => Json.toJson(widgetConfig._8.getOrElse(MetricsConfig()))
     }
 
     DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, appearsInFeed,
-      None, Json.stringify(widgetConfig))
+      hidden, Json.stringify(widgetConfigJson))
   }
 
   def formUnapply(displayItem: DisplayItem) =
@@ -207,14 +208,15 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.widgetNum,
       displayItem.projectId,
       displayItem.appearsInFeed,
-      displayItem.burndownConfig,
-      displayItem.sprintTitleConfig,
-      displayItem.clockConfig,
-      displayItem.alarmsConfig,
-      displayItem.iframeConfig,
-      displayItem.buildStatusConfig,
-      displayItem.hostStatusConfig,
-      displayItem.metricsConfig)
+      displayItem.hidden,
+      (displayItem.burndownConfig,
+        displayItem.sprintTitleConfig,
+        displayItem.clockConfig,
+        displayItem.alarmsConfig,
+        displayItem.iframeConfig,
+        displayItem.buildStatusConfig,
+        displayItem.hostStatusConfig,
+        displayItem.metricsConfig))
 
   def query = Query(this)
 

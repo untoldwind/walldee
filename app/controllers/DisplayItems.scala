@@ -71,7 +71,7 @@ object DisplayItems extends Controller {
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, false, None, "{}"))
+    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, false, false, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
@@ -85,13 +85,15 @@ object DisplayItems extends Controller {
       "widget" -> number,
       "projectId" -> optional(longNumber),
       "appearsInFeed" -> boolean,
-      "burndownConfig" -> optional(Burndown.configMapping),
-      "sprintTitleConfig" -> optional(SprintTitle.configMapping),
-      "clockConfig" -> optional(Clock.configMapping),
-      "alarmsConfig" -> optional(widgets.Alarms.configMapping),
-      "iframeConfig" -> optional(widgets.IFrame.configMapping),
-      "buildStatusConfig" -> optional(widgets.BuildStatus.configMapping),
-      "hostStatusConfig" -> optional(widgets.HostStatus.configMapping),
-      "metricsConfig" -> optional(widgets.Metrics.configMapping)
+      "hidden" -> boolean,
+      "widgetConfig" -> tuple(
+        "burndownConfig" -> optional(Burndown.configMapping),
+        "sprintTitleConfig" -> optional(SprintTitle.configMapping),
+        "clockConfig" -> optional(Clock.configMapping),
+        "alarmsConfig" -> optional(widgets.Alarms.configMapping),
+        "iframeConfig" -> optional(widgets.IFrame.configMapping),
+        "buildStatusConfig" -> optional(widgets.BuildStatus.configMapping),
+        "hostStatusConfig" -> optional(widgets.HostStatus.configMapping),
+        "metricsConfig" -> optional(widgets.Metrics.configMapping))
     )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }

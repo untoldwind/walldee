@@ -6,7 +6,7 @@ var animations = (function() {
     }
 
     return {
-        start: function(cycles, delay) {
+        start: function(config) {
             animateElements();
         }
     }
