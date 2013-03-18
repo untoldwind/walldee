@@ -15,6 +15,7 @@ case class RenderedWidget(displayItem: DisplayItem,
   val width = displayItem.width
   val height = displayItem.height
   val style = displayItem.style.toString.toLowerCase
+  val hidden = displayItem.hidden
 
   lazy val etag = {
     val dataDigest = new DataDigest
@@ -25,6 +26,7 @@ case class RenderedWidget(displayItem: DisplayItem,
     dataDigest.update(width)
     dataDigest.update(height)
     dataDigest.update(style)
+    dataDigest.update(hidden)
     dataDigest.update(content.toString())
     dataDigest.base64Digest()
   }
@@ -41,6 +43,7 @@ object RenderedWidget {
       "width" -> JsNumber(renderedWidget.width),
       "height" -> JsNumber(renderedWidget.height),
       "style" -> JsString(renderedWidget.style),
+      "hidden" -> JsBoolean(renderedWidget.hidden),
       "etag" -> JsString(renderedWidget.etag),
       "content" -> JsString(renderedWidget.content.toString)))
   }

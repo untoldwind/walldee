@@ -151,6 +151,7 @@ object Displays extends Controller {
     dataDigest.update(display.sprintId)
     dataDigest.update(display.backgroundColor)
     dataDigest.update(display.refreshTime)
+    dataDigest.update(display.animationConfigJson)
     displayItems.foreach {
       displayItem =>
         dataDigest.update(Widget.getRenderedWidget(display, displayItem).etag)
