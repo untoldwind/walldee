@@ -1,0 +1,18 @@
+@(teams: Seq[Team])
+
+<thead>
+<tr>
+    <th>Name</th>
+</tr>
+</thead>
+<tbody>
+@teams.map { team =>
+<tr>
+    <td>@team.name</td>
+    <td>
+        <a href="@routes.Teams.edit(team.id.get)" class="edit">Edit</a>
+        @common.deleteLink(routes.Projects.delete(team.id.get), "team-list")
+    </td>
+</tr>
+}
+</tbody>

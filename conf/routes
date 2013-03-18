@@ -31,6 +31,12 @@ GET     /projects/:projectId/edit                 controllers.Projects.edit(proj
 POST    /projects/:projectId                      controllers.Projects.update(projectId:Long)
 DELETE  /projects/:projectId                      controllers.Projects.delete(projectId:Long)
 
+GET     /teams                                    controllers.Teams.index
+POST    /teams                                    controllers.Teams.create
+GET     /teams/:teamId/edit                       controllers.Teams.edit(teamId:Long)
+POST    /teams/:teamId                            controllers.Teams.update(teamId:Long)
+DELETE  /teams/:teamId                            controllers.Teams.delete(teamId:Long)
+
 GET     /statusMonitors                           controllers.StatusMonitors.index
 POST    /statusMonitors                           controllers.StatusMonitors.create
 GET     /statusMonitors/:statusMonitorId          controllers.StatusMonitors.show(statusMonitorId:Long)

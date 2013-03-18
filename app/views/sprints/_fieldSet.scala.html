@@ -1,4 +1,4 @@
-@(form:Form[Sprint])
+@(form:Form[Sprint], teams:Seq[Team])
 
 <fieldset>
     <legend>Sprint</legend>
@@ -12,6 +12,9 @@
     </div>
     <div>
         @helper.inputText(form("languageTag"), '_label -> "Language")
+    </div>
+    <div>
+        @helper.select(form("teamId"), teams.map(team => team.id.get.toString -> "Team %s".format(team.name)))
     </div>
     <div id="counters">
         @helper.repeat(form("counters")) { counter =>

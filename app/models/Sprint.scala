@@ -19,6 +19,7 @@ import sprints.SprintCounter
 import globals.Global
 
 case class Sprint(id: Option[Long],
+                  teamId: Option[Long],
                   title: String,
                   num: Int,
                   sprintStart: Date,
@@ -26,7 +27,8 @@ case class Sprint(id: Option[Long],
                   languageTag: String,
                   countersJson: String) {
 
-  def this() = this(None, "", 0, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "de-DE", "[]")
+  def this() = this(None, None, "", 0,
+    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "de-DE", "[]")
 
   def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson))
 
@@ -93,6 +95,8 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def id = column[Long]("ID", O PrimaryKey, O AutoInc)
 
+  def teamId = column[Long]("TEAMID")
+
   def title = column[String]("TITLE", O NotNull)
 
   def num = column[Int]("NUM", O NotNull)
@@ -105,19 +109,21 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def countersJson = column[String]("COUNTERSJSON", O NotNull)
 
-  def * = id.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ languageTag ~ countersJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ teamId.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ languageTag ~ countersJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
+                teamId: Option[Long],
                 title: String,
                 num: Int,
                 sprintStart: Date,
                 sprintEnd: Date,
                 languageTag: String,
                 counters: List[SprintCounter]) =
-    Sprint(id, title, num, sprintStart, sprintEnd, languageTag, Json.stringify(Json.toJson(counters)))
+    Sprint(id, teamId, title, num, sprintStart, sprintEnd, languageTag, Json.stringify(Json.toJson(counters)))
 
   def formUnapply(sprint: Sprint) =
     Some(sprint.id,
+      sprint.teamId,
       sprint.title,
       sprint.num,
       sprint.sprintStart,

@@ -33,8 +33,8 @@ object Projects extends Controller {
         project =>
           projectForm(project).bindFromRequest.fold(
           formWithErrors => BadRequest(views.html.projects.edit(project, formWithErrors)), {
-            statusMonitor =>
-              statusMonitor.update
+            project =>
+              project.update
               Ok(views.html.projects.edit(project, projectForm(project)))
           })
       }.getOrElse(NotFound)

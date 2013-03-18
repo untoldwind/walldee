@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{DayCount, Story, Sprint}
+import models.{Team, DayCount, Story, Sprint}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
@@ -11,16 +11,16 @@ import play.api.data.format._
 
 object Sprints extends Controller {
   def index = Action {
-    Ok(views.html.sprints.index(Sprint.findAll, sprintForm()))
+    Ok(views.html.sprints.index(Sprint.findAll, sprintForm(), Team.findAll))
   }
 
   def create = Action {
     implicit request =>
       sprintForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll, formWithErrors)), {
+      formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll, formWithErrors, Team.findAll)), {
         sprint =>
           sprint.insert
-          Ok(views.html.sprints.index(Sprint.findAll, sprintForm()))
+          Ok(views.html.sprints.index(Sprint.findAll, sprintForm(), Team.findAll))
       })
   }
 
@@ -36,7 +36,7 @@ object Sprints extends Controller {
   def edit(sprintId: Long) = Action {
     Sprint.findById(sprintId).map {
       sprint =>
-        Ok(views.html.sprints.edit(sprint, sprintForm(sprint)))
+        Ok(views.html.sprints.edit(sprint, sprintForm(sprint), Team.findAll))
     }.getOrElse(NotFound)
   }
 
@@ -45,7 +45,7 @@ object Sprints extends Controller {
       Sprint.findById(sprintId).map {
         sprint =>
           sprintForm(sprint).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.sprints.edit(sprint, sprintForm(sprint))), {
+          formWithErrors => BadRequest(views.html.sprints.edit(sprint, sprintForm(sprint), Team.findAll)), {
             sprint =>
               sprint.update
               Redirect(routes.Sprints.show(sprintId))
@@ -53,7 +53,7 @@ object Sprints extends Controller {
       }.getOrElse(NotFound)
   }
 
-  def delete(sprintId:Long ) = Action {
+  def delete(sprintId: Long) = Action {
     implicit request =>
       Sprint.findById(sprintId).map {
         sprint =>
@@ -65,6 +65,7 @@ object Sprints extends Controller {
   private def sprintForm(sprint: Sprint = new Sprint): Form[Sprint] = Form(
     mapping(
       "id" -> ignored(sprint.id),
+      "teamId" -> optional(longNumber),
       "title" -> text(maxLength = 255),
       "num" -> number(min = 1, max = 10000),
       "sprintStart" -> sqlDate("dd-MM-yyyy"),

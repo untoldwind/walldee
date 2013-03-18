@@ -1,4 +1,4 @@
-@(sprint: Sprint, form:Form[Sprint])
+@(sprint: Sprint, form:Form[Sprint], teams: Seq[Team])
 @import models.utils.Breadcrumb
 
 @main("Sprint %d: %s".format(sprint.num, sprint.title),
@@ -8,7 +8,7 @@
     Breadcrumb("Edit", routes.Sprints.edit(sprint.id.get), true) :: Nil) {
 
 @helper.form(action = routes.Sprints.update(sprint.id.get), 'id -> "sprint-form") {
-@_fieldSet(form)
+@_fieldSet(form, teams)
 <div class="actions">
     <input type="submit" class="btn primary" value="Update">
 </div>
