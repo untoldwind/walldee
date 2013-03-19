@@ -29,7 +29,7 @@ var animations = (function () {
             log(animation.effect);
             log(animation.params)
 
-            $(selector).toggle(animation.effect);
+            $(selector).toggle(animation.effect, animation.options, animation.duration);
         }
 
         if ( !nextCycleQueued && animation.delay > 0 ) {
