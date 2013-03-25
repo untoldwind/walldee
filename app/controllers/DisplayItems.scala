@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Project, Display, DisplayItem}
+import models.{Team, Project, Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
 import widgets.{Widget, Clock, SprintTitle, Burndown}
@@ -37,7 +37,8 @@ object DisplayItems extends Controller {
       display =>
         DisplayItem.findById(displayItemId).map {
           displayItem =>
-            Ok(views.html.displayItem.edit(display, displayItem, Project.findAll, displayItemForm(displayItem)))
+            Ok(views.html.displayItem.edit(display, displayItem, Project.findAll, Team.findAll,
+              displayItemForm(displayItem)))
         }
     }.getOrElse(NotFound)
   }
@@ -49,7 +50,8 @@ object DisplayItems extends Controller {
           DisplayItem.findById(displayItemId).map {
             displayItem =>
               displayItemForm(displayItem).bindFromRequest.fold(
-              formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Project.findAll, formWithErrors)), {
+              formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Project.findAll,
+                Team.findAll, formWithErrors)), {
                 displayItem =>
                   displayItem.update
                   Redirect(routes.Displays.showConfig(displayId))
@@ -71,7 +73,7 @@ object DisplayItems extends Controller {
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, false, false, "{}"))
+    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, None, false, false, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
@@ -84,6 +86,7 @@ object DisplayItems extends Controller {
       "style" -> number,
       "widget" -> number,
       "projectId" -> optional(longNumber),
+      "teamId" -> optional(longNumber),
       "appearsInFeed" -> boolean,
       "hidden" -> boolean,
       "widgetConfig" -> tuple(

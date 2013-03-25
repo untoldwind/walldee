@@ -14,9 +14,10 @@ import play.api.db.DB
 import globals.Global
 
 case class Team(id: Option[Long],
-                name: String) {
+                name: String,
+                currentSprintId: Option[Long]) {
 
-  def this() = this(None, "")
+  def this() = this(None, "", None)
 
   def insert = {
     Project.database.withSession {
@@ -49,7 +50,9 @@ object Team extends Table[Team]("TEAM") {
 
   def name = column[String]("NAME", O NotNull)
 
-  def * = id.? ~ name <>((apply _).tupled, (unapply _))
+  def currentSprintId = column[Long]("CURRENTSPRINTID")
+
+  def * = id.? ~ name ~ currentSprintId.? <>((apply _).tupled, (unapply _))
 
   def query = Query(this)
 

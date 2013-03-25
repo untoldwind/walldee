@@ -27,8 +27,11 @@ class DisplayUpdater extends Actor with SLF4JLogging {
           self ! display
       }
 
-    case team:Team =>
-      // ignore this atm
+    case team: Team =>
+      Display.findAllForTeam(team.id.get).foreach {
+        display =>
+          self ! display
+      }
 
     case statusMonitor: StatusMonitor =>
       Display.findAllForProject(statusMonitor.projectId).foreach {

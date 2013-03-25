@@ -15,16 +15,17 @@ import org.joda.time.format.ISODateTimeFormat
 
 object Displays extends Controller {
   def index = Action {
-    Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, displayForm()))
+    Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, Team.findAll, displayForm()))
   }
 
   def create = Action {
     implicit request =>
       displayForm().bindFromRequest().fold(
-      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, formWithErrors)), {
+      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll,
+        Team.findAll, formWithErrors)), {
         display =>
           display.insert
-          Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, displayForm()))
+          Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, Team.findAll, displayForm()))
       })
   }
 
@@ -34,6 +35,7 @@ object Displays extends Controller {
         Ok(views.html.display.showConfig(display,
           Sprint.findAll,
           Project.findAll,
+          Team.findAll,
           displayForm(display),
           DisplayItem.findAllForDisplay(displayId),
           DisplayItems.displayItemFrom(display)))
@@ -125,6 +127,7 @@ object Displays extends Controller {
           formWithErrors => BadRequest(views.html.display.showConfig(display,
             Sprint.findAll,
             Project.findAll,
+            Team.findAll,
             formWithErrors,
             DisplayItem.findAllForDisplay(displayId),
             DisplayItems.displayItemFrom(display))), {
@@ -149,6 +152,8 @@ object Displays extends Controller {
 
     dataDigest.update(display.id)
     dataDigest.update(display.sprintId)
+    dataDigest.update(display.projectId)
+    dataDigest.update(display.teamId)
     dataDigest.update(display.backgroundColor)
     dataDigest.update(display.refreshTime)
     dataDigest.update(display.animationConfigJson)
@@ -165,6 +170,7 @@ object Displays extends Controller {
       "name" -> text(maxLength = 255),
       "sprintId" -> longNumber,
       "projectId" -> optional(longNumber),
+      "teamId" -> optional(longNumber),
       "backgroundColor" -> text,
       "refreshTime" -> number(min = 1, max = 3600),
       "useLongPolling" -> boolean,

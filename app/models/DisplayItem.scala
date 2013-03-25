@@ -24,11 +24,12 @@ case class DisplayItem(id: Option[Long],
                        styleNum: Int,
                        widgetNum: Int,
                        projectId: Option[Long],
+                       teamId: Option[Long],
                        appearsInFeed: Boolean,
                        hidden: Boolean,
                        widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, false, false, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, None, false, false, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
@@ -107,7 +108,7 @@ case class DisplayItem(id: Option[Long],
         Query(DisplayItem.seqID).first
     }
     val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum,
-      projectId, appearsInFeed, hidden, widgetConfigJson)
+      projectId, teamId, appearsInFeed, hidden, widgetConfigJson)
     Global.displayUpdater ! result
     result
   }
@@ -152,14 +153,16 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def projectId = column[Long]("PROJECTID", O Nullable)
 
+  def teamId = column[Long]("TEAMID")
+
   def appearsInFeed = column[Boolean]("APPEARSINFEED", O NotNull)
 
   def hidden = column[Boolean]("HIDDEN", O NotNull)
 
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
-  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~ appearsInFeed ~
-    hidden ~ widgetConfigJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~ teamId.? ~
+    appearsInFeed ~ hidden ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
                 displayId: Long,
@@ -170,6 +173,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 styleNum: Int,
                 widgetNum: Int,
                 projectId: Option[Long],
+                teamId: Option[Long],
                 appearsInFeed: Boolean,
                 hidden: Boolean,
                 widgetConfig: (Option[BurndownConfig],
@@ -192,7 +196,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       case DisplayWidgets.Metrics => Json.toJson(widgetConfig._8.getOrElse(MetricsConfig()))
     }
 
-    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, appearsInFeed,
+    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, teamId, appearsInFeed,
       hidden, Json.stringify(widgetConfigJson))
   }
 
@@ -207,6 +211,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.styleNum,
       displayItem.widgetNum,
       displayItem.projectId,
+      displayItem.teamId,
       displayItem.appearsInFeed,
       displayItem.hidden,
       (displayItem.burndownConfig,

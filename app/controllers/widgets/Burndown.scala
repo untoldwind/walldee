@@ -19,7 +19,7 @@ object Burndown extends Controller with Widget[BurndownConfig] {
   )(BurndownConfig.apply)(BurndownConfig.unapply)
 
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    Sprint.findById(display.sprintId).map {
+    Sprint.findById(getSprintId(display, displayItem)).map {
       sprint =>
         views.html.display.widgets.burndown.render(display, displayItem, calculateETag(displayItem, sprint))
     }.getOrElse(Html(""))
@@ -39,6 +39,18 @@ object Burndown extends Controller with Widget[BurndownConfig] {
               }
           }
       }.getOrElse(NotFound)
+  }
+
+  private def getSprintId(display: Display, displayItem: DisplayItem): Long = {
+    val teamIdOpt = displayItem.teamId.map(Some(_)).getOrElse(display.teamId)
+
+    teamIdOpt.flatMap {
+      teamId =>
+        Team.findById(teamId).flatMap {
+          team =>
+            team.currentSprintId
+        }
+    }.getOrElse(display.sprintId)
   }
 
   private def calculateETag(displayItem: DisplayItem, sprint: Sprint): String = {

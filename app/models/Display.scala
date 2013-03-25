@@ -17,13 +17,14 @@ case class Display(id: Option[Long],
                    name: String,
                    sprintId: Long,
                    projectId: Option[Long],
+                   teamId: Option[Long],
                    backgroundColor: String,
                    refreshTime: Int,
                    useLongPolling: Boolean,
                    relativeLayout: Boolean,
                    animationConfigJson: String) {
 
-  def this() = this(None, "", 0, None, "#000000", 5, false, false, "{}")
+  def this() = this(None, "", 0, None, None, "#000000", 5, false, false, "{}")
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -58,6 +59,8 @@ object Display extends Table[Display]("DISPLAY") {
 
   def projectId = column[Long]("PROJECTID", O NotNull)
 
+  def teamId = column[Long]("TEAMID")
+
   def backgroundColor = column[String]("BACKGROUNDCOLOR", O NotNull)
 
   def refreshTime = column[Int]("REFRESHTIME", O NotNull)
@@ -68,7 +71,7 @@ object Display extends Table[Display]("DISPLAY") {
 
   def animationConfig = column[String]("ANIMATIONCONFIG")
 
-  def * = id.? ~ name ~ sprintId ~ projectId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
+  def * = id.? ~ name ~ sprintId ~ projectId.? ~ teamId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
     relativeLayout ~ animationConfig <>((apply _).tupled, unapply _)
 
   def query = Query(this)
@@ -86,6 +89,11 @@ object Display extends Table[Display]("DISPLAY") {
   def findAllForProject(projectId: Long): Seq[Display] = database.withSession {
     implicit db: Session =>
       query.where(d => d.projectId === projectId).orderBy(name.asc).list
+  }
+
+  def findAllForTeam(teamId: Long): Seq[Display] = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.teamId === teamId).orderBy(name.asc).list
   }
 
   def findById(displayId: Long): Option[Display] = database.withSession {

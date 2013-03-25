@@ -1,4 +1,4 @@
-@(display:Display, displayItem:DisplayItem, projects:Seq[Project], displayItemForm:Form[DisplayItem])
+@(display:Display, displayItem:DisplayItem, projects:Seq[Project], teams:Seq[Team], displayItemForm:Form[DisplayItem])
 @import models.utils.Breadcrumb
 
 @main(displayItem.widget.toString,
@@ -18,6 +18,9 @@
     @helper.select(displayItemForm("projectId"),
         ("" -> "<Use display setting>") +:
         projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
+    @helper.select(displayItemForm("teamId"),
+        ("" -> "<Use display setting>") +:
+        teams.map(team => team.id.get.toString -> "Team %s".format(team.name)))
     @helper.checkbox(displayItemForm("appearsInFeed"))
     @helper.checkbox(displayItemForm("hidden"))
 </fieldset>

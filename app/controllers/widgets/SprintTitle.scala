@@ -3,7 +3,7 @@ package controllers.widgets
 import play.api.Play.current
 import play.api.data.Forms._
 import models.widgetConfigs.SprintTitleConfig
-import models.{Sprint, DisplayItem, Display}
+import models.{Team, Sprint, DisplayItem, Display}
 import play.api.templates.Html
 import models.utils.{AtomState, DataDigest}
 import xml.NodeSeq
@@ -18,7 +18,7 @@ object SprintTitle extends Widget[SprintTitleConfig] {
   )(SprintTitleConfig.apply)(SprintTitleConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    Sprint.findById(display.sprintId).map {
+    Sprint.findById(getSprintId(display, displayItem)).map {
       sprint =>
         views.html.display.widgets.sprintTitle.render(display, displayItem, sprint)
     }.getOrElse(Html(""))
@@ -26,7 +26,7 @@ object SprintTitle extends Widget[SprintTitleConfig] {
 
   override def renderAtom(display: Display, displayItem: DisplayItem)
                          (implicit request: RequestHeader): (NodeSeq, Long) = {
-    Sprint.findById(display.sprintId).map {
+    Sprint.findById(getSprintId(display, displayItem)).map {
       sprint =>
         val html = renderHtml(display, displayItem)
         val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
@@ -47,6 +47,18 @@ object SprintTitle extends Widget[SprintTitleConfig] {
           </content>
         </entry>, lastUpdate)
     }.getOrElse((NodeSeq.Empty, 0L))
+  }
+
+  private def getSprintId(display: Display, displayItem: DisplayItem) : Long = {
+    val teamIdOpt = displayItem.teamId.map(Some(_)).getOrElse(display.teamId)
+
+    teamIdOpt.flatMap {
+      teamId =>
+        Team.findById(teamId).flatMap {
+          team =>
+            team.currentSprintId
+        }
+    }.getOrElse(display.sprintId)
   }
 
   private def atomLastUpdate(display: Display, displayItem: DisplayItem, html: Html): Long = {

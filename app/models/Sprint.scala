@@ -138,6 +138,11 @@ object Sprint extends Table[Sprint]("SPRINT") {
       query.orderBy(num.asc).list
   }
 
+  def findAllForTeam(teamId:Long) = database.withSession {
+    implicit db:Session =>
+      query.where(s => s.teamId === teamId).orderBy(num.asc).list
+  }
+
   def findById(sprintId: Long): Option[Sprint] = database.withSession {
     implicit db: Session =>
       query.where(s => s.id === sprintId).firstOption

@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Team, Project}
+import models.{Sprint, Team, Project}
 import play.api.data.Form
 import play.api.data.Forms._
 
@@ -23,7 +23,7 @@ object Teams extends Controller {
   def edit(projectId: Long) = Action {
     Team.findById(projectId).map {
       team =>
-        Ok(views.html.teams.edit(team, teamForm(team)))
+        Ok(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), teamForm(team)))
     }.getOrElse(NotFound)
   }
 
@@ -32,10 +32,10 @@ object Teams extends Controller {
       Team.findById(teamId).map {
         team =>
           teamForm(team).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.teams.edit(team, formWithErrors)), {
+          formWithErrors => BadRequest(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), formWithErrors)), {
             team =>
               team.update
-              Ok(views.html.teams.edit(team, teamForm(team)))
+              Ok(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), teamForm(team)))
           })
       }.getOrElse(NotFound)
   }
@@ -51,6 +51,7 @@ object Teams extends Controller {
   private def teamForm(team: Team = new Team): Form[Team] = Form(
     mapping(
       "id" -> ignored(team.id),
-      "name" -> text(maxLength = 255)
+      "name" -> text(maxLength = 255),
+      "currentSprintId" -> optional(longNumber)
     )(Team.apply)(Team.unapply)).fill(team)
 }

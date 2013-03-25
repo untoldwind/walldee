@@ -10,7 +10,10 @@ Breadcrumb("Teams", routes.Teams.index, true) :: Nil) {
 </table>
 
 @helper.form(action = routes.Teams.create, 'id -> "team-form") {
-@_fieldSet(form)
+<fieldset>
+    <legend>Team</legend>
+    @helper.inputText(form("name"), '_label -> "Name")
+</fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Create">
 </div>
