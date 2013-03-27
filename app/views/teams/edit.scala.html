@@ -10,7 +10,7 @@ Breadcrumb(team.name, routes.Teams.edit(team.id.get), true) :: Nil) {
 <fieldset>
     <legend>Team</legend>
     @helper.inputText(form("name"), '_label -> "Name")
-    @helper.select(form("sprintId"),
+    @helper.select(form("currentSprintId"),
         ("" -> "<No active sprint>") +:
         sprints.map(sprint => sprint.id.get.toString -> "Sprint %d: %s".format(sprint.num, sprint.title)))
 </fieldset>
