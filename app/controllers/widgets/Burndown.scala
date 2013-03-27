@@ -29,13 +29,16 @@ object Burndown extends Controller with Widget[BurndownConfig] {
     request =>
       DisplayItem.findById(displayItemId).flatMap {
         displayItem =>
-          Sprint.findById(sprintId).map {
-            sprint =>
-              request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-                val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
-                  displayItem.burndownConfig.getOrElse(BurndownConfig()))
+          Display.findById(displayItem.displayId).flatMap {
+            display =>
+              Sprint.findById(getSprintId(display, displayItem)).map {
+                sprint =>
+                  request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+                    val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
+                      displayItem.burndownConfig.getOrElse(BurndownConfig()))
 
-                Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+                    Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+                  }
               }
           }
       }.getOrElse(NotFound)
