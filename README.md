@@ -3,11 +3,11 @@ WallDee: Simple backend for wall displays
 
 # Installation
 
-WallDee is a Play 2.0 application. To run it you first have to download the latest release from
+WallDee is a Play 2.1 application. To run it you first have to download the latest release from
 
 http://www.playframework.org
 
-(Use 2.0.4 or later, in near future Play 2.1 will do as well)
+(Currently tested version is 2.1.1, but later might work as well)
 
 Next you just have to clone the repository somewhere and start it like any other Play application:
 
@@ -21,7 +21,7 @@ By default the server will start on port 9000, refer to the Play documentation h
 
 # Notes
 
-> Large parts of the backend still look very very ugly. <do far most eye-candy went into the wall display itself.
+Large parts of the backend still look very very ugly. <do far most eye-candy went into the wall display itself.
 
 # License
 
