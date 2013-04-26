@@ -19,47 +19,39 @@ object Burndown extends Controller with Widget[BurndownConfig] {
   )(BurndownConfig.apply)(BurndownConfig.unapply)
 
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    getSprintId(display, displayItem).flatMap {
-      sprintId =>
-        Sprint.findById(sprintId).map {
-          sprint =>
-            views.html.display.widgets.burndown.render(display, displayItem, calculateETag(displayItem, sprint))
-        }
-    }.getOrElse(Html(""))
+    (for {
+      sprintId <- getSprintId(display, displayItem)
+      sprint <- Sprint.findById(sprintId)
+    } yield {
+      views.html.display.widgets.burndown.render(display, displayItem, calculateETag(displayItem, sprint))
+    }).getOrElse(Html(""))
   }
 
   def getPng(displayItemId: Long, etag: String) = Action {
     request =>
-      DisplayItem.findById(displayItemId).flatMap {
-        displayItem =>
-          Display.findById(displayItem.displayId).flatMap {
-            display =>
-              getSprintId(display, displayItem).flatMap {
-                sprintId =>
-                  Sprint.findById(sprintId).map {
-                    sprint =>
-                      request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-                        val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
-                          displayItem.burndownConfig.getOrElse(BurndownConfig()))
+      (for {
+        displayItem <- DisplayItem.findById(displayItemId)
+        display <- Display.findById(displayItem.displayId)
+        sprintId <- getSprintId(display, displayItem)
+        sprint <- Sprint.findById(sprintId)
+      } yield {
+        request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+          val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
+            displayItem.burndownConfig.getOrElse(BurndownConfig()))
 
-                        Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
-                      }
-                  }
-              }
-          }
-      }.getOrElse(NotFound)
+          Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+        }
+      }).getOrElse(NotFound)
   }
 
   private def getSprintId(display: Display, displayItem: DisplayItem): Option[Long] = {
     val teamIdOpt = displayItem.teamId.map(Some(_)).getOrElse(display.teamId)
 
-    teamIdOpt.flatMap {
-      teamId =>
-        Team.findById(teamId).flatMap {
-          team =>
-            team.currentSprintId
-        }
-    }
+    for {
+      teamId <- teamIdOpt
+      team <- Team.findById(teamId)
+      sprintId <- team.currentSprintId
+    } yield sprintId
   }
 
   private def calculateETag(displayItem: DisplayItem, sprint: Sprint): String = {

@@ -10,51 +10,44 @@ import models.sprints.SprintCounterValue
 object DayCounts extends Controller {
   def create(teamId: Long, sprintId: Long) = Action {
     implicit request =>
-      Team.findById(teamId).flatMap {
-        team =>
-          Sprint.findById(sprintId).map {
-            sprint =>
-              dayCountForm(sprint).bindFromRequest.fold(
-              formWithErrors => BadRequest, {
-                dayCount =>
-                  dayCount.insert
-                  Ok(views.html.sprints.dayCountList(team, sprint, DayCount.findAllForSprint(sprintId)))
-              })
-          }
-      }.getOrElse(NotFound)
+      (for {
+        team <- Team.findById(teamId)
+        sprint <- Sprint.findById(sprintId)
+      } yield {
+        dayCountForm(sprint).bindFromRequest.fold(
+        formWithErrors => BadRequest, {
+          dayCount =>
+            dayCount.insert
+            Ok(views.html.sprints.dayCountList(team, sprint, DayCount.findAllForSprint(sprintId)))
+        })
+      }).getOrElse(NotFound)
   }
 
   def update(teamId: Long, sprintId: Long, dayCountId: Long) = Action {
     implicit request =>
-      Team.findById(teamId).flatMap {
-        team =>
-          Sprint.findById(sprintId).flatMap {
-            sprint =>
-              DayCount.findById(dayCountId).map {
-                dayCount =>
-                  dayCountForm(dayCount).bindFromRequest.fold(
-                  formWithErrors => BadRequest, {
-                    dayCount =>
-                      dayCount.update
-                      Ok(views.html.sprints.dayCountList(team, sprint, DayCount.findAllForSprint(sprintId)))
-                  })
-              }
-          }
-      }.getOrElse(NotFound)
+      (for {
+        team <- Team.findById(teamId)
+        sprint <- Sprint.findById(sprintId)
+        dayCount <- DayCount.findById(dayCountId)
+      } yield {
+        dayCountForm(dayCount).bindFromRequest.fold(
+        formWithErrors => BadRequest, {
+          dayCount =>
+            dayCount.update
+            Ok(views.html.sprints.dayCountList(team, sprint, DayCount.findAllForSprint(sprintId)))
+        })
+      }).getOrElse(NotFound)
   }
 
   def delete(teamId: Long, sprintId: Long, dayCountId: Long) = Action {
-    Team.findById(teamId).flatMap {
-      team =>
-        Sprint.findById(sprintId).flatMap {
-          sprint =>
-            DayCount.findById(dayCountId).map {
-              dayCount =>
-                dayCount.delete
-                Ok(views.html.sprints.dayCountList(team, sprint, DayCount.findAllForSprint(sprintId)))
-            }
-        }
-    }.getOrElse(NotFound)
+    (for {
+      team <- Team.findById(teamId)
+      sprint <- Sprint.findById(sprintId)
+      dayCount <- DayCount.findById(dayCountId)
+    } yield {
+      dayCount.delete
+      Ok(views.html.sprints.dayCountList(team, sprint, DayCount.findAllForSprint(sprintId)))
+    }).getOrElse(NotFound)
   }
 
   def dayCountForm(sprint: Sprint): Form[DayCount] = {
