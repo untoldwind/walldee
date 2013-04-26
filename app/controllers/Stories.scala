@@ -6,7 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 
 object Stories extends Controller {
-  def create(sprintId: Long) = Action {
+  def create(teamId: Long, sprintId: Long) = Action {
     implicit request =>
       Sprint.findById(sprintId).map {
         sprint =>
@@ -14,7 +14,7 @@ object Stories extends Controller {
           formWithErrors => BadRequest, {
             story =>
               story.insert
-              Redirect(routes.Sprints.show(sprintId))
+              Redirect(routes.Sprints.show(teamId, sprintId))
           })
       }.getOrElse(NotFound)
   }

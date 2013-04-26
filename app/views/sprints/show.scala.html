@@ -1,14 +1,15 @@
-@(sprint: Sprint, stories: Seq[Story], storyForm: Form[Story], dayCounts: Seq[DayCount], dayCountForm: Form[DayCount])
+@(team: Team, sprint: Sprint, stories: Seq[Story], storyForm: Form[Story], dayCounts: Seq[DayCount], dayCountForm: Form[DayCount])
 @import models.utils.Breadcrumb
 
 @main("Sprint " + sprint.title,
     Breadcrumb("Home", routes.Application.index, false) ::
-            Breadcrumb("Teams", routes.Teams.show(sprint.teamId), false) ::
-                    Breadcrumb(sprint.title, routes.Sprints.show(sprint.id.get), true) :: Nil) {
+            Breadcrumb("Teams", routes.Teams.index, false) ::
+                    Breadcrumb(team.name, routes.Teams.show(team.id.get), false) ::
+                            Breadcrumb(sprint.title, routes.Sprints.show(team.id.get, sprint.id.get), true) :: Nil) {
     <h1> Sprint
         @sprint.num
         : @sprint.title </h1>
-    <a href="@routes.Sprints.edit(sprint.id.get)"> Edit </a>
+    <a href="@routes.Sprints.edit(team.id.get, sprint.id.get)"> Edit </a>
 
     <ul id="counter-list">
         @sprint.counters.map { counter =>
@@ -20,14 +21,14 @@
     @sprint.numberOfDays
 
     <div id="dayCount-list">
-        @dayCountList(sprint, dayCounts)
+        @dayCountList(team, sprint, dayCounts)
     </div>
 
     <ul id="story-list">
         @views.html.stories.list(stories)
     </ul>
 
-    @helper.form(action = routes.Stories.create(sprint.id.get), 'id -> "story-form") {
+    @helper.form(action = routes.Stories.create(team.id.get, sprint.id.get), 'id -> "story-form") {
         <fieldset>
             <legend> Story </legend>
             @helper.inputText(storyForm("tag"))

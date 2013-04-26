@@ -1,4 +1,4 @@
-@(sprint:Sprint, dayCounts:Seq[DayCount])
+@(team:Team, sprint:Sprint, dayCounts:Seq[DayCount])
 
 <table>
     <thead>
@@ -23,7 +23,7 @@
                         }
                         <td>
                             <a ref="#dayCount-value-@dayCount.id.get" editRef="#dayCount-update-@dayCount.id.get" class="edit edit-switch">Update</a>
-                            @common.deleteLink(routes.DayCounts.delete(sprint.id.get, dayCount.id.get), "dayCount-list")
+                            @common.deleteLink(routes.DayCounts.delete(team.id.get, sprint.id.get, dayCount.id.get), "dayCount-list")
                         </td>
                     </tr>
                     <tr class="update" id="dayCount-update-@dayCount.id.get">
@@ -35,13 +35,13 @@
                             <input type="hidden" name="counterValues[@index].name" value="@counterValue.name">
                         </td>
                         }
-                        <td><button class="update" action="@routes.DayCounts.update(sprint.id.get, dayCount.id.get)" dataRef="#dayCount-update-@dayCount.id.get" ref="#dayCount-list">Update</button></td>
+                        <td><button class="update" action="@routes.DayCounts.update(team.id.get, sprint.id.get, dayCount.id.get)" dataRef="#dayCount-update-@dayCount.id.get" ref="#dayCount-list">Update</button></td>
                     </tr>
                 }
             } else {
                 <tr id="dayCount-create">
                     <td>@dayLabels(dayNum)</td>
-                    @helper.form(action = routes.DayCounts.create(sprint.id.get), 'id -> "dayCount-form") {
+                    @helper.form(action = routes.DayCounts.create(team.id.get, sprint.id.get), 'id -> "dayCount-form") {
                     <td><input type="text" name="dayNum" value="@dayNum"></td>
                     @sprint.counters.zipWithIndex.map { case (counter, index) =>
                     <td>
@@ -49,7 +49,7 @@
                         <input type="hidden" name="counterValues[@index].name" value="@counter.name">
                     </td>
                     }
-                    <td><button class="create" action="@routes.DayCounts.create(sprint.id.get)" dataRef="#dayCount-create" ref="#dayCount-list">Add</button></td>
+                    <td><button class="create" action="@routes.DayCounts.create(team.id.get, sprint.id.get)" dataRef="#dayCount-create" ref="#dayCount-list">Add</button></td>
                     }
                 </tr>
                 }

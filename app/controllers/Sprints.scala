@@ -23,41 +23,53 @@ object Sprints extends Controller {
       }.getOrElse(NotFound)
   }
 
-  def show(sprintId: Long) = Action {
-    Sprint.findById(sprintId).map {
-      sprint =>
-        Ok(views.html.sprints.show(sprint,
-          Story.findAllForSprint(sprintId), Stories.storyForm(sprint),
-          DayCount.findAllForSprint(sprintId), DayCounts.dayCountForm(sprint)))
+  def show(teamId: Long, sprintId: Long) = Action {
+    Team.findById(teamId).flatMap {
+      team =>
+        Sprint.findById(sprintId).map {
+          sprint =>
+            Ok(views.html.sprints.show(team, sprint,
+              Story.findAllForSprint(sprintId), Stories.storyForm(sprint),
+              DayCount.findAllForSprint(sprintId), DayCounts.dayCountForm(sprint)))
+        }
     }.getOrElse(NotFound)
   }
 
-  def edit(sprintId: Long) = Action {
-    Sprint.findById(sprintId).map {
-      sprint =>
-        Ok(views.html.sprints.edit(sprint, sprintForm(sprint), Team.findAll))
+  def edit(teamId: Long, sprintId: Long) = Action {
+    Team.findById(teamId).flatMap {
+      team =>
+        Sprint.findById(sprintId).map {
+          sprint =>
+            Ok(views.html.sprints.edit(team, sprint, sprintForm(sprint), Team.findAll))
+        }
     }.getOrElse(NotFound)
   }
 
-  def update(sprintId: Long) = Action {
+  def update(teamId: Long, sprintId: Long) = Action {
     implicit request =>
-      Sprint.findById(sprintId).map {
-        sprint =>
-          sprintForm(sprint).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.sprints.edit(sprint, sprintForm(sprint), Team.findAll)), {
+      Team.findById(teamId).flatMap {
+        team =>
+          Sprint.findById(sprintId).map {
             sprint =>
-              sprint.update
-              Redirect(routes.Sprints.show(sprintId))
-          })
+              sprintForm(sprint).bindFromRequest.fold(
+              formWithErrors => BadRequest(views.html.sprints.edit(team, sprint, sprintForm(sprint), Team.findAll)), {
+                sprint =>
+                  sprint.update
+                  Redirect(routes.Sprints.show(teamId, sprintId))
+              })
+          }
       }.getOrElse(NotFound)
   }
 
-  def delete(sprintId: Long) = Action {
+  def delete(teamId: Long, sprintId: Long) = Action {
     implicit request =>
-      Sprint.findById(sprintId).map {
-        sprint =>
-          sprint.delete
-          Ok(views.html.sprints.list(Sprint.findAll))
+      Team.findById(teamId).flatMap {
+        team =>
+          Sprint.findById(sprintId).map {
+            sprint =>
+              sprint.delete
+              Ok(views.html.sprints.list(Sprint.findAllForTeam(teamId)))
+          }
       }.getOrElse(NotFound)
   }
 

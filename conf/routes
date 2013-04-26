@@ -27,15 +27,15 @@ GET     /teams/:teamId/edit                       controllers.Teams.edit(teamId:
 POST    /teams/:teamId                            controllers.Teams.update(teamId:Long)
 DELETE  /teams/:teamId                            controllers.Teams.delete(teamId:Long)
 
-POST    /teams/:teamId/sprints                    controllers.Sprints.create(teamId:Long)
-GET     /sprints/:sprintId                        controllers.Sprints.show(sprintId:Long)
-GET     /sprints/:sprintId/edit                   controllers.Sprints.edit(sprintId:Long)
-POST    /sprints/:sprintId                        controllers.Sprints.update(sprintId:Long)
-DELETE  /sprints/:sprintId                        controllers.Sprints.delete(sprintId:Long)
-POST    /sprints/:sprintId/stories                controllers.Stories.create(sprintId:Long)
-POST    /sprints/:sprintId/dayCounts              controllers.DayCounts.create(sprintId:Long)
-PUT     /sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.update(sprintId:Long, dayCountId:Long)
-DELETE  /sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.delete(sprintId:Long, dayCountId:Long)
+POST    /teams/:teamId/sprints                                  controllers.Sprints.create(teamId:Long)
+GET     /teams/:teamId/sprints/:sprintId                        controllers.Sprints.show(teamId:Long, sprintId:Long)
+GET     /teams/:teamId/sprints/:sprintId/edit                   controllers.Sprints.edit(teamId:Long, sprintId:Long)
+POST    /teams/:teamId/sprints/:sprintId                        controllers.Sprints.update(teamId:Long, sprintId:Long)
+DELETE  /teams/:teamId/sprints/:sprintId                        controllers.Sprints.delete(teamId:Long, sprintId:Long)
+POST    /teams/:teamId/sprints/:sprintId/stories                controllers.Stories.create(teamId:Long, sprintId:Long)
+POST    /teams/:teamId/sprints/:sprintId/dayCounts              controllers.DayCounts.create(teamId:Long, sprintId:Long)
+PUT     /teams/:teamId/sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.update(teamId:Long, sprintId:Long, dayCountId:Long)
+DELETE  /teams/:teamId/sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.delete(teamId:Long, sprintId:Long, dayCountId:Long)
 
 GET     /statusMonitors                           controllers.StatusMonitors.index
 POST    /statusMonitors                           controllers.StatusMonitors.create

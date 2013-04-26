@@ -126,11 +126,6 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def query = Query(this)
 
-  def findAll: Seq[Sprint] = database.withSession {
-    implicit db: Session =>
-      query.sortBy(s => s.num.asc).list
-  }
-
   def findAllForTeam(teamId: Long) = database.withSession {
     implicit db: Session =>
       query.where(s => s.teamId === teamId).sortBy(s => s.num.asc).list
