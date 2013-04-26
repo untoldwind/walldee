@@ -1,6 +1,5 @@
 import sbt._
-import Keys._
-import PlayProject._
+import PlayKeys._
 
 object ApplicationBuild extends Build {
 
@@ -9,7 +8,7 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     jdbc,
-    "com.h2database" % "h2" % "1.3.167",
+    "com.h2database" % "h2" % "1.3.170",
 
     "org.jfree" % "jfreechart" % "1.0.14",
     "com.typesafe.slick" %% "slick" % "1.0.0",
