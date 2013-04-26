@@ -8,7 +8,6 @@ import scala.slick.session.{Database, Session}
 
 case class Display(id: Option[Long],
                    name: String,
-                   sprintId: Long,
                    projectId: Option[Long],
                    teamId: Option[Long],
                    backgroundColor: String,
@@ -17,7 +16,7 @@ case class Display(id: Option[Long],
                    relativeLayout: Boolean,
                    animationConfigJson: String) {
 
-  def this() = this(None, "", 0, None, None, "#000000", 5, false, false, "{}")
+  def this() = this(None, "", None, None, "#000000", 5, false, false, "{}")
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -48,8 +47,6 @@ object Display extends Table[Display]("DISPLAY") {
 
   def name = column[String]("NAME", O NotNull)
 
-  def sprintId = column[Long]("SPRINTID", O NotNull)
-
   def projectId = column[Long]("PROJECTID", O NotNull)
 
   def teamId = column[Long]("TEAMID")
@@ -64,7 +61,7 @@ object Display extends Table[Display]("DISPLAY") {
 
   def animationConfig = column[String]("ANIMATIONCONFIG")
 
-  def * = id.? ~ name ~ sprintId ~ projectId.? ~ teamId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
+  def * = id.? ~ name ~ projectId.? ~ teamId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
     relativeLayout ~ animationConfig <>((apply _).tupled, unapply _)
 
   def query = Query(this)
@@ -72,11 +69,6 @@ object Display extends Table[Display]("DISPLAY") {
   def findAll: Seq[Display] = database.withSession {
     implicit db: Session =>
       query.sortBy(d => d.name.asc).list
-  }
-
-  def findAllForSprint(sprintId: Long): Seq[Display] = database.withSession {
-    implicit db: Session =>
-      query.where(d => d.sprintId === sprintId).sortBy(d => d.name.asc).list
   }
 
   def findAllForProject(projectId: Long): Seq[Display] = database.withSession {

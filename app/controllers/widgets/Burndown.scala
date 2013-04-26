@@ -19,32 +19,38 @@ object Burndown extends Controller with Widget[BurndownConfig] {
   )(BurndownConfig.apply)(BurndownConfig.unapply)
 
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    Sprint.findById(getSprintId(display, displayItem)).map {
-      sprint =>
-        views.html.display.widgets.burndown.render(display, displayItem, calculateETag(displayItem, sprint))
+    getSprintId(display, displayItem).flatMap {
+      sprintId =>
+        Sprint.findById(sprintId).map {
+          sprint =>
+            views.html.display.widgets.burndown.render(display, displayItem, calculateETag(displayItem, sprint))
+        }
     }.getOrElse(Html(""))
   }
 
-  def getPng(displayItemId: Long, sprintId: Long, etag: String) = Action {
+  def getPng(displayItemId: Long, etag: String) = Action {
     request =>
       DisplayItem.findById(displayItemId).flatMap {
         displayItem =>
           Display.findById(displayItem.displayId).flatMap {
             display =>
-              Sprint.findById(getSprintId(display, displayItem)).map {
-                sprint =>
-                  request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-                    val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
-                      displayItem.burndownConfig.getOrElse(BurndownConfig()))
+              getSprintId(display, displayItem).flatMap {
+                sprintId =>
+                  Sprint.findById(sprintId).map {
+                    sprint =>
+                      request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
+                        val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
+                          displayItem.burndownConfig.getOrElse(BurndownConfig()))
 
-                    Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+                        Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+                      }
                   }
               }
           }
       }.getOrElse(NotFound)
   }
 
-  private def getSprintId(display: Display, displayItem: DisplayItem): Long = {
+  private def getSprintId(display: Display, displayItem: DisplayItem): Option[Long] = {
     val teamIdOpt = displayItem.teamId.map(Some(_)).getOrElse(display.teamId)
 
     teamIdOpt.flatMap {
@@ -53,7 +59,7 @@ object Burndown extends Controller with Widget[BurndownConfig] {
           team =>
             team.currentSprintId
         }
-    }.getOrElse(display.sprintId)
+    }
   }
 
   private def calculateETag(displayItem: DisplayItem, sprint: Sprint): String = {

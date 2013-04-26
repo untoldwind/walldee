@@ -1,4 +1,4 @@
-@(displays: Seq[Display], sprints: Seq[Sprint], projects:Seq[Project], teams:Seq[Team], form: Form[Display])
+@(displays: Seq[Display], projects:Seq[Project], teams:Seq[Team], form: Form[Display])
 @import models.utils.Breadcrumb
 
 @main("Displays",
@@ -12,7 +12,6 @@
 <fieldset>
     <legend>Display</legend>
     @helper.inputText(form("name"))
-    @helper.select(form("sprintId"), sprints.map(sprint => sprint.id.get.toString -> "Sprint %d: %s".format(sprint.num, sprint.title)))
     @helper.select(form("projectId"), projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
     @helper.select(form("teamId"), teams.map(team => team.id.get.toString -> "Team: %s".format(team.name)))
     @helper.inputText(form("backgroundColor"))

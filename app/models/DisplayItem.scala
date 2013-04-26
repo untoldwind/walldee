@@ -228,9 +228,13 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       query.where(d => d.displayId === displayId && d.appearsInFeed).sortBy(d => d.id.asc).list
   }
 
+  def findAllForTeam(teamId: Long): Seq[DisplayItem] = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.teamId === teamId).sortBy(d => d.id.asc).list
+  }
+
   def findById(displayItemId: Long): Option[DisplayItem] = database.withSession {
     implicit db: Session =>
       query.where(d => d.id === displayItemId).firstOption
   }
-
 }

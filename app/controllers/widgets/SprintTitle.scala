@@ -18,38 +18,44 @@ object SprintTitle extends Widget[SprintTitleConfig] {
   )(SprintTitleConfig.apply)(SprintTitleConfig.unapply)
 
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    Sprint.findById(getSprintId(display, displayItem)).map {
-      sprint =>
-        views.html.display.widgets.sprintTitle.render(display, displayItem, sprint)
+    getSprintId(display, displayItem).flatMap {
+      sprintId =>
+        Sprint.findById(sprintId).map {
+          sprint =>
+            views.html.display.widgets.sprintTitle.render(display, displayItem, sprint)
+        }
     }.getOrElse(Html(""))
   }
 
   override def renderAtom(display: Display, displayItem: DisplayItem)
                          (implicit request: RequestHeader): (NodeSeq, Long) = {
-    Sprint.findById(getSprintId(display, displayItem)).map {
-      sprint =>
-        val html = renderHtml(display, displayItem)
-        val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
-        val lastUpdate = atomLastUpdate(display, displayItem, html)
-        (<entry>
-          <title>
-            {"Sprint %d: %s".format(sprint.num, sprint.title)}
-          </title>
-          <id>
-            {controllers.routes.DisplayItems.show(display.id.get, displayItem.id.get).absoluteURL()}
-          </id>
-          <link href={controllers.routes.DisplayItems.show(display.id.get, displayItem.id.get).absoluteURL()}></link>
-          <updated>
-            {dateFormat.print(lastUpdate)}
-          </updated>
-          <content type="html">
-            {html}
-          </content>
-        </entry>, lastUpdate)
+    getSprintId(display, displayItem).flatMap {
+      sprintId =>
+        Sprint.findById(sprintId).map {
+          sprint =>
+            val html = renderHtml(display, displayItem)
+            val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
+            val lastUpdate = atomLastUpdate(display, displayItem, html)
+            (<entry>
+              <title>
+                {"Sprint %d: %s".format(sprint.num, sprint.title)}
+              </title>
+              <id>
+                {controllers.routes.DisplayItems.show(display.id.get, displayItem.id.get).absoluteURL()}
+              </id>
+              <link href={controllers.routes.DisplayItems.show(display.id.get, displayItem.id.get).absoluteURL()}></link>
+              <updated>
+                {dateFormat.print(lastUpdate)}
+              </updated>
+              <content type="html">
+                {html}
+              </content>
+            </entry>, lastUpdate)
+        }
     }.getOrElse((NodeSeq.Empty, 0L))
   }
 
-  private def getSprintId(display: Display, displayItem: DisplayItem) : Long = {
+  private def getSprintId(display: Display, displayItem: DisplayItem): Option[Long] = {
     val teamIdOpt = displayItem.teamId.map(Some(_)).getOrElse(display.teamId)
 
     teamIdOpt.flatMap {
@@ -58,7 +64,7 @@ object SprintTitle extends Widget[SprintTitleConfig] {
           team =>
             team.currentSprintId
         }
-    }.getOrElse(display.sprintId)
+    }
   }
 
   private def atomLastUpdate(display: Display, displayItem: DisplayItem, html: Html): Long = {

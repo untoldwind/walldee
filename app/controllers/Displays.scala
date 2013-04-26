@@ -4,7 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.{DisplayUpdate, RenderedWidget, DataDigest}
+import utils.{DisplayUpdate, DataDigest}
 import widgets.Widget
 import play.api.libs.concurrent.Promise
 import globals.Global
@@ -16,17 +16,17 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 object Displays extends Controller {
   def index = Action {
-    Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, Team.findAll, displayForm()))
+    Ok(views.html.display.index(Display.findAll, Project.findAll, Team.findAll, displayForm()))
   }
 
   def create = Action {
     implicit request =>
       displayForm().bindFromRequest().fold(
-      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll,
+      formWithErrors => BadRequest(views.html.display.index(Display.findAll, Project.findAll,
         Team.findAll, formWithErrors)), {
         display =>
           display.insert
-          Ok(views.html.display.index(Display.findAll, Sprint.findAll, Project.findAll, Team.findAll, displayForm()))
+          Ok(views.html.display.index(Display.findAll,  Project.findAll, Team.findAll, displayForm()))
       })
   }
 
@@ -34,7 +34,6 @@ object Displays extends Controller {
     Display.findById(displayId).map {
       display =>
         Ok(views.html.display.showConfig(display,
-          Sprint.findAll,
           Project.findAll,
           Team.findAll,
           displayForm(display),
@@ -126,7 +125,6 @@ object Displays extends Controller {
         display =>
           displayForm(display).bindFromRequest.fold(
           formWithErrors => BadRequest(views.html.display.showConfig(display,
-            Sprint.findAll,
             Project.findAll,
             Team.findAll,
             formWithErrors,
@@ -152,7 +150,6 @@ object Displays extends Controller {
     val dataDigest = DataDigest()
 
     dataDigest.update(display.id)
-    dataDigest.update(display.sprintId)
     dataDigest.update(display.projectId)
     dataDigest.update(display.teamId)
     dataDigest.update(display.backgroundColor)
@@ -169,7 +166,6 @@ object Displays extends Controller {
     mapping(
       "id" -> ignored(display.id),
       "name" -> text(maxLength = 255),
-      "sprintId" -> longNumber,
       "projectId" -> optional(longNumber),
       "teamId" -> optional(longNumber),
       "backgroundColor" -> text,

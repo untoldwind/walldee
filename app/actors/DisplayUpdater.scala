@@ -7,7 +7,7 @@ import models._
 import controllers.widgets.Widget
 import play.api.cache.Cache
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.concurrent.{Redeemable, Redeemed}
+import play.api.libs.concurrent.Redeemable
 import utils.{DisplayUpdate, RenderedWidget}
 import actors.DisplayUpdater.{CheckListeners, FindUpdates}
 import scala.collection.mutable
@@ -28,11 +28,16 @@ class DisplayUpdater extends Actor with SLF4JLogging {
           self ! display
       }
 
-    case team: Team =>
+    case team: Team => {
       Display.findAllForTeam(team.id.get).foreach {
         display =>
           self ! display
       }
+      DisplayItem.findAllForTeam(team.id.get).foreach {
+        displayItem =>
+          self ! DisplayItem
+      }
+    }
 
     case statusMonitor: StatusMonitor =>
       Display.findAllForProject(statusMonitor.projectId).foreach {
@@ -47,21 +52,21 @@ class DisplayUpdater extends Actor with SLF4JLogging {
       }
 
     case sprint: Sprint =>
-      Display.findAllForSprint(sprint.id.get).foreach {
-        display =>
-          self ! display
+      Team.findById(sprint.teamId).foreach {
+        team =>
+          self ! team
       }
 
     case story: Story =>
-      Display.findAllForSprint(story.sprintId).foreach {
-        display =>
-          self ! display
+      Sprint.findById(story.sprintId).foreach {
+        sprint =>
+          self ! sprint
       }
 
     case dayCount: DayCount =>
-      Display.findAllForSprint(dayCount.sprintId).foreach {
-        display =>
-          self ! display
+      Sprint.findById(dayCount.sprintId).foreach {
+        sprint =>
+          self ! sprint
       }
 
     case display: Display =>
