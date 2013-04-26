@@ -10,13 +10,15 @@ case class Display(id: Option[Long],
                    name: String,
                    projectId: Option[Long],
                    teamId: Option[Long],
-                   backgroundColor: String,
+                   styleNum:Int,
                    refreshTime: Int,
                    useLongPolling: Boolean,
                    relativeLayout: Boolean,
                    animationConfigJson: String) {
 
-  def this() = this(None, "", None, None, "#000000", 5, false, false, "{}")
+  def this() = this(None, "", None, None, 0, 5, false, false, "{}")
+
+  def style: DisplayStyles.Type = DisplayStyles(styleNum)
 
   def insert = Display.database.withSession {
     implicit db: Session =>
@@ -51,7 +53,7 @@ object Display extends Table[Display]("DISPLAY") {
 
   def teamId = column[Long]("TEAMID")
 
-  def backgroundColor = column[String]("BACKGROUNDCOLOR", O NotNull)
+  def styleNum = column[Int]("STYLENUM", O NotNull)
 
   def refreshTime = column[Int]("REFRESHTIME", O NotNull)
 
@@ -61,7 +63,7 @@ object Display extends Table[Display]("DISPLAY") {
 
   def animationConfig = column[String]("ANIMATIONCONFIG")
 
-  def * = id.? ~ name ~ projectId.? ~ teamId.? ~ backgroundColor ~ refreshTime ~ useLongPolling ~
+  def * = id.? ~ name ~ projectId.? ~ teamId.? ~ styleNum ~ refreshTime ~ useLongPolling ~
     relativeLayout ~ animationConfig <>((apply _).tupled, unapply _)
 
   def query = Query(this)

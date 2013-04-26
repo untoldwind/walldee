@@ -7,8 +7,8 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/display.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 </head>
-<body style="background: @display.backgroundColor;">
-    <div id="@renderedWidget.id" etag="@renderedWidget.etag" class="widget @renderedWidget.style" style="width: @{renderedWidget.width}px;height: @{renderedWidget.height}px">
+<body class="@display.style.toString.toLowerCase">
+    <div id="@renderedWidget.id" etag="@renderedWidget.etag" class="widget" style="width: @{renderedWidget.width}px;height: @{renderedWidget.height}px">
         @renderedWidget.content
     </div>
 </body>

@@ -12,11 +12,11 @@
     <script src="@routes.Assets.at("javascripts/wallAnimations.js")"></script>
     <meta http-equiv="refresh" content="@display.refreshTime">
 </head>
-<body style="background: @display.backgroundColor;">
+<body class="@display.style.toString.toLowerCase">
     <div id="displayItems">
     @renderedWidgets.map { renderedWidget =>
         <div id="@renderedWidget.id" etag="@renderedWidget.etag" class="widget outer" style="left: @{renderedWidget.posx}px;top: @{renderedWidget.posy}px;width: @{renderedWidget.width}px;height: @{renderedWidget.height}px;@{if(renderedWidget.hidden) "display:None;" else ""}">
-            <div class="inner @renderedWidget.style">
+            <div class="inner">
                 @renderedWidget.content
             </div>
         </div>

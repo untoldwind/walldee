@@ -152,7 +152,7 @@ object Displays extends Controller {
     dataDigest.update(display.id)
     dataDigest.update(display.projectId)
     dataDigest.update(display.teamId)
-    dataDigest.update(display.backgroundColor)
+    dataDigest.update(display.styleNum)
     dataDigest.update(display.refreshTime)
     dataDigest.update(display.animationConfigJson)
     displayItems.foreach {
@@ -168,7 +168,7 @@ object Displays extends Controller {
       "name" -> text(maxLength = 255),
       "projectId" -> optional(longNumber),
       "teamId" -> optional(longNumber),
-      "backgroundColor" -> text,
+      "style" -> number,
       "refreshTime" -> number(min = 1, max = 3600),
       "useLongPolling" -> boolean,
       "relativeLayout" -> boolean,

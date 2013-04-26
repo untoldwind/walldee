@@ -36,7 +36,7 @@ object Burndown extends Controller with Widget[BurndownConfig] {
         sprint <- Sprint.findById(sprintId)
       } yield {
         request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-          val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, displayItem.style,
+          val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, display.style,
             displayItem.burndownConfig.getOrElse(BurndownConfig()))
 
           Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)

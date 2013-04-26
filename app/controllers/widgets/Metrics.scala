@@ -118,29 +118,31 @@ object Metrics extends Controller with Widget[MetricsConfig] {
 
   def getGaugePng(displayItemId: Long, projectId: Long, itemIdx: Int, etag: String) = Action {
     request =>
-      DisplayItem.findById(displayItemId).map {
-        displayItem =>
-          request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
-            val statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
-            val statusMonitorsWithValues = statusMonitors.map {
-              statusMonitor =>
-                (statusMonitor,
-                  StatusValue.findAllForStatusMonitor(statusMonitor.id.get))
-            }
-
-            val config = displayItem.metricsConfig.getOrElse(MetricsConfig())
-            val configItem = config.items(itemIdx)
-            val width = (displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1)
-            val chart = configItem.itemType match {
-              case MetricsItemTypes.Coverage =>
-                new CoverageGauge(statusMonitorsWithValues, displayItem.style, width, config, configItem)
-              case MetricsItemTypes.ViolationsDetail =>
-              new ViolationsGauge(statusMonitorsWithValues, displayItem.style, width, config, configItem)
-            }
-
-            Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+      (for {
+        displayItem <- DisplayItem.findById(displayItemId)
+        display <- Display.findById(displayItem.displayId)
+      } yield {
+        request.headers.get(IF_NONE_MATCH).filter(_ == etag + "s").map(_ => NotModified).getOrElse {
+          val statusMonitors = StatusMonitor.finaAllForProject(projectId, Seq(StatusMonitorTypes.Sonar))
+          val statusMonitorsWithValues = statusMonitors.map {
+            statusMonitor =>
+              (statusMonitor,
+                StatusValue.findAllForStatusMonitor(statusMonitor.id.get))
           }
-      }.getOrElse(NotFound)
+
+          val config = displayItem.metricsConfig.getOrElse(MetricsConfig())
+          val configItem = config.items(itemIdx)
+          val width = (displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1)
+          val chart = configItem.itemType match {
+            case MetricsItemTypes.Coverage =>
+              new CoverageGauge(statusMonitorsWithValues, display.style, width, config, configItem)
+            case MetricsItemTypes.ViolationsDetail =>
+              new ViolationsGauge(statusMonitorsWithValues, display.style, width, config, configItem)
+          }
+
+          Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+        }
+      }).getOrElse(NotFound)
   }
 
   private def getStatusMonitorsWithValues(projectId: Long): Seq[(StatusMonitor, Option[StatusValue])] = {

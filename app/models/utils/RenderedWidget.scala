@@ -14,7 +14,6 @@ case class RenderedWidget(displayItem: DisplayItem,
   val posy = displayItem.posy
   val width = displayItem.width
   val height = displayItem.height
-  val style = displayItem.style.toString.toLowerCase
   val hidden = displayItem.hidden
 
   lazy val etag = {
@@ -25,7 +24,6 @@ case class RenderedWidget(displayItem: DisplayItem,
     dataDigest.update(posy)
     dataDigest.update(width)
     dataDigest.update(height)
-    dataDigest.update(style)
     dataDigest.update(hidden)
     dataDigest.update(content.toString())
     dataDigest.base64Digest()
@@ -42,7 +40,6 @@ object RenderedWidget {
       "posy" -> JsNumber(renderedWidget.posy),
       "width" -> JsNumber(renderedWidget.width),
       "height" -> JsNumber(renderedWidget.height),
-      "style" -> JsString(renderedWidget.style),
       "hidden" -> JsBoolean(renderedWidget.hidden),
       "etag" -> JsString(renderedWidget.etag),
       "content" -> JsString(renderedWidget.content.toString)))

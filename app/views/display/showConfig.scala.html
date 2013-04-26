@@ -12,7 +12,7 @@
     @helper.inputText(form("name"))
     @helper.select(form("projectId"), projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
     @helper.select(form("teamId"), teams.map(team => team.id.get.toString -> "Team: %s".format(team.name)))
-    @helper.inputText(form("backgroundColor"))
+    @helper.select(form("style"), DisplayStyles.values.toSeq.map(style => style.id.toString -> style.toString ))
     @helper.inputText(form("refreshTime"))
     @helper.checkbox(form("useLongPolling"))
     @helper.checkbox(form("relativeLayout"))
@@ -36,7 +36,6 @@
     @helper.inputText(displayItemForm("posy"))
     @helper.inputText(displayItemForm("width"))
     @helper.inputText(displayItemForm("height"))
-    @helper.select(displayItemForm("style"), DisplayStyles.values.toSeq.map(style => style.id.toString -> style.toString ))
 </fieldset>
 <div class="actions">
     <input type="submit" class="btn primary" value="Create">

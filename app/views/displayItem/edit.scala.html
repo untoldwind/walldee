@@ -14,7 +14,6 @@
     @helper.inputText(displayItemForm("posy"))
     @helper.inputText(displayItemForm("width"))
     @helper.inputText(displayItemForm("height"))
-    @helper.select(displayItemForm("style"), DisplayStyles.values.toSeq.map(style => style.id.toString -> style.toString ))
     @helper.select(displayItemForm("projectId"),
         ("" -> "<Use display setting>") +:
         projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))

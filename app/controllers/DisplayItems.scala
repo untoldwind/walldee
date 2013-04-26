@@ -73,7 +73,7 @@ object DisplayItems extends Controller {
   }
 
   def displayItemFrom(display: Display) =
-    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, 0, None, None, false, false, "{}"))
+    displayItemForm(new DisplayItem(None, display.id.get, 0, 0, 0, 0, 0, None, None, false, false, "{}"))
 
   def displayItemForm(displayItem: DisplayItem) = Form(
     mapping(
@@ -83,7 +83,6 @@ object DisplayItems extends Controller {
       "posy" -> number(min = 0),
       "width" -> number(min = 0),
       "height" -> number(min = 0),
-      "style" -> number,
       "widget" -> number,
       "projectId" -> optional(longNumber),
       "teamId" -> optional(longNumber),

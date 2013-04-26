@@ -14,7 +14,6 @@ case class DisplayItem(id: Option[Long],
                        posy: Int,
                        width: Int,
                        height: Int,
-                       styleNum: Int,
                        widgetNum: Int,
                        projectId: Option[Long],
                        teamId: Option[Long],
@@ -22,11 +21,9 @@ case class DisplayItem(id: Option[Long],
                        hidden: Boolean,
                        widgetConfigJson: String) {
 
-  def this() = this(None, 0, 0, 0, 0, 0, 0, 0, None, None, false, false, "{}")
+  def this() = this(None, 0, 0, 0, 0, 0, 0, None, None, false, false, "{}")
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
-
-  def style: DisplayStyles.Type = DisplayStyles(styleNum)
 
   def widgetConfig = Json.parse(widgetConfigJson)
 
@@ -100,7 +97,7 @@ case class DisplayItem(id: Option[Long],
         DisplayItem.insert(this)
         Query(DisplayItem.seqID).first
     }
-    val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, styleNum, widgetNum,
+    val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, widgetNum,
       projectId, teamId, appearsInFeed, hidden, widgetConfigJson)
     Global.displayUpdater ! result
     result
@@ -140,8 +137,6 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def height = column[Int]("HEIGHT", O NotNull)
 
-  def styleNum = column[Int]("STYLENUM", O NotNull)
-
   def widgetNum = column[Int]("WIDGETNUM", O NotNull)
 
   def projectId = column[Long]("PROJECTID", O Nullable)
@@ -154,7 +149,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
-  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ styleNum ~ widgetNum ~ projectId.? ~ teamId.? ~
+  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~  widgetNum ~ projectId.? ~ teamId.? ~
     appearsInFeed ~ hidden ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
@@ -163,7 +158,6 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 posy: Int,
                 width: Int,
                 height: Int,
-                styleNum: Int,
                 widgetNum: Int,
                 projectId: Option[Long],
                 teamId: Option[Long],
@@ -189,7 +183,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       case DisplayWidgets.Metrics => Json.toJson(widgetConfig._8.getOrElse(MetricsConfig()))
     }
 
-    DisplayItem(id, displayId, posx, posy, width, height, styleNum, widgetNum, projectId, teamId, appearsInFeed,
+    DisplayItem(id, displayId, posx, posy, width, height, widgetNum, projectId, teamId, appearsInFeed,
       hidden, Json.stringify(widgetConfigJson))
   }
 
@@ -201,7 +195,6 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.posy,
       displayItem.width,
       displayItem.height,
-      displayItem.styleNum,
       displayItem.widgetNum,
       displayItem.projectId,
       displayItem.teamId,
