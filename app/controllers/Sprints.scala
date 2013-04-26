@@ -10,18 +10,17 @@ import validation.Constraints
 import play.api.data.format._
 
 object Sprints extends Controller {
-  def index = Action {
-    Ok(views.html.sprints.index(Sprint.findAll, sprintForm(), Team.findAll))
-  }
-
-  def create = Action {
+  def create(teamId: Long) = Action {
     implicit request =>
-      sprintForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.sprints.index(Sprint.findAll, formWithErrors, Team.findAll)), {
-        sprint =>
-          sprint.insert
-          Ok(views.html.sprints.index(Sprint.findAll, sprintForm(), Team.findAll))
-      })
+      Team.findById(teamId).map {
+        team =>
+          sprintForm(new Sprint(teamId)).bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.teams.show(team, Sprint.findAllForTeam(teamId), formWithErrors, Team.findAll)), {
+            sprint =>
+              sprint.insert
+              Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), sprintForm(new Sprint(teamId)), Team.findAll))
+          })
+      }.getOrElse(NotFound)
   }
 
   def show(sprintId: Long) = Action {
@@ -62,10 +61,10 @@ object Sprints extends Controller {
       }.getOrElse(NotFound)
   }
 
-  private def sprintForm(sprint: Sprint = new Sprint): Form[Sprint] = Form(
+  def sprintForm(sprint: Sprint): Form[Sprint] = Form(
     mapping(
       "id" -> ignored(sprint.id),
-      "teamId" -> optional(longNumber),
+      "teamId" -> longNumber,
       "title" -> text(maxLength = 255),
       "num" -> number(min = 1, max = 10000),
       "sprintStart" -> sqlDate("dd-MM-yyyy"),

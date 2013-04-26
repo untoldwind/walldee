@@ -12,7 +12,7 @@ import sprints.SprintCounter
 import globals.Global
 
 case class Sprint(id: Option[Long],
-                  teamId: Option[Long],
+                  teamId: Long,
                   title: String,
                   num: Int,
                   sprintStart: Date,
@@ -20,7 +20,7 @@ case class Sprint(id: Option[Long],
                   languageTag: String,
                   countersJson: String) {
 
-  def this() = this(None, None, "", 0,
+  def this(teamId: Long) = this(None, teamId, "", 0,
     new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "de-DE", "[]")
 
   def counters = Json.fromJson[Seq[SprintCounter]](Json.parse(countersJson)).getOrElse(Seq.empty)
@@ -102,10 +102,10 @@ object Sprint extends Table[Sprint]("SPRINT") {
 
   def countersJson = column[String]("COUNTERSJSON", O NotNull)
 
-  def * = id.? ~ teamId.? ~ title ~ num ~ sprintStart ~ sprintEnd ~ languageTag ~ countersJson <>((apply _).tupled, unapply _)
+  def * = id.? ~ teamId ~ title ~ num ~ sprintStart ~ sprintEnd ~ languageTag ~ countersJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
-                teamId: Option[Long],
+                teamId: Long,
                 title: String,
                 num: Int,
                 sprintStart: Date,
@@ -131,8 +131,8 @@ object Sprint extends Table[Sprint]("SPRINT") {
       query.sortBy(s => s.num.asc).list
   }
 
-  def findAllForTeam(teamId:Long) = database.withSession {
-    implicit db:Session =>
+  def findAllForTeam(teamId: Long) = database.withSession {
+    implicit db: Session =>
       query.where(s => s.teamId === teamId).sortBy(s => s.num.asc).list
   }
 

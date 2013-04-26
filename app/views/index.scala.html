@@ -2,46 +2,40 @@
 @import models.utils.Breadcrumb
 
 @main("Walldee", Breadcrumb("Home", routes.Application.index, true) ::
-Nil) {
-<div id="index">
-  <ul>
-    <li>
-      <a href="@routes.Projects.index">Projects</a>
-      <span class="desc">
-        Define your project. Usual rule: One project, one display.
-      </span>
-    </li>
-      <li>
-          <a href="@routes.Teams.index">Teams</a>
-      <span class="desc">
-        Define your teams. Usual rule: One team, one display.
-      </span>
-      </li>
-    <li>
-      <a href="@routes.Sprints.index">Sprints</a>
-      <span class="desc">
-        Define your sprint names, length and burn down.
-      </span>
-    </li>
-    <li>
-      <a href="@routes.Alarms.index">Alarms</a>
-      <span class="desc">
-        Set global alarms for the team.
-      </span>
-    </li>
-    <li>
-      <a href="@routes.StatusMonitors.index">Status monitors</a>
-      <span class="desc">
-        The flesh and bones of Walldee! Define what you want to monitor.
-      </span>
-    </li>
-    <li>
-      <a href="@routes.Displays.index">Displays</a>
-      <span class="desc">
-        are the canvas for widgets of one project. Use multiple
-        Displays for multiple projects to monitor.
-      </span>
-    </li>
-  </ul>
-</div>
+        Nil) {
+    <div id="index">
+        <ul>
+            <li>
+                <a href="@routes.Projects.index"> Projects </a>
+                <span class="desc">
+                        Define your project. Usual rule: One project, one display.
+                </span>
+            </li>
+            <li>
+                <a href="@routes.Teams.index"> Teams </a>
+                <span class="desc">
+                        Define your teams and sprints. Usual rule: One team, one display.
+                </span>
+            </li>
+            <li>
+                <a href="@routes.Alarms.index"> Alarms </a>
+                <span class="desc">
+                        Set global alarms for the team.
+                </span>
+            </li>
+            <li>
+                <a href="@routes.StatusMonitors.index"> Status monitors </a>
+                <span class="desc">
+                        The flesh and bones of Walldee! Define what you want to monitor.
+                </span>
+            </li>
+            <li>
+                <a href="@routes.Displays.index"> Displays </a>
+                <span class="desc">
+                        are the canvas for widgets of one project. Use multiple
+                        Displays for multiple projects to monitor.
+                </span>
+            </li>
+        </ul>
+    </div>
 }

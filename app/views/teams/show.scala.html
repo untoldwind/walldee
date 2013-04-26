@@ -1,0 +1,21 @@
+@(team: Team, sprints: Seq[Sprint], form: Form[Sprint], teams: Seq[Team])
+@import models.utils.Breadcrumb
+
+@main("Team " + team.name,
+    Breadcrumb("Home", routes.Application.index, false) ::
+            Breadcrumb("Teams", routes.Teams.index, false) ::
+                    Breadcrumb(team.name, routes.Teams.show(team.id.get), true) :: Nil) {
+    <h1> Team @team.name </h1>
+
+    <ul id="sprint-list">
+        @views.html.sprints.list(sprints)
+    </ul>
+
+    @helper.form(action = routes.Sprints.create(team.id.get), 'id -> "sprint-form") {
+        @views.html.sprints._fieldSet(form, teams)
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Create">
+        </div>
+    }
+
+}

@@ -20,8 +20,15 @@ object Teams extends Controller {
       })
   }
 
-  def edit(projectId: Long) = Action {
-    Team.findById(projectId).map {
+  def show(teamId: Long) = Action {
+    Team.findById(teamId).map {
+      team =>
+        Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
+    }.getOrElse(NotFound)
+  }
+
+  def edit(teamId: Long) = Action {
+    Team.findById(teamId).map {
       team =>
         Ok(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), teamForm(team)))
     }.getOrElse(NotFound)
