@@ -6,6 +6,7 @@ import models.StatusMonitor
 import actors.StatusMonitorUpdater.UpdateAll
 import play.api.libs.ws.WS
 import com.ning.http.client.Realm.AuthScheme
+import play.api.libs.concurrent.Execution.Implicits._
 
 class StatusMonitorUpdater extends Actor with SLF4JLogging {
   def receive = {

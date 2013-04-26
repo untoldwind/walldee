@@ -2,16 +2,9 @@ package models
 
 import play.api.db._
 import play.api.Play.current
-
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
-import java.util.Locale
+import slick.driver.H2Driver.simple._
 import globals.Global
+import scala.slick.session.{Database, Session}
 
 case class Display(id: Option[Long],
                    name: String,
@@ -78,22 +71,22 @@ object Display extends Table[Display]("DISPLAY") {
 
   def findAll: Seq[Display] = database.withSession {
     implicit db: Session =>
-      query.orderBy(name.asc).list
+      query.sortBy(d => d.name.asc).list
   }
 
   def findAllForSprint(sprintId: Long): Seq[Display] = database.withSession {
     implicit db: Session =>
-      query.where(d => d.sprintId === sprintId).orderBy(name.asc).list
+      query.where(d => d.sprintId === sprintId).sortBy(d => d.name.asc).list
   }
 
   def findAllForProject(projectId: Long): Seq[Display] = database.withSession {
     implicit db: Session =>
-      query.where(d => d.projectId === projectId).orderBy(name.asc).list
+      query.where(d => d.projectId === projectId).sortBy(d => d.name.asc).list
   }
 
   def findAllForTeam(teamId: Long): Seq[Display] = database.withSession {
     implicit db: Session =>
-      query.where(d => d.teamId === teamId).orderBy(name.asc).list
+      query.where(d => d.teamId === teamId).sortBy(d => d.name.asc).list
   }
 
   def findById(displayId: Long): Option[Display] = database.withSession {

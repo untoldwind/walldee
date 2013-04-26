@@ -5,23 +5,23 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 
 case class BurndownConfig(chartBackground: Option[String] = None,
-                               plotBackground: Option[String] = None,
-                               titleSize: Option[Int] = None,
-                               tickSize: Option[Int] = None,
-                               labelSize: Option[Int] = None,
-                               lineWidth: Option[Int] = None)
+                          plotBackground: Option[String] = None,
+                          titleSize: Option[Int] = None,
+                          tickSize: Option[Int] = None,
+                          labelSize: Option[Int] = None,
+                          lineWidth: Option[Int] = None)
 
 object BurndownConfig {
 
   implicit object BurndownChartConfigFormat extends Format[BurndownConfig] {
-    override def reads(json: JsValue): BurndownConfig =
-      BurndownConfig(
+    override def reads(json: JsValue): JsResult[BurndownConfig] =
+      JsSuccess(BurndownConfig(
         (json \ "chartBackground").asOpt[String],
         (json \ "plotBackground").asOpt[String],
         (json \ "titleSize").asOpt[Int],
         (json \ "tickSize").asOpt[Int],
         (json \ "labelSize").asOpt[Int],
-        (json \ "lineWidth").asOpt[Int])
+        (json \ "lineWidth").asOpt[Int]))
 
     override def writes(burndownConfig: BurndownConfig): JsValue = JsObject(
       burndownConfig.chartBackground.map("chartBackground" -> JsString(_)).toSeq ++

@@ -2,8 +2,9 @@ package actors.monitorProcessors
 
 import models.{StatusTypes, StatusValue, StatusMonitor}
 import play.api.libs.ws.Response
-import play.api.libs.json.{Json, JsValue, Reads}
+import play.api.libs.json._
 import models.statusValues._
+import play.api.libs.ws.Response
 import play.api.libs.ws.Response
 
 case class IcingaHost(hostName: String,
@@ -17,8 +18,8 @@ case class IcingaHost(hostName: String,
 object IcingaHost {
 
   implicit object IcingaHostReads extends Reads[IcingaHost] {
-    override def reads(json: JsValue): IcingaHost =
-      IcingaHost(
+    override def reads(json: JsValue): JsResult[IcingaHost] =
+      JsSuccess(IcingaHost(
         (json \ "host_name").as[String],
         (json \ "host_status").as[String],
         (json \ "services_status_ok").as[Int],
@@ -26,7 +27,7 @@ object IcingaHost {
         (json \ "services_status_unknown").as[Int],
         (json \ "services_status_critical").as[Int],
         (json \ "services_status_pending").as[Int]
-      )
+      ))
   }
 
 }
@@ -36,11 +37,11 @@ case class IcingaHostGroup(hostGroupName: String, members: Seq[IcingaHost])
 object IcingaHostGroup {
 
   implicit object IcingaHostGroupReads extends Reads[IcingaHostGroup] {
-    override def reads(json: JsValue): IcingaHostGroup =
-      IcingaHostGroup(
+    override def reads(json: JsValue): JsResult[IcingaHostGroup] =
+      JsSuccess(IcingaHostGroup(
         (json \ "hostgroup_name").as[String],
         (json \ "members").as[Seq[IcingaHost]]
-      )
+      ))
   }
 
 }
@@ -50,10 +51,10 @@ case class IcingaOverviewStatus(hostgroups: Seq[IcingaHostGroup])
 object IcingaOverviewStatus {
 
   implicit object IcingaStatusReads extends Reads[IcingaOverviewStatus] {
-    override def reads(json: JsValue): IcingaOverviewStatus =
-      IcingaOverviewStatus(
+    override def reads(json: JsValue): JsResult[IcingaOverviewStatus] =
+      JsSuccess(IcingaOverviewStatus(
         (json \ "hostgroup_overview").as[Seq[IcingaHostGroup]]
-      )
+      ))
   }
 
 }
@@ -63,10 +64,10 @@ case class IcingaOverview(status: IcingaOverviewStatus)
 object IcingaOverview {
 
   implicit object IcingaOverviewReads extends Reads[IcingaOverview] {
-    override def reads(json: JsValue): IcingaOverview =
-      IcingaOverview(
+    override def reads(json: JsValue): JsResult[IcingaOverview] =
+      JsSuccess(IcingaOverview(
         (json \ "status").as[IcingaOverviewStatus]
-      )
+      ))
   }
 
 }

@@ -3,14 +3,7 @@ package models
 import config.BackupConfig
 import play.api.db._
 import play.api.Play.current
-
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import slick.driver.H2Driver.simple._
 import play.api.libs.json.{JsValue, Json}
 
 case class Config(id: Int,
@@ -23,7 +16,7 @@ case class Config(id: Int,
 
   def backupConfig = {
     if (configType == ConfigTypes.Backup)
-      Some(Json.fromJson[BackupConfig](configValue))
+      Json.fromJson[BackupConfig](configValue).asOpt
     else
       None
   }

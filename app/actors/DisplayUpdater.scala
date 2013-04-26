@@ -6,6 +6,7 @@ import akka.event.slf4j.SLF4JLogging
 import models._
 import controllers.widgets.Widget
 import play.api.cache.Cache
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.concurrent.{Redeemable, Redeemed}
 import utils.{DisplayUpdate, RenderedWidget}
 import actors.DisplayUpdater.{CheckListeners, FindUpdates}

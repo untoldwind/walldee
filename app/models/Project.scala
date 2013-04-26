@@ -1,15 +1,7 @@
 package models
 
-import play.api.db._
 import play.api.Play.current
-
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import slick.driver.H2Driver.simple._
 import play.api.db.DB
 import globals.Global
 
@@ -55,7 +47,7 @@ object Project extends Table[Project]("PROJECT") {
 
   def findAll: Seq[Project] = database.withSession {
     implicit db: Session =>
-      query.orderBy(name.asc).list
+      query.sortBy(p => p.name.asc).list
   }
 
   def findById(projectId: Long): Option[Project] = database.withSession {

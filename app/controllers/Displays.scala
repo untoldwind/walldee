@@ -12,6 +12,7 @@ import actors.DisplayUpdater
 import play.api.libs.json.Json
 import xml.NodeSeq
 import org.joda.time.format.ISODateTimeFormat
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Displays extends Controller {
   def index = Action {
@@ -83,7 +84,7 @@ object Displays extends Controller {
             val result = Promise[DisplayUpdate]()
 
             Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], result)
-            result.map {
+            result.future.map {
               displayUpdate =>
                 Ok(Json.stringify(Json.toJson(displayUpdate)))
             }

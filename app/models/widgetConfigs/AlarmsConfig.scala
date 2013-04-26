@@ -14,13 +14,13 @@ case class AlarmsConfig(labelFont: Option[String] = None,
 object AlarmsConfig {
 
   implicit object AlarmConfigFormat extends Format[AlarmsConfig] {
-    override def reads(json: JsValue): AlarmsConfig =
-      AlarmsConfig(
+    override def reads(json: JsValue): JsResult[AlarmsConfig] =
+      JsSuccess(AlarmsConfig(
         (json \ "labelFont").asOpt[String],
         (json \ "labelSize").asOpt[Int],
         (json \ "descriptionFont").asOpt[String],
         (json \ "descriptionSize").asOpt[Int],
-        (json \ "alertPeriod").asOpt[Int])
+        (json \ "alertPeriod").asOpt[Int]))
 
     override def writes(alarmsConfig: AlarmsConfig): JsValue = JsObject(
       alarmsConfig.labelFont.map("labelFont" -> JsString(_)).toSeq ++

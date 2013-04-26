@@ -8,10 +8,10 @@ case class BuildStatus(number: Int, running: Boolean)
 object BuildStatus {
 
   implicit object BuildStatusFormat extends Format[BuildStatus] {
-    override def reads(json: JsValue): BuildStatus =
-      BuildStatus(
+    override def reads(json: JsValue): JsResult[BuildStatus] =
+      JsSuccess(BuildStatus(
         (json \ "number").as[Int],
-        (json \ "running").asOpt[Boolean].getOrElse(false))
+        (json \ "running").asOpt[Boolean].getOrElse(false)))
 
     override def writes(buildStatus: BuildStatus): JsValue = JsObject(
       Seq("number" -> JsNumber(buildStatus.number),

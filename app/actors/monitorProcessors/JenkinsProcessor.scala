@@ -10,11 +10,11 @@ case class JenkinsJobBuild(number: Int, url: String)
 object JenkinsJobBuild {
 
   implicit object JenkinsJobBuildReads extends Reads[JenkinsJobBuild] {
-    override def reads(json: JsValue): JenkinsJobBuild =
-      JenkinsJobBuild(
+    override def reads(json: JsValue): JsResult[JenkinsJobBuild] =
+      JsSuccess(JenkinsJobBuild(
         (json \ "number").as[Int],
         (json \ "url").as[String]
-      )
+      ))
   }
 
 }
@@ -28,14 +28,14 @@ case class JenkinsJob(name: String,
 object JenkinsJob {
 
   implicit object JenkinsJobReads extends Reads[JenkinsJob] {
-    override def reads(json: JsValue): JenkinsJob =
-      JenkinsJob(
+    override def reads(json: JsValue): JsResult[JenkinsJob] =
+      JsSuccess(JenkinsJob(
         (json \ "name").as[String],
         (json \ "lastBuild").asOpt[JenkinsJobBuild],
         (json \ "lastCompletedBuild").asOpt[JenkinsJobBuild],
         (json \ "lastStableBuild").asOpt[JenkinsJobBuild],
         (json \ "lastSuccessfulBuild").asOpt[JenkinsJobBuild]
-      )
+      ))
   }
 
 }

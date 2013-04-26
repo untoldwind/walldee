@@ -13,10 +13,10 @@ case class MetricViolation(severity: MetricSeverityTypes.Type, count: Int)
 object MetricViolation {
 
   implicit object SonarViolationFormat extends Format[MetricViolation] {
-    override def reads(json: JsValue): MetricViolation =
-      MetricViolation(
+    override def reads(json: JsValue): JsResult[MetricViolation] =
+      JsSuccess(MetricViolation(
         MetricSeverityTypes((json \ "severity").as[Int]),
-        (json \ "count").as[Int])
+        (json \ "count").as[Int]))
 
     override def writes(sonarViolation: MetricViolation): JsValue = JsObject(
       Seq("severity" -> JsNumber(sonarViolation.severity.id),
@@ -34,12 +34,12 @@ case class MetricStatus(name: String,
 object MetricStatus {
 
   implicit object SonarStatusFormat extends Format[MetricStatus] {
-    override def reads(json: JsValue): MetricStatus =
-      MetricStatus(
+    override def reads(json: JsValue): JsResult[MetricStatus] =
+      JsSuccess(MetricStatus(
         (json \ "name").as[String],
         (json \ "coverage").as[Double],
         (json \ "violationsCount").as[Int],
-        (json \ "violations").as[Seq[MetricViolation]])
+        (json \ "violations").as[Seq[MetricViolation]]))
 
     override def writes(sonarStatus: MetricStatus): JsValue = JsObject(
       Seq("name" -> JsString(sonarStatus.name),

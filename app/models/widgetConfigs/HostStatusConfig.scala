@@ -3,7 +3,7 @@ package models.widgetConfigs
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
-import util.matching.Regex
+import scala.util.matching.Regex
 
 case class HostStatusConfig(titleFont: Option[String] = None,
                             titleSize: Option[Int] = None,
@@ -15,14 +15,14 @@ case class HostStatusConfig(titleFont: Option[String] = None,
 object HostStatusConfig {
 
   implicit object HostStatusConfigFormat extends Format[HostStatusConfig] {
-    override def reads(json: JsValue): HostStatusConfig =
-      HostStatusConfig(
+    override def reads(json: JsValue): JsResult[HostStatusConfig] =
+      JsSuccess(HostStatusConfig(
         (json \ "titleFont").asOpt[String],
         (json \ "titleSize").asOpt[Int],
         (json \ "labelFont").asOpt[String],
         (json \ "labelSize").asOpt[Int],
         (json \ "columns").asOpt[Int],
-        (json \ "hostNamePattern").asOpt[String].map(_.r))
+        (json \ "hostNamePattern").asOpt[String].map(_.r)))
 
     override def writes(hostStatusConfig: HostStatusConfig): JsValue = JsObject(
       hostStatusConfig.titleFont.map("titleFont" -> JsString(_)).toSeq ++

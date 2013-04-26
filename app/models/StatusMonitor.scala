@@ -2,19 +2,12 @@ package models
 
 import play.api.db._
 import play.api.Play.current
-
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
-import org.scalaquery.ql.Query
+import slick.driver.H2Driver.simple._
 import java.util.Date
-import models.DateMapper.date2timestamp
 import play.api.libs.json.Json
 import statusMonitors.IcingaConfig
 import globals.Global
+import models.DateMapper.date2timestamp
 
 case class StatusMonitor(id: Option[Long],
                          projectId: Long,
@@ -37,7 +30,7 @@ case class StatusMonitor(id: Option[Long],
 
   def icingaConfig: Option[IcingaConfig] = {
     if (monitorType == StatusMonitorTypes.Icinga)
-      config.map(Json.fromJson[IcingaConfig](_))
+      config.flatMap(Json.fromJson[IcingaConfig](_).asOpt)
     else
       None
   }
@@ -156,12 +149,12 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def findAll: Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
-      query.orderBy(name.asc).list
+      query.sortBy(s => s.name.asc).list
   }
 
   def findAllActive: Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
-      query.where(s => s.active).orderBy(name.asc).list
+      query.where(s => s.active).sortBy(s => s.name.asc).list
   }
 
   def findById(statusMonitorId: Long): Option[StatusMonitor] = database.withSession {
@@ -171,6 +164,6 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
 
   def finaAllForProject(projectId: Long, types: Seq[StatusMonitorTypes.Type]): Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
-      query.where(s => s.projectId === projectId && s.active && s.typeNum.inSet(types.map(_.id))).orderBy(name.asc).list
+      query.where(s => s.projectId === projectId && s.active && s.typeNum.inSet(types.map(_.id))).sortBy(s => s.name.asc).list
   }
 }

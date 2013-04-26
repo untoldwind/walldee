@@ -7,13 +7,14 @@ import models.{Alarm, DisplayItem, Display}
 import play.api.templates.Html
 import org.joda.time.DateTime
 import play.api.libs.concurrent.Akka
-import akka.util.duration._
 import globals.Global
 import xml.NodeSeq
 import org.joda.time.format.ISODateTimeFormat
 import play.api.cache.Cache
 import models.utils.{AtomState, DataDigest}
 import play.api.mvc.RequestHeader
+import scala.concurrent.duration._
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Alarms extends Widget[AlarmsConfig] {
   val configMapping = mapping(

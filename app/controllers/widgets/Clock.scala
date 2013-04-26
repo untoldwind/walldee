@@ -7,7 +7,8 @@ import models.{DisplayItem, Display}
 import play.api.templates.Html
 import play.api.libs.concurrent.Akka
 import globals.Global
-import akka.util.duration._
+import scala.concurrent.duration._
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Clock extends Widget[ClockConfig] {
   val configMapping = mapping(

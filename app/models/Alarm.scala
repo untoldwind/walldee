@@ -2,19 +2,12 @@ package models
 
 import play.api.db._
 import play.api.Play.current
-
-import org.scalaquery.ql.TypeMapper._
-import org.scalaquery.ql.extended.{ExtendedTable => Table}
-
-import org.scalaquery.ql.extended.H2Driver.Implicit._
-
-import org.scalaquery.session.{Database, Session}
 import java.sql.Timestamp
 import org.joda.time.DateMidnight
 import java.util.Date
-import models.DateMapper.date2timestamp
-import org.scalaquery.ql.Query
 import globals.Global
+import slick.driver.H2Driver.simple._
+import models.DateMapper.date2timestamp
 
 case class Alarm(id: Option[Long], name: String, nextDate: Date, durationMins: Int, repeatDays: Option[Int]) {
   def this() = this(None, "", new Timestamp(System.currentTimeMillis()), 15, None)
@@ -63,12 +56,12 @@ object Alarm extends Table[Alarm]("ALARM") {
 
   def findAll: Seq[Alarm] = database.withSession {
     implicit db: Session =>
-      query.orderBy(nextDate.asc).list
+      query.sortBy(a => a.nextDate.asc).list
   }
 
   def findAllBetween(start: Date, end: Date): Seq[Alarm] = database.withSession {
     implicit db: Session =>
-      query.where(a => a.nextDate >= start && a.nextDate <= end).orderBy(nextDate.asc).list
+      query.where(a => a.nextDate >= start && a.nextDate <= end).sortBy(a => a.nextDate.asc).list
   }
 
   def findAllForToday(): Seq[Alarm] = database.withSession {
@@ -77,7 +70,7 @@ object Alarm extends Table[Alarm]("ALARM") {
       val tomorrow = today.plusDays(1)
 
       query.where(a => a.nextDate >= today.toDate && a.nextDate < tomorrow.toDate)
-        .orderBy(nextDate.asc).list
+        .sortBy(a => a.nextDate.asc).list
   }
 
   def findById(alarmId: Long): Option[Alarm] = database.withSession {
