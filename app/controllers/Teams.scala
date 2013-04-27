@@ -23,14 +23,7 @@ object Teams extends Controller {
   def show(teamId: Long) = Action {
     Team.findById(teamId).map {
       team =>
-        Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
-    }.getOrElse(NotFound)
-  }
-
-  def edit(teamId: Long) = Action {
-    Team.findById(teamId).map {
-      team =>
-        Ok(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), teamForm(team)))
+        Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), teamForm(team), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
     }.getOrElse(NotFound)
   }
 
@@ -39,10 +32,10 @@ object Teams extends Controller {
       Team.findById(teamId).map {
         team =>
           teamForm(team).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), formWithErrors)), {
+          formWithErrors => BadRequest(views.html.teams.show(team, Sprint.findAllForTeam(teamId), formWithErrors, Sprints.sprintForm(new Sprint(teamId)), Team.findAll)), {
             team =>
               team.update
-              Ok(views.html.teams.edit(team, Sprint.findAllForTeam(team.id.get), teamForm(team)))
+              Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), teamForm(team), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
           })
       }.getOrElse(NotFound)
   }
@@ -55,7 +48,7 @@ object Teams extends Controller {
     }.getOrElse(NotFound)
   }
 
-  private def teamForm(team: Team = new Team): Form[Team] = Form(
+   def teamForm(team: Team = new Team): Form[Team] = Form(
     mapping(
       "id" -> ignored(team.id),
       "name" -> text(maxLength = 255),

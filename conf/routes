@@ -23,7 +23,6 @@ DELETE  /projects/:projectId                      controllers.Projects.delete(pr
 GET     /teams                                    controllers.Teams.index
 POST    /teams                                    controllers.Teams.create
 GET     /teams/:teamId                            controllers.Teams.show(teamId:Long)
-GET     /teams/:teamId/edit                       controllers.Teams.edit(teamId:Long)
 POST    /teams/:teamId                            controllers.Teams.update(teamId:Long)
 DELETE  /teams/:teamId                            controllers.Teams.delete(teamId:Long)
 

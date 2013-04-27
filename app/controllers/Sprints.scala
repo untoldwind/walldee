@@ -15,10 +15,10 @@ object Sprints extends Controller {
       Team.findById(teamId).map {
         team =>
           sprintForm(new Sprint(teamId)).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.teams.show(team, Sprint.findAllForTeam(teamId), formWithErrors, Team.findAll)), {
+          formWithErrors => BadRequest(views.html.teams.show(team, Sprint.findAllForTeam(teamId), Teams.teamForm(team), formWithErrors, Team.findAll)), {
             sprint =>
               sprint.insert
-              Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), sprintForm(new Sprint(teamId)), Team.findAll))
+              Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), Teams.teamForm(team), sprintForm(new Sprint(teamId)), Team.findAll))
           })
       }.getOrElse(NotFound)
   }

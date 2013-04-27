@@ -10,7 +10,6 @@
         <tr>
             <td> <a href="@routes.Teams.show(team.id.get)"> @team.name </a> </td>
             <td>
-                <a href="@routes.Teams.edit(team.id.get)" class="edit"> Edit </a>
                 @common.deleteLink(routes.Projects.delete(team.id.get), "team-list")
             </td>
         </tr>

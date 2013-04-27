@@ -1,4 +1,4 @@
-@(team: Team, sprints: Seq[Sprint], form: Form[Sprint], teams: Seq[Team])
+@(team: Team, sprints: Seq[Sprint], teamForm:Form[Team], sprintForm: Form[Sprint], teams: Seq[Team])
 @import models.utils.Breadcrumb
 
 @main("Team " + team.name,
@@ -7,12 +7,25 @@
                     Breadcrumb(team.name, routes.Teams.show(team.id.get), true) :: Nil) {
     <h1> Team @team.name </h1>
 
+    @helper.form(action = routes.Teams.update(team.id.get), 'id -> "team-form") {
+        <fieldset>
+            <legend> Team </legend>
+            @helper.inputText(teamForm("name"), '_label -> "Name")
+            @helper.select(teamForm("currentSprintId"),
+                ("" -> "<No active sprint>") +:
+                        sprints.map(sprint => sprint.id.get.toString -> "Sprint %d: %s".format(sprint.num, sprint.title)))
+        </fieldset>
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Update">
+        </div>
+    }
+
     <ul id="sprint-list">
         @views.html.sprints.list(sprints)
     </ul>
 
     @helper.form(action = routes.Sprints.create(team.id.get), 'id -> "sprint-form") {
-        @views.html.sprints._fieldSet(form, teams)
+        @views.html.sprints._fieldSet(sprintForm, teams)
         <div class="actions">
             <input type="submit" class="btn primary" value="Create">
         </div>
