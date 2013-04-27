@@ -21,55 +21,51 @@ object DisplayItems extends Controller {
   }
 
   def show(displayId: Long, displayItemId: Long) = Action {
-    Display.findById(displayId).flatMap {
-      display =>
-        DisplayItem.findById(displayItemId).map {
-          displayItem =>
-            def renderedWidget = Widget.forDisplayItem(displayItem).render(display, displayItem)
+    (for {
+      display <- Display.findById(displayId)
+      displayItem <- DisplayItem.findById(displayItemId)
+    } yield {
+      def renderedWidget = Widget.forDisplayItem(displayItem).render(display, displayItem)
 
-            Ok(views.html.displayItem.show(display, displayItem, renderedWidget))
-        }
-    }.getOrElse(NotFound)
+      Ok(views.html.displayItem.show(display, displayItem, renderedWidget))
+    }).getOrElse(NotFound)
   }
 
   def edit(displayId: Long, displayItemId: Long) = Action {
-    Display.findById(displayId).flatMap {
-      display =>
-        DisplayItem.findById(displayItemId).map {
-          displayItem =>
-            Ok(views.html.displayItem.edit(display, displayItem, Project.findAll, Team.findAll,
-              displayItemForm(displayItem)))
-        }
-    }.getOrElse(NotFound)
+    (for {
+      display <- Display.findById(displayId)
+      displayItem <- DisplayItem.findById(displayItemId)
+    } yield {
+      Ok(views.html.displayItem.edit(display, displayItem, Project.findAll, Team.findAll,
+        displayItemForm(displayItem)))
+    }).getOrElse(NotFound)
   }
 
   def update(displayId: Long, displayItemId: Long) = Action {
     implicit request =>
-      Display.findById(displayId).flatMap {
-        display =>
-          DisplayItem.findById(displayItemId).map {
-            displayItem =>
-              displayItemForm(displayItem).bindFromRequest.fold(
-              formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Project.findAll,
-                Team.findAll, formWithErrors)), {
-                displayItem =>
-                  displayItem.update
-                  Redirect(routes.Displays.showConfig(displayId))
-              })
-          }
-      }.getOrElse(NotFound)
+      (for {
+        display <- Display.findById(displayId)
+        displayItem <- DisplayItem.findById(displayItemId)
+      } yield {
+        displayItemForm(displayItem).bindFromRequest.fold(
+        formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Project.findAll,
+          Team.findAll, formWithErrors)), {
+          displayItem =>
+            displayItem.update
+            Redirect(routes.Displays.showConfig(displayId))
+        })
+      }).getOrElse(NotFound)
   }
 
   def delete(displayId: Long, displayItemId: Long) = Action {
     implicit request =>
-      Display.findById(displayId).flatMap {
-        display =>
-          DisplayItem.findById(displayItemId).map {
-            displayItem =>
-              displayItem.delete
-              Ok(views.html.displayItem.list(display, DisplayItem.findAllForDisplay(displayId)))
-          }
-      }.getOrElse(NotFound)
+      (for {
+        display <- Display.findById(displayId)
+        displayItem <- DisplayItem.findById(displayItemId)
+      } yield {
+        displayItem.delete
+        Ok(views.html.displayItem.list(display, DisplayItem.findAllForDisplay(displayId)))
+      }).getOrElse(NotFound)
   }
 
   def displayItemFrom(display: Display) =

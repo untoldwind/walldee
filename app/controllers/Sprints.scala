@@ -24,53 +24,49 @@ object Sprints extends Controller {
   }
 
   def show(teamId: Long, sprintId: Long) = Action {
-    Team.findById(teamId).flatMap {
-      team =>
-        Sprint.findById(sprintId).map {
-          sprint =>
-            Ok(views.html.sprints.show(team, sprint,
-              Story.findAllForSprint(sprintId), Stories.storyForm(sprint),
-              DayCount.findAllForSprint(sprintId), DayCounts.dayCountForm(sprint)))
-        }
-    }.getOrElse(NotFound)
+    (for {
+      team <- Team.findById(teamId)
+      sprint <- Sprint.findById(sprintId)
+    } yield {
+      Ok(views.html.sprints.show(team, sprint,
+        Story.findAllForSprint(sprintId), Stories.storyForm(sprint),
+        DayCount.findAllForSprint(sprintId), DayCounts.dayCountForm(sprint)))
+    }).getOrElse(NotFound)
   }
 
   def edit(teamId: Long, sprintId: Long) = Action {
-    Team.findById(teamId).flatMap {
-      team =>
-        Sprint.findById(sprintId).map {
-          sprint =>
-            Ok(views.html.sprints.edit(team, sprint, sprintForm(sprint), Team.findAll))
-        }
-    }.getOrElse(NotFound)
+    (for {
+      team <- Team.findById(teamId)
+      sprint <- Sprint.findById(sprintId)
+    } yield {
+      Ok(views.html.sprints.edit(team, sprint, sprintForm(sprint), Team.findAll))
+    }).getOrElse(NotFound)
   }
 
   def update(teamId: Long, sprintId: Long) = Action {
     implicit request =>
-      Team.findById(teamId).flatMap {
-        team =>
-          Sprint.findById(sprintId).map {
-            sprint =>
-              sprintForm(sprint).bindFromRequest.fold(
-              formWithErrors => BadRequest(views.html.sprints.edit(team, sprint, sprintForm(sprint), Team.findAll)), {
-                sprint =>
-                  sprint.update
-                  Redirect(routes.Sprints.show(teamId, sprintId))
-              })
-          }
-      }.getOrElse(NotFound)
+      (for {
+        team <- Team.findById(teamId)
+        sprint <- Sprint.findById(sprintId)
+      } yield {
+        sprintForm(sprint).bindFromRequest.fold(
+        formWithErrors => BadRequest(views.html.sprints.edit(team, sprint, sprintForm(sprint), Team.findAll)), {
+          sprint =>
+            sprint.update
+            Redirect(routes.Sprints.show(teamId, sprintId))
+        })
+      }).getOrElse(NotFound)
   }
 
   def delete(teamId: Long, sprintId: Long) = Action {
     implicit request =>
-      Team.findById(teamId).flatMap {
-        team =>
-          Sprint.findById(sprintId).map {
-            sprint =>
-              sprint.delete
-              Ok(views.html.sprints.list(Sprint.findAllForTeam(teamId)))
-          }
-      }.getOrElse(NotFound)
+      (for {
+        team <- Team.findById(teamId)
+        sprint <- Sprint.findById(sprintId)
+      } yield {
+        sprint.delete
+        Ok(views.html.sprints.list(Sprint.findAllForTeam(teamId)))
+      }).getOrElse(NotFound)
   }
 
   def sprintForm(sprint: Sprint): Form[Sprint] = Form(
