@@ -4,8 +4,7 @@
 
 @main("Alarms",
     Breadcrumb("Home", routes.Application.index, false) ::
-    Breadcrumb("Alarms", routes.Alarms.index, true) :: Nil,
-    Seq("date.js", "jquery-weekcalendar.min.js"), Seq("week-calendar-default.css", "jquery.weekcalendar.css")) {
+    Breadcrumb("Alarms", routes.Alarms.index, true) :: Nil) {
 <div id="calendar"></div>
 
 <div id="event-create">
