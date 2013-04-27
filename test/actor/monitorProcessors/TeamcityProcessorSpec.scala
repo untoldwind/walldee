@@ -14,7 +14,7 @@ class TeamcityProcessorSpec extends Specification with Mockito {
     "convert url" in {
       val url = "http://teamcity.somewhere.de/viewType.html?buildTypeId=bt40&tab=buildTypeStatusDiv"
 
-      TeamcityProcessor.apiUrl(url) must be_==("http://teamcity.somewhere.de/httpAuth/app/rest/builds/buildType:bt40")
+      TeamcityProcessor.apiUrl(url) must be_==("http://teamcity.somewhere.de/httpAuth/app/rest/builds/buildType:bt40,running:any")
     }
 
     "process json correctly" in {
@@ -24,7 +24,21 @@ class TeamcityProcessorSpec extends Specification with Mockito {
         project.insert
 
         val statusMonitor =
-          StatusMonitor(Some(1), 1, "Ci", StatusMonitorTypes.Teamcity.id, "http://localhost", None, None, true, 10, 60, None, None)
+          StatusMonitor(
+            id = Some(1),
+            projectId = 1,
+            name = "Ci",
+            typeNum = StatusMonitorTypes.Teamcity.id,
+            url = "http://localhost",
+            username = None,
+            password = None,
+            active = true,
+            keepHistory = 10,
+            updatePeriod = 60,
+            lastQueried = None,
+            lastUpdated = None,
+            configJson = None
+          )
 
         statusMonitor.insert
 

@@ -34,7 +34,21 @@ class IcingaProcessorSpec extends Specification with Mockito {
         project.insert
 
         val statusMonitor =
-          StatusMonitor(Some(1), 1, "Monitor", StatusMonitorTypes.Icinga.id, "http://localhost", None, None, true, 10, 60, None, None)
+          StatusMonitor(
+            id = Some(1),
+            projectId = 1,
+            name = "Monitor",
+            typeNum = StatusMonitorTypes.Icinga.id,
+            url = "http://localhost",
+            username = None,
+            password = None,
+            active = true,
+            keepHistory = 10,
+            updatePeriod = 60,
+            lastQueried = None,
+            lastUpdated = None,
+            configJson = None
+          )
 
         statusMonitor.insert
 

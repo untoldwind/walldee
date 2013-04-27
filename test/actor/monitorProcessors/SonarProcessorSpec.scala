@@ -34,7 +34,21 @@ class SonarProcessorSpec extends Specification with Mockito {
         project.insert
 
         val statusMonitor =
-          StatusMonitor(Some(1), 1, "Ci", StatusMonitorTypes.Sonar.id, "http://localhost", None, None, true, 10, 60, None, None)
+          StatusMonitor(
+            id = Some(1),
+            projectId = 1,
+            name = "Ci",
+            typeNum = StatusMonitorTypes.Sonar.id,
+            url = "http://localhost",
+            username = None,
+            password = None,
+            active = true,
+            keepHistory = 10,
+            updatePeriod = 60,
+            lastQueried = None,
+            lastUpdated = None,
+            configJson = None
+          )
 
         statusMonitor.insert
 
