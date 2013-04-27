@@ -19,6 +19,15 @@ $ <path to your play installation>/play start
 
 By default the server will start on port 9000, refer to the Play documentation how to change that is necessary.
 
+# Updating / migrating
+
+All versions of Walldee should be compatible with previous versions (so far at least).
+Nevertheless, when upgrading to a newer version it is best tu be safe than sorry. In other words you are encouraged
+to created a backup first.
+
+Luckily creating a backup is easy: Just copy the walldee.h2.db file to somewhere else. Also note that walldee
+itself creates a backup on daily basis.
+
 # Notes
 
 Large parts of the backend still look very very ugly. <do far most eye-candy went into the wall display itself.
