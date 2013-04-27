@@ -1,9 +1,9 @@
 @(display:Display, displayItem:DisplayItem, alarms:Seq[(Alarm, Boolean)])
 
 @defining(displayItem.alarmsConfig) { config =>
-<ul class="alarms">
+<ul class="wall-alarms">
     @alarms.map { case (alarm, alert) =>
-        <li class="@if(alert) { alert }">
+        <li class="wall-@if(alert) { alert }">
             <div style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
             @{ val format = org.joda.time.format.DateTimeFormat.forPattern("HH:mm")
                 format.print(new org.joda.time.DateTime(alarm.nextDate))}

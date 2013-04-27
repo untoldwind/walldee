@@ -29,7 +29,9 @@ var animations = (function () {
             log(animation.effect);
             log(animation.params)
 
-            $(selector).toggle(animation.effect, animation.options, animation.duration);
+            $(selector).toggle(animation.effect, animation.options, animation.duration, function() {
+                animateElements();
+            });
         }
 
         if ( !nextCycleQueued && animation.delay > 0 ) {
@@ -41,9 +43,9 @@ var animations = (function () {
     }
 
     function animateElements() {
-        $(".bigText").textfill({debug: false, maxFontPixels: 0});
+        $(".wall-bigText").textfill({debug: false, maxFontPixels: 0});
 
-        $(".running").fadeTo(500, 0.3).fadeTo(500, 1.0, animateElements);
+        $(".wall-running").fadeTo(500, 0.3).fadeTo(500, 1.0, animateElements);
     }
 
     return {
@@ -52,6 +54,10 @@ var animations = (function () {
             log(config);
             log(typeof config.animations);
             animateElements();
+
+            $(window).resize(function() {
+                animateElements();
+            });
 
             if (typeof config.animations !== "undefined" && config.animations !== null) {
                 animations = config.animations;

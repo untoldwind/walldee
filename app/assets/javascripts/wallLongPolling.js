@@ -9,21 +9,21 @@ var longPolling = function () {
             if ($(selector).length == 0) {
                 $("#displayItems").append("<div id=\"" + update.id + "\"></div>");
             }
-            $(selector).attr("class", "widget");
-            $(selector).addClass("outer");
+            $(selector).attr("class", "wall-widget");
+            $(selector).addClass("wall-outer");
             $(selector).attr("etag", update.etag);
             $(selector).css("left", update.posx + unit);
             $(selector).css("top", update.posy + unit);
             $(selector).css("width", update.width + unit);
             $(selector).css("height", update.height + unit);
-            $(selector).html("<div class=\"inner\">" + update.content + "</div>");
+            $(selector).html("<div class=\"wall-inner\">" + update.content + "</div>");
         });
         animations.start({});
     }
 
     function getUpdates(url, unit) {
         var state = {};
-        $("div.widget").each(function () {
+        $("div.wall-widget").each(function () {
             state[$(this).attr("id")] = $(this).attr("etag");
         });
         $.ajax({

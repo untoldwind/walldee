@@ -1,15 +1,15 @@
 @(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
 
 @defining(displayItem.hostStatusConfig) { config =>
-<ul class="hostStatus">
+<ul class="wall-hostStatus">
     @statusMonitors.map { case (statusMonitor, statusValue) =>
     <li>
         <div style="font-family: @config.flatMap(_.titleFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.titleSize).getOrElse(20)}px;">@statusMonitor.name</div>
         @statusValue.flatMap(_.hostsStatus).map { hostsStatus =>
             @hostsStatus.groups.map { group =>
-            <table class="group">
+            <table class="wall-group">
                 @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), group.hosts) { host =>
-                    <td class="@host.hostStatus-@host.serviceStatus" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">@views.utils.simplify(config.flatMap(_.hostNamePattern), host.name).toUpperCase</td>
+                    <td class="wall-@host.hostStatus-@host.serviceStatus" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">@views.utils.simplify(config.flatMap(_.hostNamePattern), host.name).toUpperCase</td>
                 }
             </table>
             }

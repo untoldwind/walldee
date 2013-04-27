@@ -2,7 +2,7 @@
 @import models.widgetConfigs.MetricsItemTypes
 
 @defining(displayItem.metricsConfig) { config =>
-    <table class="metrics">
+    <table class="wall-metrics">
         @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
             <td>
             @if(item.asGauge.getOrElse(false)) {
@@ -10,7 +10,7 @@
                     <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag, width, width)"/>
                 }
             } else {
-                <div class="title" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")
+                <div class="wall-title" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")
                 ; font-size:
                     @{
                         config.flatMap(_.labelSize).getOrElse(20)
@@ -24,7 +24,7 @@
                         }
                     }
                 </div>
-                <div class="value" style="font-family:  @item.valueFont.getOrElse("sans-serif")
+                <div class="wall-value" style="font-family:  @item.valueFont.getOrElse("sans-serif")
                 ; font-size:
                     @{
                         item.valueSize.getOrElse(20)

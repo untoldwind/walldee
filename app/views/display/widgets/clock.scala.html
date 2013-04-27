@@ -1,7 +1,7 @@
 @(display: Display, displayItem: DisplayItem)
 
 @defining(displayItem.clockConfig) { config =>
-    <div class="bigText" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")">
+    <div class="wall-bigText" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")">
     <span> @{
         val format = org.joda.time.format.DateTimeFormat.forPattern("HH:mm")
         format.print(new org.joda.time.DateTime())

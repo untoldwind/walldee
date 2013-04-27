@@ -1,7 +1,7 @@
 @(display:Display, displayItem:DisplayItem, sprint:Sprint)
 
 @defining(displayItem.sprintTitleConfig) { config =>
-<div class="bigText" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif");">
+<div class="wall-bigText" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif");">
     <span>Sprint @sprint.num: @sprint.title</span>
 </div>
 }
