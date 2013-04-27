@@ -1,8 +1,14 @@
 package models.widgetConfigs
 
 import play.api.libs.json._
-import play.api.libs.json.JsObject
 import models.statusValues.MetricSeverityTypes
+import play.api.data.Forms._
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsBoolean
+import play.api.libs.json.JsString
+import scala.Some
+import play.api.libs.json.JsNumber
 
 object MetricsItemTypes extends Enumeration {
   type Type = Value
@@ -46,12 +52,13 @@ object MetricsItem {
 case class MetricsConfig(labelFont: Option[String] = None,
                          labelSize: Option[Int] = None,
                          columns: Option[Int] = None,
-                         items: Seq[MetricsItem] = Seq.empty)
+                         items: Seq[MetricsItem] = Seq.empty) extends WidgetConfig
 
 
-object MetricsConfig {
+object MetricsConfig extends WidgetConfigMapper[MetricsConfig] {
+  val default = apply()
 
-  implicit object MetricsConfigFormat extends Format[MetricsConfig] {
+  implicit val jsonFormat = new Format[MetricsConfig] {
     override def reads(json: JsValue): JsResult[MetricsConfig] =
       JsSuccess(MetricsConfig(
         (json \ "labelFont").asOpt[String],
@@ -66,5 +73,60 @@ object MetricsConfig {
         Seq("items" -> Json.toJson(metricsConfig.items))
     )
   }
+
+  def itemTypeMapping = number.transform[MetricsItemTypes.Type](
+    id => MetricsItemTypes(id),
+    itemType => itemType.id
+  )
+
+  def severityMapping = mapping(
+    "Blocker" -> boolean,
+    "Critical" -> boolean,
+    "Major" -> boolean,
+    "Minor" -> boolean,
+    "Info" -> boolean
+  ) {
+    (blocker, critical, major, minor, info) =>
+      MetricSeverityTypes.values
+      val severities = Seq.newBuilder[MetricSeverityTypes.Type]
+      if (blocker)
+        severities += MetricSeverityTypes.Blocker
+      if (critical)
+        severities += MetricSeverityTypes.Critical
+      if (major)
+        severities += MetricSeverityTypes.Major
+      if (minor)
+        severities += MetricSeverityTypes.Minor
+      if (info)
+        severities += MetricSeverityTypes.Info
+      severities.result()
+  } {
+    severities =>
+      Some(
+        severities.exists(_ == MetricSeverityTypes.Blocker),
+        severities.exists(_ == MetricSeverityTypes.Critical),
+        severities.exists(_ == MetricSeverityTypes.Major),
+        severities.exists(_ == MetricSeverityTypes.Minor),
+        severities.exists(_ == MetricSeverityTypes.Info)
+      )
+  }
+
+  def metricsItemMapping = mapping(
+    "itemType" -> itemTypeMapping,
+    "asGauge" -> optional(boolean),
+    "valueFont" -> optional(text),
+    "valueSize" -> optional(number),
+    "warnAt" -> optional(number),
+    "severities" -> severityMapping,
+    "showTrend" -> optional(boolean)
+  )(MetricsItem.apply)(MetricsItem.unapply)
+
+  implicit def formMapping = mapping(
+    "labelFont" -> optional(text),
+    "labelSize" -> optional(number),
+    "columns" -> optional(number),
+    "items" -> seq(metricsItemMapping)
+  )(apply)(unapply)
+
 
 }

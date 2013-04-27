@@ -10,8 +10,6 @@ import play.api.cache.Cache
 import xml.NodeSeq
 
 trait Widget[Config] extends Controller {
-  def configMapping: Mapping[Config]
-
   def renderHtml(display: Display, displayItem: DisplayItem): Html
 
   def renderAtom(display: Display, displayItem: DisplayItem)(implicit request: RequestHeader): (NodeSeq, Long) =

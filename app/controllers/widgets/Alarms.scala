@@ -17,14 +17,6 @@ import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
 
 object Alarms extends Widget[AlarmsConfig] {
-  val configMapping = mapping(
-    "labelFont" -> optional(text),
-    "labelSize" -> optional(number),
-    "descriptionFont" -> optional(text),
-    "descriptionSize" -> optional(number),
-    "alertPeriod" -> optional(number)
-  )(AlarmsConfig.apply)(AlarmsConfig.unapply)
-
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     val alertPeriod = displayItem.alarmsConfig.flatMap(_.alertPeriod).getOrElse(5) * 60L * 1000L
     val alarms = findAllPendingForToday(alertPeriod)

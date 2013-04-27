@@ -12,11 +12,6 @@ import play.api.cache.Cache
 import org.joda.time.format.ISODateTimeFormat
 
 object BuildStatus extends Widget[BuildStatusConfig] {
-  val configMapping = mapping(
-    "labelFont" -> optional(text),
-    "labelSize" -> optional(number)
-  )(BuildStatusConfig.apply)(BuildStatusConfig.unapply)
-
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
     projectIdOpt.map {

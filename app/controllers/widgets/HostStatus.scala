@@ -13,20 +13,6 @@ import play.api.cache.Cache
 import org.joda.time.format.ISODateTimeFormat
 
 object HostStatus extends Widget[HostStatusConfig] {
-  val regexMapping = text.transform[Regex](
-    str => str.r,
-    regex => regex.toString
-  )
-
-  val configMapping = mapping(
-    "titleFont" -> optional(text),
-    "titleSize" -> optional(number),
-    "labelFont" -> optional(text),
-    "labelSize" -> optional(number),
-    "columns" -> optional(number),
-    "hostNamePattern" -> optional(regexMapping)
-  )(HostStatusConfig.apply)(HostStatusConfig.unapply)
-
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
     projectIdOpt.map {

@@ -1,19 +1,23 @@
 package models.widgetConfigs
 
 import play.api.libs.json._
+import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsNumber
 
 case class BurndownConfig(chartBackground: Option[String] = None,
                           plotBackground: Option[String] = None,
                           titleSize: Option[Int] = None,
                           tickSize: Option[Int] = None,
                           labelSize: Option[Int] = None,
-                          lineWidth: Option[Int] = None)
+                          lineWidth: Option[Int] = None) extends WidgetConfig
 
-object BurndownConfig {
+object BurndownConfig extends WidgetConfigMapper[BurndownConfig] {
+  val default = apply()
 
-  implicit object BurndownChartConfigFormat extends Format[BurndownConfig] {
+  implicit val jsonFormat = new Format[BurndownConfig] {
     override def reads(json: JsValue): JsResult[BurndownConfig] =
       JsSuccess(BurndownConfig(
         (json \ "chartBackground").asOpt[String],
@@ -31,5 +35,14 @@ object BurndownConfig {
         burndownConfig.labelSize.map("labelSize" -> JsNumber(_)).toSeq ++
         burndownConfig.lineWidth.map("lineWidth" -> JsNumber(_)))
   }
+
+  implicit val formMapping = mapping(
+    "chartBackground" -> optional(text),
+    "plotBackground" -> optional(text),
+    "titleSize" -> optional(number),
+    "tickSize" -> optional(number),
+    "labelSize" -> optional(number),
+    "lineWidth" -> optional(number)
+  )(apply)(unapply)
 
 }

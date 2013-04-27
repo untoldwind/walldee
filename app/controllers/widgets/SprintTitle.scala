@@ -12,11 +12,6 @@ import play.api.cache.Cache
 import org.joda.time.format.ISODateTimeFormat
 
 object SprintTitle extends Widget[SprintTitleConfig] {
-  val configMapping = mapping(
-    "labelFont" -> optional(text),
-    "labelSize" -> optional(number)
-  )(SprintTitleConfig.apply)(SprintTitleConfig.unapply)
-
   def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     (for {
       sprintId <- getSprintId(display, displayItem)

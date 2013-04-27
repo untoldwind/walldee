@@ -17,60 +17,6 @@ import charts.metrics._
 import scala.Some
 
 object Metrics extends Controller with Widget[MetricsConfig] {
-  def itemTypeMapping = number.transform[MetricsItemTypes.Type](
-    id => MetricsItemTypes(id),
-    itemType => itemType.id
-  )
-
-  def severityMapping = mapping(
-    "Blocker" -> boolean,
-    "Critical" -> boolean,
-    "Major" -> boolean,
-    "Minor" -> boolean,
-    "Info" -> boolean
-  ) {
-    (blocker, critical, major, minor, info) =>
-      MetricSeverityTypes.values
-      val severities = Seq.newBuilder[MetricSeverityTypes.Type]
-      if (blocker)
-        severities += MetricSeverityTypes.Blocker
-      if (critical)
-        severities += MetricSeverityTypes.Critical
-      if (major)
-        severities += MetricSeverityTypes.Major
-      if (minor)
-        severities += MetricSeverityTypes.Minor
-      if (info)
-        severities += MetricSeverityTypes.Info
-      severities.result()
-  } {
-    severities =>
-      Some(
-        severities.exists(_ == MetricSeverityTypes.Blocker),
-        severities.exists(_ == MetricSeverityTypes.Critical),
-        severities.exists(_ == MetricSeverityTypes.Major),
-        severities.exists(_ == MetricSeverityTypes.Minor),
-        severities.exists(_ == MetricSeverityTypes.Info)
-      )
-  }
-
-  def metricsItemMapping = mapping(
-    "itemType" -> itemTypeMapping,
-    "asGauge" -> optional(boolean),
-    "valueFont" -> optional(text),
-    "valueSize" -> optional(number),
-    "warnAt" -> optional(number),
-    "severities" -> severityMapping,
-    "showTrend" -> optional(boolean)
-  )(MetricsItem.apply)(MetricsItem.unapply)
-
-  def configMapping = mapping(
-    "labelFont" -> optional(text),
-    "labelSize" -> optional(number),
-    "columns" -> optional(number),
-    "items" -> seq(metricsItemMapping)
-  )(MetricsConfig.apply)(MetricsConfig.unapply)
-
   override def renderHtml(display: Display, displayItem: DisplayItem) = {
     val projectIdOpt = displayItem.projectId.map(Some(_)).getOrElse(display.projectId)
     projectIdOpt.map {

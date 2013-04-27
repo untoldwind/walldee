@@ -9,15 +9,6 @@ import models.utils.DataDigest
 import charts.burndown.BurndownChart
 
 object Burndown extends Controller with Widget[BurndownConfig] {
-  val configMapping = mapping(
-    "chartBackground" -> optional(text),
-    "plotBackground" -> optional(text),
-    "titleSize" -> optional(number),
-    "tickSize" -> optional(number),
-    "labelSize" -> optional(number),
-    "lineWidth" -> optional(number)
-  )(BurndownConfig.apply)(BurndownConfig.unapply)
-
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     (for {
       sprintId <- getSprintId(display, displayItem)

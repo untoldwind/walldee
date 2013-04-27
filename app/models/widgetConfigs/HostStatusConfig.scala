@@ -1,20 +1,24 @@
 package models.widgetConfigs
 
 import play.api.libs.json._
+import scala.util.matching.Regex
+import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
-import scala.util.matching.Regex
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsNumber
 
 case class HostStatusConfig(titleFont: Option[String] = None,
                             titleSize: Option[Int] = None,
                             labelFont: Option[String] = None,
                             labelSize: Option[Int] = None,
                             columns: Option[Int] = None,
-                            hostNamePattern: Option[Regex] = None)
+                            hostNamePattern: Option[Regex] = None) extends WidgetConfig
 
-object HostStatusConfig {
+object HostStatusConfig extends WidgetConfigMapper[HostStatusConfig] {
+  val default = apply()
 
-  implicit object HostStatusConfigFormat extends Format[HostStatusConfig] {
+  implicit val jsonFormat = new Format[HostStatusConfig] {
     override def reads(json: JsValue): JsResult[HostStatusConfig] =
       JsSuccess(HostStatusConfig(
         (json \ "titleFont").asOpt[String],
@@ -33,4 +37,17 @@ object HostStatusConfig {
         hostStatusConfig.hostNamePattern.map(_.toString).map("hostNamePattern" -> JsString(_)).toSeq)
   }
 
+  val regexMapping = text.transform[Regex](
+    str => str.r,
+    regex => regex.toString
+  )
+
+  implicit val formMapping = mapping(
+    "titleFont" -> optional(text),
+    "titleSize" -> optional(number),
+    "labelFont" -> optional(text),
+    "labelSize" -> optional(number),
+    "columns" -> optional(number),
+    "hostNamePattern" -> optional(regexMapping)
+  )(apply)(unapply)
 }

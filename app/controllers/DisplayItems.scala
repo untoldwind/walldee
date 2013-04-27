@@ -5,6 +5,7 @@ import models.{Team, Project, Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
 import widgets.{Widget, Clock, SprintTitle, Burndown}
+import models.widgetConfigs._
 
 object DisplayItems extends Controller {
   def create(displayId: Long) = Action {
@@ -85,13 +86,13 @@ object DisplayItems extends Controller {
       "appearsInFeed" -> boolean,
       "hidden" -> boolean,
       "widgetConfig" -> tuple(
-        "burndownConfig" -> optional(Burndown.configMapping),
-        "sprintTitleConfig" -> optional(SprintTitle.configMapping),
-        "clockConfig" -> optional(Clock.configMapping),
-        "alarmsConfig" -> optional(widgets.Alarms.configMapping),
-        "iframeConfig" -> optional(widgets.IFrame.configMapping),
-        "buildStatusConfig" -> optional(widgets.BuildStatus.configMapping),
-        "hostStatusConfig" -> optional(widgets.HostStatus.configMapping),
-        "metricsConfig" -> optional(widgets.Metrics.configMapping))
+        "burndownConfig" -> optional(BurndownConfig.formMapping),
+        "sprintTitleConfig" -> optional(SprintTitleConfig.formMapping),
+        "clockConfig" -> optional(ClockConfig.formMapping),
+        "alarmsConfig" -> optional(AlarmsConfig.formMapping),
+        "iframeConfig" -> optional(IFrameConfig.formMapping),
+        "buildStatusConfig" -> optional(BuildStatusConfig.formMapping),
+        "hostStatusConfig" -> optional(HostStatusConfig.formMapping),
+        "metricsConfig" -> optional(MetricsConfig.formMapping))
     )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }
