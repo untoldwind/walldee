@@ -1,40 +1,57 @@
-@(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])], etag:String)
+@(display: Display, displayItem: DisplayItem, projectId: Long, statusMonitors: Seq[(StatusMonitor, Option[StatusValue])], etag: String)
 @import models.widgetConfigs.MetricsItemTypes
 
 @defining(displayItem.metricsConfig) { config =>
     <table class="metrics">
-    @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
-        <td>
+        @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
+            <td>
             @if(item.asGauge.getOrElse(false)) {
-                <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag)"/>
+                @defining((displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1)) { width =>
+                    <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag, width, width)"/>
+                }
             } else {
-                <div class="title" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
-                    @{item.itemType match {
-                        case MetricsItemTypes.Coverage => "Coverage"
-                        case MetricsItemTypes.ViolationsCount => "Violations"
-                        case MetricsItemTypes.ViolationsDetail =>
-                            item.severities.map(_.toString).mkString(" + ")
-                    }}
+                <div class="title" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")
+                ; font-size:
+                    @{
+                        config.flatMap(_.labelSize).getOrElse(20)
+                    } px;">
+                    @{
+                        item.itemType match {
+                            case MetricsItemTypes.Coverage => "Coverage"
+                            case MetricsItemTypes.ViolationsCount => "Violations"
+                            case MetricsItemTypes.ViolationsDetail =>
+                                item.severities.map(_.toString).mkString(" + ")
+                        }
+                    }
                 </div>
-                <div class="value" style="font-family: @item.valueFont.getOrElse("sans-serif"); font-size: @{item.valueSize.getOrElse(20)}px;">
-                    @{item.itemType match {
-                        case MetricsItemTypes.Coverage => "Coverage"
-                            statusMonitors.map { case (statusMonitor, statusValues) =>
-                                statusValues.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
+                <div class="value" style="font-family:  @item.valueFont.getOrElse("sans-serif")
+                ; font-size:
+                    @{
+                        item.valueSize.getOrElse(20)
+                    } px;">
+                    @{
+                        item.itemType match {
+                            case MetricsItemTypes.Coverage => "Coverage"
+                            statusMonitors.map {
+                                case (statusMonitor, statusValues) =>
+                                    statusValues.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
                             }.max.toString + "%"
-                        case MetricsItemTypes.ViolationsCount =>
-                            statusMonitors.map { case (statusMonitor, statusValues) =>
-                                statusValues.flatMap(_.metricStatus).map(_.violationsCount).getOrElse(0)
-                            }.sum.toString
-                        case MetricsItemTypes.ViolationsDetail =>
-                            statusMonitors.map { case (statusMonitor, statusValues) =>
-                                val violations = statusValues.flatMap(_.metricStatus).map(_.violations).getOrElse(Seq.empty)
-                                violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
-                            }.sum.toString
-                    }}
+                            case MetricsItemTypes.ViolationsCount =>
+                                statusMonitors.map {
+                                    case (statusMonitor, statusValues) =>
+                                        statusValues.flatMap(_.metricStatus).map(_.violationsCount).getOrElse(0)
+                                }.sum.toString
+                            case MetricsItemTypes.ViolationsDetail =>
+                                statusMonitors.map {
+                                    case (statusMonitor, statusValues) =>
+                                        val violations = statusValues.flatMap(_.metricStatus).map(_.violations).getOrElse(Seq.empty)
+                                        violations.filter(s => item.severities.contains(s.severity)).map(_.count).sum
+                                }.sum.toString
+                        }
+                    }
                 </div>
             }
         </td>
-    }
+        }
     </table>
 }

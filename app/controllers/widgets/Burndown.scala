@@ -27,7 +27,7 @@ object Burndown extends Controller with Widget[BurndownConfig] {
     }).getOrElse(Html(""))
   }
 
-  def getPng(displayItemId: Long, etag: String) = Action {
+  def getPng(displayItemId: Long, token: String, width: Int, height: Int) = Action {
     request =>
       (for {
         displayItem <- DisplayItem.findById(displayItemId)
@@ -35,11 +35,11 @@ object Burndown extends Controller with Widget[BurndownConfig] {
         sprintId <- getSprintId(display, displayItem)
         sprint <- Sprint.findById(sprintId)
       } yield {
-        request.headers.get(IF_NONE_MATCH).filter(_ == etag).map(_ => NotModified).getOrElse {
-          val chart = new BurndownChart(displayItem.width - 5, displayItem.height - 5, sprint, display.style,
+        request.headers.get(IF_NONE_MATCH).filter(_ == token).map(_ => NotModified).getOrElse {
+          val chart = new BurndownChart(width, height, sprint, display.style,
             displayItem.burndownConfig.getOrElse(BurndownConfig()))
 
-          Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> etag)
+          Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> token)
         }
       }).getOrElse(NotFound)
   }

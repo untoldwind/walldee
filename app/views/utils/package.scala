@@ -22,12 +22,16 @@ package object utils {
   }
 
   def mkTable[A](columns: Int, values: Seq[A])(tmpl: A => Html) = {
-    Range(0, values.length, columns).foldLeft(Html("<tbody>")) {
-      (html, idx) =>
-        values.slice(idx, idx + columns).foldLeft(html + Html("<tr>")) {
-          (html, value) =>
-            html + tmpl(value)
+    val html = Html("<tbody>")
+    Range(0, values.length, columns).foreach {
+      idx =>
+        html += Html("<tr>")
+        values.slice(idx, idx + columns).foreach {
+          value =>
+            html += tmpl(value)
         }
-    } + Html("</tbody>")
+    }
+    html += Html("</tbody>")
+    html
   }
 }
