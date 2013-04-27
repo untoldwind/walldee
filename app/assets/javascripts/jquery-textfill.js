@@ -11,7 +11,7 @@
  * @homepage  https://github.com/jquery-textfill/jquery-textfill
  * @example   http://jquery-textfill.github.com/jquery-textfill/Example.htm
 */
-; (function($) {
+;(function($) {
   /**
   * Resizes an inner element's font so that the inner element completely fills the outer element.
   * @param {Object} Options which are maxFontPixels (default=40), innerTag (default='span')
