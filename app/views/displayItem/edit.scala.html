@@ -1,42 +1,45 @@
-@(display:Display, displayItem:DisplayItem, projects:Seq[Project], teams:Seq[Team], displayItemForm:Form[DisplayItem])
+@(display: Display, displayItem: DisplayItem, projects: Seq[Project], teams: Seq[Team], displayItemForm: Form[DisplayItem])
 @import models.utils.Breadcrumb
 
 @main(displayItem.widget.toString,
     Breadcrumb("Home", routes.Application.index, false) ::
-    Breadcrumb("Displays", routes.Displays.index, false) ::
-    Breadcrumb(display.name, routes.Displays.showConfig(display.id.get), false) ::
-    Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id.get, displayItem.id.get), true) :: Nil) {
+            Breadcrumb("Displays", routes.Displays.index, false) ::
+                    Breadcrumb(display.name, routes.Displays.showConfig(display.id.get), false) ::
+                            Breadcrumb(displayItem.widget.toString, routes.DisplayItems.edit(display.id.get, displayItem.id.get), true) :: Nil) {
 
-@helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id.get), 'id -> "displayItem-form") {
-<fieldset>
-    <legend>Display item</legend>
-    @helper.inputText(displayItemForm("posx"))
-    @helper.inputText(displayItemForm("posy"))
-    @helper.inputText(displayItemForm("width"))
-    @helper.inputText(displayItemForm("height"))
-    @helper.select(displayItemForm("projectId"),
-        ("" -> "<Use display setting>") +:
-        projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
-    @helper.select(displayItemForm("teamId"),
-        ("" -> "<Use display setting>") +:
-        teams.map(team => team.id.get.toString -> "Team %s".format(team.name)))
-    @helper.checkbox(displayItemForm("appearsInFeed"))
-    @helper.checkbox(displayItemForm("hidden"))
-</fieldset>
-<input type="hidden" name="@displayItemForm("widget").name" value="@displayItemForm("widget").value">
-@{displayItem.widget match {
-    case DisplayWidgets.Burndown => widgets.burndownConfig(displayItemForm("widgetConfig")("burndownConfig"))
-    case DisplayWidgets.SprintTitle => widgets.sprintTitleConfig(displayItemForm("widgetConfig")("sprintTitleConfig"))
-    case DisplayWidgets.Clock => widgets.clockConfig(displayItemForm("widgetConfig")("clockConfig"))
-    case DisplayWidgets.Alarms => widgets.alarmsConfig(displayItemForm("widgetConfig")("alarmsConfig"))
-    case DisplayWidgets.IFrame => widgets.iframeConfig(displayItemForm("widgetConfig")("iframeConfig"))
-    case DisplayWidgets.BuildStatus => widgets.buildStatusConfig(displayItemForm("widgetConfig")("buildStatusConfig"))
-    case DisplayWidgets.HostStatus => widgets.hostStatusConfig(displayItemForm("widgetConfig")("hostStatusConfig"))
-    case DisplayWidgets.Metrics => widgets.metricsConfig(displayItemForm("widgetConfig")("metricsConfig"))
-}}
-<div class="actions">
-    <input type="submit" class="btn primary" value="Update">
-</div>
-}
-
+    @helper.form(action = routes.DisplayItems.update(displayItem.displayId, displayItem.id.get), 'id -> "displayItem-form") {
+        <fieldset>
+            <legend> Display item </legend>
+            @helper.inputText(displayItemForm("posx"))
+            @helper.inputText(displayItemForm("posy"))
+            @helper.inputText(displayItemForm("width"))
+            @helper.inputText(displayItemForm("height"))
+            @helper.select(displayItemForm("projectId"),
+                ("" -> "<Use display setting>") +:
+                        projects.map(project => project.id.get.toString -> "Project %s".format(project.name)))
+            @helper.select(displayItemForm("teamId"),
+                ("" -> "<Use display setting>") +:
+                        teams.map(team => team.id.get.toString -> "Team %s".format(team.name)))
+            @helper.checkbox(displayItemForm("appearsInFeed"))
+            @helper.checkbox(displayItemForm("hidden"))
+        </fieldset>
+        @defining(displayItemForm("widgetConfig")) { widgetConfig =>
+            <input type="hidden" name="@widgetConfig("widget").name" value="@widgetConfig("widget").value">
+            @{
+                displayItem.widget match {
+                    case DisplayWidgets.Burndown => widgets.burndownConfig(widgetConfig("Burndown"))
+                    case DisplayWidgets.SprintTitle => widgets.sprintTitleConfig(widgetConfig("SprintTitle"))
+                    case DisplayWidgets.Clock => widgets.clockConfig(widgetConfig("Clock"))
+                    case DisplayWidgets.Alarms => widgets.alarmsConfig(widgetConfig("Alarms"))
+                    case DisplayWidgets.IFrame => widgets.iframeConfig(widgetConfig("IFrame"))
+                    case DisplayWidgets.BuildStatus => widgets.buildStatusConfig(widgetConfig("BuildStatus"))
+                    case DisplayWidgets.HostStatus => widgets.hostStatusConfig(widgetConfig("HostStatus"))
+                    case DisplayWidgets.Metrics => widgets.metricsConfig(widgetConfig("Metrics"))
+                }
+            }
+            <div class="actions">
+                <input type="submit" class="btn primary" value="Update">
+            </div>
+        }
+    }
 }

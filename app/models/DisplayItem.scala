@@ -100,33 +100,14 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
                 posy: Int,
                 width: Int,
                 height: Int,
-                widgetNum: Int,
                 projectId: Option[Long],
                 teamId: Option[Long],
                 appearsInFeed: Boolean,
                 hidden: Boolean,
-                widgetConfig: (Option[BurndownConfig],
-                  Option[SprintTitleConfig],
-                  Option[ClockConfig],
-                  Option[AlarmsConfig],
-                  Option[IFrameConfig],
-                  Option[BuildStatusConfig],
-                  Option[HostStatusConfig],
-                  Option[MetricsConfig])): DisplayItem = {
+                widgetConfig: (DisplayWidgets.Type, WidgetConfig)): DisplayItem = {
 
-    val widgetConfigJson = DisplayWidgets(widgetNum) match {
-      case DisplayWidgets.Burndown => Json.toJson(widgetConfig._1.getOrElse(BurndownConfig()))
-      case DisplayWidgets.SprintTitle => Json.toJson(widgetConfig._2.getOrElse(SprintTitleConfig()))
-      case DisplayWidgets.Clock => Json.toJson(widgetConfig._3.getOrElse(ClockConfig()))
-      case DisplayWidgets.Alarms => Json.toJson(widgetConfig._4.getOrElse(AlarmsConfig()))
-      case DisplayWidgets.IFrame => Json.toJson(widgetConfig._5.getOrElse(IFrameConfig()))
-      case DisplayWidgets.BuildStatus => Json.toJson(widgetConfig._6.getOrElse(BuildStatusConfig()))
-      case DisplayWidgets.HostStatus => Json.toJson(widgetConfig._7.getOrElse(HostStatusConfig()))
-      case DisplayWidgets.Metrics => Json.toJson(widgetConfig._8.getOrElse(MetricsConfig()))
-    }
-
-    DisplayItem(id, displayId, posx, posy, width, height, widgetNum, projectId, teamId, appearsInFeed,
-      hidden, Json.stringify(widgetConfigJson))
+    DisplayItem(id, displayId, posx, posy, width, height, widgetConfig._1.id, projectId, teamId, appearsInFeed,
+      hidden, widgetConfig._1.configToJson(widgetConfig._2))
   }
 
   def formUnapply(displayItem: DisplayItem) =
@@ -137,19 +118,11 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.posy,
       displayItem.width,
       displayItem.height,
-      displayItem.widgetNum,
       displayItem.projectId,
       displayItem.teamId,
       displayItem.appearsInFeed,
       displayItem.hidden,
-      (displayItem.widgetConfig[BurndownConfig],
-        displayItem.widgetConfig[SprintTitleConfig],
-        displayItem.widgetConfig[ClockConfig],
-        displayItem.widgetConfig[AlarmsConfig],
-        displayItem.widgetConfig[IFrameConfig],
-        displayItem.widgetConfig[BuildStatusConfig],
-        displayItem.widgetConfig[HostStatusConfig],
-        displayItem.widgetConfig[MetricsConfig]))
+      (displayItem.widget, displayItem.widgetConfig[WidgetConfig].getOrElse(displayItem.widget.configMappger.default)))
 
   def query = Query(this)
 

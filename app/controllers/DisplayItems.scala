@@ -80,19 +80,10 @@ object DisplayItems extends Controller {
       "posy" -> number(min = 0),
       "width" -> number(min = 0),
       "height" -> number(min = 0),
-      "widget" -> number,
       "projectId" -> optional(longNumber),
       "teamId" -> optional(longNumber),
       "appearsInFeed" -> boolean,
       "hidden" -> boolean,
-      "widgetConfig" -> tuple(
-        "burndownConfig" -> optional(BurndownConfig.formMapping),
-        "sprintTitleConfig" -> optional(SprintTitleConfig.formMapping),
-        "clockConfig" -> optional(ClockConfig.formMapping),
-        "alarmsConfig" -> optional(AlarmsConfig.formMapping),
-        "iframeConfig" -> optional(IFrameConfig.formMapping),
-        "buildStatusConfig" -> optional(BuildStatusConfig.formMapping),
-        "hostStatusConfig" -> optional(HostStatusConfig.formMapping),
-        "metricsConfig" -> optional(MetricsConfig.formMapping))
+      "widgetConfig" -> WidgetConfigMapping()
     )(DisplayItem.formApply)(DisplayItem.formUnapply)).fill(displayItem)
 }
