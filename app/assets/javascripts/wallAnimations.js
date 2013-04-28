@@ -45,6 +45,17 @@ var animations = (function () {
     function animateElements() {
         $(".wall-bigText").textfill({debug: false, maxFontPixels: 0});
 
+        $(".wall-bigImage").each(function(idx, elem) {
+            var width = $(elem).width();
+            var height = $(elem).height();
+            if ( width > 0 && height > 0) {
+            var ref = $(elem).attr("ref");
+                $(elem).html("<img src=\"" + ref + "&width=" + width + "&height=" + height + "\"/>");
+            } else {
+                $(elem).html("");
+            }
+        });
+
         $(".wall-running").fadeTo(500, 0.3).fadeTo(500, 1.0, animateElements);
     }
 

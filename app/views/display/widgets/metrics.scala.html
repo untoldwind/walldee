@@ -6,17 +6,11 @@
 @defining(displayItem.widgetConfig[MetricsConfig]) { config =>
     <table class="wall-metrics">
         @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
-            <td>
             @if(item.asGauge.getOrElse(false)) {
-                @defining((displayItem.width - 14) / config.flatMap(_.columns).getOrElse(1)) { width =>
-                    <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag, width, width)"/>
-                }
+                    <td class="wall-bigImage" ref="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag)"></td>
             } else {
-                <div class="wall-title" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")
-                ; font-size:
-                    @{
-                        config.flatMap(_.labelSize).getOrElse(20)
-                    } px;">
+                <td>
+                <div class="wall-title" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size:@{ config.flatMap(_.labelSize).getOrElse(20)} px;">
                     @{
                         item.itemType match {
                             case MetricsItemTypes.Coverage => "Coverage"
@@ -26,11 +20,7 @@
                         }
                     }
                 </div>
-                <div class="wall-value" style="font-family:  @item.valueFont.getOrElse("sans-serif")
-                ; font-size:
-                    @{
-                        item.valueSize.getOrElse(20)
-                    } px;">
+                <div class="wall-value" style="font-family:  @item.valueFont.getOrElse("sans-serif"); font-size: @{item.valueSize.getOrElse(20)} px;">
                     @{
                         item.itemType match {
                             case MetricsItemTypes.Coverage => "Coverage"
@@ -52,8 +42,8 @@
                         }
                     }
                 </div>
+                </td>
             }
-        </td>
         }
     </table>
 }
