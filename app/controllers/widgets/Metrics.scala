@@ -7,7 +7,7 @@ import models._
 import play.api.templates.Html
 import play.api.mvc.{RequestHeader, Controller, Action}
 import utils.{AtomState, DataDigest}
-import widgetConfigs.{MetricsConfig, MetricsItem, MetricsItemTypes}
+import models.widgetConfigs.{BurndownConfig, MetricsConfig, MetricsItem, MetricsItemTypes}
 import java.awt.Color
 import xml.NodeSeq
 import play.api.cache.Cache
@@ -35,7 +35,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
         val html = renderHtml(display, displayItem)
         val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
         val lastUpdate = atomLastUpdate(display, displayItem, html)
-        val title = displayItem.metricsConfig.map {
+        val title = displayItem.widgetConfig[MetricsConfig].map {
           metricsConfig =>
             "Metrics: " + metricsConfig.items.foldLeft(SortedSet.newBuilder[String]) {
               (set, item) =>
@@ -76,7 +76,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
                 StatusValue.findAllForStatusMonitor(statusMonitor.id.get))
           }
 
-          val config = displayItem.metricsConfig.getOrElse(MetricsConfig())
+          val config = displayItem.widgetConfig[MetricsConfig].getOrElse(MetricsConfig())
           val configItem = config.items(itemIdx)
           val chart = configItem.itemType match {
             case MetricsItemTypes.Coverage =>

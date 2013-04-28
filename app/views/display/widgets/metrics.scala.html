@@ -1,12 +1,14 @@
 @(display: Display, displayItem: DisplayItem, projectId: Long, statusMonitors: Seq[(StatusMonitor, Option[StatusValue])], etag: String)
 @import models.widgetConfigs.MetricsItemTypes
+@import models.widgetConfigs.MetricsConfig
 
-@defining(displayItem.metricsConfig) { config =>
+
+@defining(displayItem.widgetConfig[MetricsConfig]) { config =>
     <table class="wall-metrics">
         @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
             <td>
             @if(item.asGauge.getOrElse(false)) {
-                @defining((displayItem.width - 14) / displayItem.metricsConfig.flatMap(_.columns).getOrElse(1)) { width =>
+                @defining((displayItem.width - 14) / config.flatMap(_.columns).getOrElse(1)) { width =>
                     <img src="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag, width, width)"/>
                 }
             } else {

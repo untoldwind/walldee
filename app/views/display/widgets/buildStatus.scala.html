@@ -1,6 +1,7 @@
 @(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, StatusTypes.Type, Boolean)])
+@import models.widgetConfigs.BuildStatusConfig
 
-@defining(displayItem.buildStatusConfig) { config =>
+@defining(displayItem.widgetConfig[BuildStatusConfig]) { config =>
 <ul class="wall-buildStatus">
     @statusMonitors.map { case (statusMonitor, status, running) =>
     <li class="wall-@{status.toString} @{if(running) "wall-running" else "wall-notRunning"}">

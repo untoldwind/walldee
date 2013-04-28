@@ -28,7 +28,7 @@ object Burndown extends Controller with Widget[BurndownConfig] {
       } yield {
         request.headers.get(IF_NONE_MATCH).filter(_ == token).map(_ => NotModified).getOrElse {
           val chart = new BurndownChart(width, height, sprint, display.style,
-            displayItem.burndownConfig.getOrElse(BurndownConfig()))
+            displayItem.widgetConfig[BurndownConfig].getOrElse(BurndownConfig()))
 
           Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> token)
         }

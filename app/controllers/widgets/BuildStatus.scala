@@ -2,7 +2,6 @@ package controllers.widgets
 
 import play.api.Play.current
 import models.widgetConfigs.BuildStatusConfig
-import play.api.data.Forms._
 import models._
 import play.api.templates.Html
 import utils.{AtomState, DataDigest}

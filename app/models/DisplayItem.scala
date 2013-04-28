@@ -25,69 +25,11 @@ case class DisplayItem(id: Option[Long],
 
   def widget: DisplayWidgets.Type = DisplayWidgets(widgetNum)
 
-  def widgetConfig = Json.parse(widgetConfigJson)
+  def widgetConfig[T <: WidgetConfig](implicit manifest: Manifest[T]): Option[T] = {
+    widget.jsonToConfig(widgetConfigJson) match {
+      case config if manifest.runtimeClass.isInstance(config) => Some(config.asInstanceOf[T])
+      case _ => None
 
-  def burndownConfig = {
-    if (widget == DisplayWidgets.Burndown) {
-      Json.fromJson[BurndownConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def sprintTitleConfig = {
-    if (widget == DisplayWidgets.SprintTitle) {
-      Json.fromJson[SprintTitleConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def clockConfig = {
-    if (widget == DisplayWidgets.Clock) {
-      Json.fromJson[ClockConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def alarmsConfig = {
-    if (widget == DisplayWidgets.Alarms) {
-      Json.fromJson[AlarmsConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def iframeConfig = {
-    if (widget == DisplayWidgets.IFrame) {
-      Json.fromJson[IFrameConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def buildStatusConfig = {
-    if (widget == DisplayWidgets.BuildStatus) {
-      Json.fromJson[BuildStatusConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def hostStatusConfig = {
-    if (widget == DisplayWidgets.HostStatus) {
-      Json.fromJson[HostStatusConfig](widgetConfig).asOpt
-    } else {
-      None
-    }
-  }
-
-  def metricsConfig = {
-    if (widget == DisplayWidgets.Metrics) {
-      Json.fromJson[MetricsConfig](widgetConfig).asOpt
-    } else {
-      None
     }
   }
 
@@ -149,7 +91,7 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
 
-  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~  widgetNum ~ projectId.? ~ teamId.? ~
+  def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ widgetNum ~ projectId.? ~ teamId.? ~
     appearsInFeed ~ hidden ~ widgetConfigJson <>((apply _).tupled, unapply _)
 
   def formApply(id: Option[Long],
@@ -200,14 +142,14 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
       displayItem.teamId,
       displayItem.appearsInFeed,
       displayItem.hidden,
-      (displayItem.burndownConfig,
-        displayItem.sprintTitleConfig,
-        displayItem.clockConfig,
-        displayItem.alarmsConfig,
-        displayItem.iframeConfig,
-        displayItem.buildStatusConfig,
-        displayItem.hostStatusConfig,
-        displayItem.metricsConfig))
+      (displayItem.widgetConfig[BurndownConfig],
+        displayItem.widgetConfig[SprintTitleConfig],
+        displayItem.widgetConfig[ClockConfig],
+        displayItem.widgetConfig[AlarmsConfig],
+        displayItem.widgetConfig[IFrameConfig],
+        displayItem.widgetConfig[BuildStatusConfig],
+        displayItem.widgetConfig[HostStatusConfig],
+        displayItem.widgetConfig[MetricsConfig]))
 
   def query = Query(this)
 

@@ -1,6 +1,7 @@
 @(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
+@import models.widgetConfigs.HostStatusConfig
 
-@defining(displayItem.hostStatusConfig) { config =>
+@defining(displayItem.widgetConfig[HostStatusConfig]) { config =>
 <ul class="wall-hostStatus">
     @statusMonitors.map { case (statusMonitor, statusValue) =>
     <li>

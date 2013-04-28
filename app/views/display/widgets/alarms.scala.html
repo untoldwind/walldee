@@ -1,6 +1,7 @@
 @(display:Display, displayItem:DisplayItem, alarms:Seq[(Alarm, Boolean)])
+@import models.widgetConfigs.AlarmsConfig
 
-@defining(displayItem.alarmsConfig) { config =>
+@defining(displayItem.widgetConfig[AlarmsConfig]) { config =>
 <ul class="wall-alarms">
     @alarms.map { case (alarm, alert) =>
         <li class="wall-@if(alert) { alert }">

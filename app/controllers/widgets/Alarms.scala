@@ -18,7 +18,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 object Alarms extends Widget[AlarmsConfig] {
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
-    val alertPeriod = displayItem.alarmsConfig.flatMap(_.alertPeriod).getOrElse(5) * 60L * 1000L
+    val alertPeriod = displayItem.widgetConfig[AlarmsConfig].flatMap(_.alertPeriod).getOrElse(5) * 60L * 1000L
     val alarms = findAllPendingForToday(alertPeriod)
     val now = System.currentTimeMillis()
     val min = if (!alarms.isEmpty)
@@ -36,7 +36,7 @@ object Alarms extends Widget[AlarmsConfig] {
 
   override def renderAtom(display: Display, displayItem: DisplayItem)
                          (implicit request: RequestHeader): (NodeSeq, Long) = {
-    val alertPeriod = displayItem.alarmsConfig.flatMap(_.alertPeriod).getOrElse(5) * 60L * 1000L
+    val alertPeriod = displayItem.widgetConfig[AlarmsConfig].flatMap(_.alertPeriod).getOrElse(5) * 60L * 1000L
     val alarms = findAllPendingForToday(alertPeriod)
     val html = renderHtml(display, displayItem)
     val dateFormat = ISODateTimeFormat.dateTime().withZoneUTC()
