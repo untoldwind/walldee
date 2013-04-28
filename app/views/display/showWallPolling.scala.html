@@ -16,9 +16,7 @@
     <div id="displayItems">
         @renderedWidgets.map { renderedWidget =>
         <div id="@renderedWidget.id" etag="@renderedWidget.etag" class="wall-widget wall-outer" style="left: @{renderedWidget.posx}px;top: @{renderedWidget.posy}px;width: @{renderedWidget.width}px;height: @{renderedWidget.height}px;@{if(renderedWidget.hidden) "display:None;" else ""}">
-            <div class="wall-inner">
-                @renderedWidget.content
-            </div>
+            @renderedWidget.content
         </div>
     }
     </div>

@@ -2,12 +2,12 @@
 @import models.widgetConfigs.MetricsItemTypes
 @import models.widgetConfigs.MetricsConfig
 
-
+<div class="wall-inner">
 @defining(displayItem.widgetConfig[MetricsConfig]) { config =>
     <table class="wall-metrics">
         @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), config.map(_.items).getOrElse(Seq.empty).zipWithIndex) { case (item, itemIdx) =>
             @if(item.asGauge.getOrElse(false)) {
-                    <td class="wall-bigImage" ref="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag)"></td>
+                <td class="wall-bigImage" width="@{100 / config.flatMap(_.columns).getOrElse(1)}%" ref="@widgets.routes.Metrics.getGaugePng(displayItem.id.get, projectId, itemIdx, etag)"></td>
             } else {
                 <td>
                 <div class="wall-title" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size:@{ config.flatMap(_.labelSize).getOrElse(20)} px;">
@@ -47,3 +47,4 @@
         }
     </table>
 }
+</div>

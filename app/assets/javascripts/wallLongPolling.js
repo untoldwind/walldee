@@ -16,7 +16,7 @@ var longPolling = function () {
             $(selector).css("top", update.posy + unit);
             $(selector).css("width", update.width + unit);
             $(selector).css("height", update.height + unit);
-            $(selector).html("<div class=\"wall-inner\">" + update.content + "</div>");
+            $(selector).html(update.content);
         });
         animations.start({});
     }

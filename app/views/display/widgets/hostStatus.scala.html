@@ -1,6 +1,7 @@
 @(display:Display, displayItem:DisplayItem, projectId:Long, statusMonitors:Seq[(StatusMonitor, Option[StatusValue])])
 @import models.widgetConfigs.HostStatusConfig
 
+<div class="wall-inner">
 @defining(displayItem.widgetConfig[HostStatusConfig]) { config =>
 <ul class="wall-hostStatus">
     @statusMonitors.map { case (statusMonitor, statusValue) =>
@@ -19,3 +20,4 @@
     }
 </ul>
 }
+</div>

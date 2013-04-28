@@ -1,8 +1,10 @@
 @(display:Display, displayItem:DisplayItem, sprint:Sprint)
 @import models.widgetConfigs.SprintTitleConfig
 
+<div class="wall-inner">
 @defining(displayItem.widgetConfig[SprintTitleConfig]) { config =>
 <div class="wall-bigText" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif");">
     <span>Sprint @sprint.num: @sprint.title</span>
 </div>
 }
+</div>

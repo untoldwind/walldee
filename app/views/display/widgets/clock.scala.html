@@ -1,6 +1,7 @@
 @(display: Display, displayItem: DisplayItem)
 @import models.widgetConfigs.ClockConfig
 
+<div class="wall-inner">
 @defining(displayItem.widgetConfig[ClockConfig]) { config =>
     <div class="wall-bigText" style="font-family:  @config.flatMap(_.labelFont).getOrElse("sans-serif")">
     <span> @{
@@ -9,3 +10,4 @@
     } </span>
     </div>
 }
+</div>

@@ -22,11 +22,16 @@ class DisplayUpdater extends Actor with SLF4JLogging {
           self ! display
       }
 
-    case project: Project =>
+    case project: Project => {
       Display.findAllForProject(project.id.get).foreach {
         display =>
           self ! display
       }
+      DisplayItem.findAllForProject(project.id.get).foreach {
+        displayItem =>
+          self ! displayItem
+      }
+    }
 
     case team: Team => {
       Display.findAllForTeam(team.id.get).foreach {
@@ -35,15 +40,16 @@ class DisplayUpdater extends Actor with SLF4JLogging {
       }
       DisplayItem.findAllForTeam(team.id.get).foreach {
         displayItem =>
-          self ! DisplayItem
+          self ! displayItem
       }
     }
 
-    case statusMonitor: StatusMonitor =>
-      Display.findAllForProject(statusMonitor.projectId).foreach {
-        display =>
-          self ! display
+    case statusMonitor: StatusMonitor => {
+      Project.findById(statusMonitor.projectId).foreach {
+        project =>
+          self ! project
       }
+    }
 
     case statusValue: StatusValue =>
       StatusMonitor.findById(statusValue.statusMonitorId).map {
