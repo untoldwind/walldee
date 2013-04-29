@@ -38,9 +38,9 @@ case class Team(id: Option[Long],
 object Team extends Table[Team]("TEAM") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def name = column[String]("NAME", O NotNull)
+  def name = column[String]("NAME", O.NotNull)
 
   def currentSprintId = column[Long]("CURRENTSPRINTID")
 

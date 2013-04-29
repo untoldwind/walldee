@@ -1,8 +1,8 @@
-@(display:Display, displayItem:DisplayItem, subDisplays:Seq[(Display, Seq[models.utils.RenderedWidget])])
+@(display:Display, displayItem:DisplayItem, subDisplays:Seq[(models.widgetConfigs.SubDisplayRef, Seq[models.utils.RenderedWidget])])
 
 <div class="wall-subDisplays">
     @subDisplays.map { subDisplay =>
-        <div id="wall-subDisplay-@subDisplay._1.id.get">
+        <div id="wall-subDisplay-@subDisplay._1.displayId" @if(subDisplay._1.duration > 0) { style="display: none;" }>
         @subDisplay._2.map { renderedWidget =>
             <div id="sub-@renderedWidget.id" etag="@renderedWidget.etag" class="wall-widget wall-outer" style="left: @{renderedWidget.posx}%;top: @{renderedWidget.posy}%;width: @{renderedWidget.width}%;height: @{renderedWidget.height}%;@{if(renderedWidget.hidden) "display:None;" else ""}">
                 @renderedWidget.content
@@ -11,3 +11,24 @@
         </div>
     }
 </div>
+
+<script type="text/javascript">
+    $(function() {
+        @defining(subDisplays.filter(_._1.duration > 0)) { animatedSubDisplays =>
+            @Range(0, animatedSubDisplays.length).map {  idx =>
+                @defining(animatedSubDisplays(idx)._1, (idx + 1) % animatedSubDisplays.length) { case (subDisplay, nextIdx) =>
+                    var showSubDisplay@idx = function() {
+                        @Range(0, animatedSubDisplays.length).filter(_ != idx).map { otherIdx =>
+                            $("#wall-subDisplay-@animatedSubDisplays(otherIdx)._1.displayId").clearQueue().hide();
+                        }
+                        $("#wall-subDisplay-@subDisplay.displayId").clearQueue().fadeIn(300).delay(@subDisplay.duration).fadeOut(350, showSubDisplay@nextIdx);
+                    }
+                }
+            }
+
+            @if(animatedSubDisplays.length > 0) {
+                showSubDisplay0();
+            }
+        }
+    });
+</script>

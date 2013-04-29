@@ -67,29 +67,29 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def displayId = column[Long]("DISPLAYID", O NotNull)
+  def displayId = column[Long]("DISPLAYID", O.NotNull)
 
-  def posx = column[Int]("POSX", O NotNull)
+  def posx = column[Int]("POSX", O.NotNull)
 
-  def posy = column[Int]("POSY", O NotNull)
+  def posy = column[Int]("POSY", O.NotNull)
 
-  def width = column[Int]("WIDTH", O NotNull)
+  def width = column[Int]("WIDTH", O.NotNull)
 
-  def height = column[Int]("HEIGHT", O NotNull)
+  def height = column[Int]("HEIGHT", O.NotNull)
 
-  def widgetNum = column[Int]("WIDGETNUM", O NotNull)
+  def widgetNum = column[Int]("WIDGETNUM", O.NotNull)
 
-  def projectId = column[Long]("PROJECTID", O Nullable)
+  def projectId = column[Long]("PROJECTID", O.Nullable)
 
   def teamId = column[Long]("TEAMID")
 
-  def appearsInFeed = column[Boolean]("APPEARSINFEED", O NotNull)
+  def appearsInFeed = column[Boolean]("APPEARSINFEED", O.NotNull)
 
-  def hidden = column[Boolean]("HIDDEN", O NotNull)
+  def hidden = column[Boolean]("HIDDEN", O.NotNull)
 
-  def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O NotNull)
+  def widgetConfigJson = column[String]("WIDGETCONFIGJSON", O.NotNull)
 
   def * = id.? ~ displayId ~ posx ~ posy ~ width ~ height ~ widgetNum ~ projectId.? ~ teamId.? ~
     appearsInFeed ~ hidden ~ widgetConfigJson <>((apply _).tupled, unapply _)

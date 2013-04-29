@@ -40,13 +40,13 @@ case class Alarm(id: Option[Long], name: String, nextDate: Date, durationMins: I
 object Alarm extends Table[Alarm]("ALARM") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def name = column[String]("NAME", O NotNull)
+  def name = column[String]("NAME", O.NotNull)
 
-  def nextDate = column[Date]("NEXTDATE", O NotNull)
+  def nextDate = column[Date]("NEXTDATE", O.NotNull)
 
-  def durationMins = column[Int]("DURATIONMINS", O NotNull)
+  def durationMins = column[Int]("DURATIONMINS", O.NotNull)
 
   def repeatDays = column[Int]("REPEATDAYS")
 

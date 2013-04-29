@@ -16,7 +16,7 @@ object SubDisplays extends Widget[SubDisplaysConfig] {
                   subDisplayItem =>
                     Widget.forDisplayItem(subDisplayItem).render(subDisplay, subDisplayItem)
                 }
-                subDisplay -> renderedWidgets
+                subDisplayRef -> renderedWidgets
             }.toSeq
         }
         views.html.display.widgets.subDisplay(display, displayItem, subDisplays)

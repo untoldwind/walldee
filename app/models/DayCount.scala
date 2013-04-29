@@ -48,13 +48,13 @@ case class DayCount(
 object DayCount extends Table[DayCount]("DAYCOUNT") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def sprintId = column[Long]("SPRINTID", O NotNull)
+  def sprintId = column[Long]("SPRINTID", O.NotNull)
 
-  def dayNum = column[Int]("DAYNUM", O NotNull)
+  def dayNum = column[Int]("DAYNUM", O.NotNull)
 
-  def counterValuesJson = column[String]("COUNTERVALUESJSON", O NotNull)
+  def counterValuesJson = column[String]("COUNTERVALUESJSON", O.NotNull)
 
   def * = id.? ~ sprintId ~ dayNum ~ counterValuesJson <>((apply _).tupled, unapply _)
 

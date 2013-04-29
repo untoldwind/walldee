@@ -27,9 +27,9 @@ object Alarms extends Widget[AlarmsConfig] {
       (now + 24L * 3600L * 1000L) % (24L * 3600L * 1000L)
 
     if (min < now)
-      Akka.system.scheduler.scheduleOnce(1 minute, Global.displayUpdater, displayItem)
+      Akka.system.scheduler.scheduleOnce(1.minute, Global.displayUpdater, displayItem)
     else
-      Akka.system.scheduler.scheduleOnce((min - now + 50) millis, Global.displayUpdater, displayItem)
+      Akka.system.scheduler.scheduleOnce((min - now + 50).millis, Global.displayUpdater, displayItem)
 
     views.html.display.widgets.alarms.render(display, displayItem, alarms)
   }

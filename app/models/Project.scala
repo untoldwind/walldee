@@ -37,9 +37,9 @@ case class Project(id: Option[Long],
 object Project extends Table[Project]("PROJECT") {
   def database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def name = column[String]("NAME", O NotNull)
+  def name = column[String]("NAME", O.NotNull)
 
   def * = id.? ~ name <>((apply _).tupled, (unapply _))
 

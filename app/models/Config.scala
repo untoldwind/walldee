@@ -41,9 +41,9 @@ case class Config(id: Int,
 object Config extends Table[Config]("CONFIG") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Int]("ID", O PrimaryKey)
+  def id = column[Int]("ID", O.PrimaryKey)
 
-  def valueJson = column[String]("VALUEJSON", O NotNull)
+  def valueJson = column[String]("VALUEJSON", O.NotNull)
 
   def * = id ~ valueJson <>((apply _).tupled, unapply _)
 

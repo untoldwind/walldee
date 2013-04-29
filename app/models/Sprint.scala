@@ -86,21 +86,21 @@ case class Sprint(id: Option[Long],
 object Sprint extends Table[Sprint]("SPRINT") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
   def teamId = column[Long]("TEAMID")
 
-  def title = column[String]("TITLE", O NotNull)
+  def title = column[String]("TITLE", O.NotNull)
 
-  def num = column[Int]("NUM", O NotNull)
+  def num = column[Int]("NUM", O.NotNull)
 
-  def sprintStart = column[Date]("SPRINTSTART", O NotNull)
+  def sprintStart = column[Date]("SPRINTSTART", O.NotNull)
 
-  def sprintEnd = column[Date]("SPRINTEND", O NotNull)
+  def sprintEnd = column[Date]("SPRINTEND", O.NotNull)
 
-  def languageTag = column[String]("LANGUAGETAG", O NotNull)
+  def languageTag = column[String]("LANGUAGETAG", O.NotNull)
 
-  def countersJson = column[String]("COUNTERSJSON", O NotNull)
+  def countersJson = column[String]("COUNTERSJSON", O.NotNull)
 
   def * = id.? ~ teamId ~ title ~ num ~ sprintStart ~ sprintEnd ~ languageTag ~ countersJson <>((apply _).tupled, unapply _)
 

@@ -80,25 +80,25 @@ case class StatusMonitor(id: Option[Long],
 object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
   def database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def projectId = column[Long]("PROJECTID", O NotNull)
+  def projectId = column[Long]("PROJECTID", O.NotNull)
 
-  def name = column[String]("NAME", O NotNull)
+  def name = column[String]("NAME", O.NotNull)
 
-  def typeNum = column[Int]("TYPENUM", O NotNull)
+  def typeNum = column[Int]("TYPENUM", O.NotNull)
 
-  def url = column[String]("URL", O NotNull)
+  def url = column[String]("URL", O.NotNull)
 
   def username = column[String]("USERNAME")
 
   def password = column[String]("PASSWORD")
 
-  def active = column[Boolean]("ACTIVE", O NotNull)
+  def active = column[Boolean]("ACTIVE", O.NotNull)
 
-  def keepHistory = column[Int]("KEEPHISTORY", O NotNull)
+  def keepHistory = column[Int]("KEEPHISTORY", O.NotNull)
 
-  def updatePeriod = column[Int]("UPDATEPERIOD", O NotNull)
+  def updatePeriod = column[Int]("UPDATEPERIOD", O.NotNull)
 
   def lastQueried = column[Date]("LASTQUERIED")
 

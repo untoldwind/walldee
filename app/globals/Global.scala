@@ -21,9 +21,9 @@ object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
 
-    Akka.system.scheduler.schedule(1 minutes, 1 hour, backup, Backup.CheckBackup())
+    Akka.system.scheduler.schedule(1.minutes, 1.hour, backup, Backup.CheckBackup())
 
-    Akka.system.scheduler.schedule(30 seconds, 30 seconds, statusMonitorUpdater, StatusMonitorUpdater.UpdateAll())
+    Akka.system.scheduler.schedule(30.seconds, 30.seconds, statusMonitorUpdater, StatusMonitorUpdater.UpdateAll())
 
     app.configuration.getConfig("h2.server").foreach {
       h2ServerConfig =>

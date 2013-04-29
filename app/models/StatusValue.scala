@@ -74,15 +74,15 @@ case class StatusValue(id: Option[Long],
 object StatusValue extends Table[StatusValue]("STATUSVALUE") {
   def database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def statusMonitorId = column[Long]("STATUSMONITORID", O NotNull)
+  def statusMonitorId = column[Long]("STATUSMONITORID", O.NotNull)
 
-  def statusNum = column[Int]("STATUSNUM", O NotNull)
+  def statusNum = column[Int]("STATUSNUM", O.NotNull)
 
-  def retrievedAt = column[Date]("RETRIEVEDAT", O NotNull)
+  def retrievedAt = column[Date]("RETRIEVEDAT", O.NotNull)
 
-  def valuesJson = column[String]("VALUESJSON", O NotNull)
+  def valuesJson = column[String]("VALUESJSON", O.NotNull)
 
   def * = id.? ~ statusMonitorId ~ statusNum ~ retrievedAt ~ valuesJson <>((apply _).tupled, unapply _)
 

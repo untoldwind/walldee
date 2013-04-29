@@ -42,15 +42,15 @@ case class Story(
 object Story extends Table[Story]("STORY") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def sprintId = column[Long]("SPRINTID", O NotNull)
+  def sprintId = column[Long]("SPRINTID", O.NotNull)
 
-  def tag = column[String]("TAG", O NotNull)
+  def tag = column[String]("TAG", O.NotNull)
 
-  def description = column[String]("DESCRIPTION", O NotNull)
+  def description = column[String]("DESCRIPTION", O.NotNull)
 
-  def points = column[Int]("POINTS", O NotNull)
+  def points = column[Int]("POINTS", O.NotNull)
 
   def * = id.? ~ sprintId ~ tag ~ description ~ points <> ((apply _).tupled, unapply _)
 

@@ -45,17 +45,17 @@ case class Display(id: Option[Long],
 object Display extends Table[Display]("DISPLAY") {
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  def id = column[Long]("ID", O PrimaryKey, O AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def name = column[String]("NAME", O NotNull)
+  def name = column[String]("NAME", O.NotNull)
 
-  def projectId = column[Long]("PROJECTID", O NotNull)
+  def projectId = column[Long]("PROJECTID", O.NotNull)
 
   def teamId = column[Long]("TEAMID")
 
-  def styleNum = column[Int]("STYLENUM", O NotNull)
+  def styleNum = column[Int]("STYLENUM", O.NotNull)
 
-  def refreshTime = column[Int]("REFRESHTIME", O NotNull)
+  def refreshTime = column[Int]("REFRESHTIME", O.NotNull)
 
   def useLongPolling = column[Boolean]("USELONGPOLLING")
 

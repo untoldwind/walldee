@@ -13,7 +13,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 object Clock extends Widget[ClockConfig] {
   override def renderHtml(display: Display, displayItem: DisplayItem): Html = {
     val next = 60L * 1000L + 50 - (System.currentTimeMillis() % (60L * 1000))
-    Akka.system.scheduler.scheduleOnce(next millis, Global.displayUpdater, displayItem)
+    Akka.system.scheduler.scheduleOnce(next.millis, Global.displayUpdater, displayItem)
     views.html.display.widgets.clock.render(display, displayItem)
   }
 }
