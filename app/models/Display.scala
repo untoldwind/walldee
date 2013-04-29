@@ -10,7 +10,7 @@ case class Display(id: Option[Long],
                    name: String,
                    projectId: Option[Long],
                    teamId: Option[Long],
-                   styleNum:Int,
+                   styleNum: Int,
                    refreshTime: Int,
                    useLongPolling: Boolean,
                    relativeLayout: Boolean,
@@ -71,6 +71,11 @@ object Display extends Table[Display]("DISPLAY") {
   def findAll: Seq[Display] = database.withSession {
     implicit db: Session =>
       query.sortBy(d => d.name.asc).list
+  }
+
+  def findAllOther(displayId:Long): Seq[Display] = database.withSession {
+    implicit  db:Session =>
+      query.where(d => d.id =!= displayId).sortBy(d => d.name.asc).list
   }
 
   def findAllForProject(projectId: Long): Seq[Display] = database.withSession {

@@ -13,6 +13,7 @@ object DisplayWidgets extends Enumeration {
   val BuildStatus = Widget(BuildStatusConfig)
   val HostStatus = Widget(HostStatusConfig)
   val Metrics = Widget(MetricsConfig)
+  val SubDisplays = Widget(SubDisplaysConfig)
 
   implicit def valueToWidget(x: Value): Widget[WidgetConfig] = x.asInstanceOf[Widget[WidgetConfig]]
 

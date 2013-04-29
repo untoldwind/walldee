@@ -35,6 +35,7 @@ object Widget {
       case DisplayWidgets.BuildStatus => BuildStatus
       case DisplayWidgets.HostStatus => HostStatus
       case DisplayWidgets.Metrics => Metrics
+      case DisplayWidgets.SubDisplays => SubDisplays
     }
   }
 

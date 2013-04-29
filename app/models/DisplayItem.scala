@@ -126,6 +126,11 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
 
   def query = Query(this)
 
+  def findAllOfWidgetType(widgetType: DisplayWidgets.Type) = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.widgetNum === widgetType.id).sortBy(d => d.id.asc).list
+  }
+
   def findAllForDisplay(displayId: Long): Seq[DisplayItem] = database.withSession {
     implicit db: Session =>
       query.where(d => d.displayId === displayId).sortBy(d => d.id.asc).list

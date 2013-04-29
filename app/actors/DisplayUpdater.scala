@@ -11,6 +11,7 @@ import play.api.libs.concurrent.Redeemable
 import utils.{DisplayUpdate, RenderedWidget}
 import actors.DisplayUpdater.{CheckListeners, FindUpdates}
 import scala.collection.mutable
+import models.widgetConfigs.SubDisplaysConfig
 
 class DisplayUpdater extends Actor with SLF4JLogging {
   val listeners = mutable.ListBuffer.empty[FindUpdates]
@@ -89,6 +90,12 @@ class DisplayUpdater extends Actor with SLF4JLogging {
 
           Cache.set(cacheKey, rendered)
           self ! CheckListeners(display)
+
+          DisplayItem.findAllOfWidgetType(DisplayWidgets.SubDisplays).
+            filter(_.widgetConfig[SubDisplaysConfig].exists(_.displays.exists(_.displayId == display.id.get))).foreach {
+            subDisplayItem =>
+              self ! subDisplayItem
+          }
       }
 
     case findUpdates: FindUpdates =>

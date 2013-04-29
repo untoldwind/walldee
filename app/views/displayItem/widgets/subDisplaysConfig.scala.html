@@ -1,0 +1,34 @@
+@(configField: play.api.data.Field, otherDisplays: Seq[Display])
+
+<fieldset>
+<legend> Sub displays </legend>
+    <div id="displays">
+    @helper.repeat(configField("displays")) { display =>
+        <div id="display-@display.id">
+            @helper.select(display("displayId"), otherDisplays.map(display => display.id.get.toString -> "Display %s".format(display.name)))
+            @helper.inputText(display("duration"))
+            <a href="#" class="displayDelete"> Delete </a>
+        </div>
+    }
+    </div>
+    <a href="#" id="addDisplay">Add</a>
+</fieldset>
+
+<script type="text/html" id="displayTmpl">
+    <div id="display-@configField("displays[{idx}]").id">
+        @helper.select(configField("displays[{idx}]")("displayId"), otherDisplays.map(display => display.id.get.toString -> "Display %s".format(display.name)))
+        @helper.inputText(configField("displays[{idx}]")("duration"))
+        <a href="#" class="displayDelete"> Delete </a>
+    </div>
+</script>
+
+<script type="text/javascript">
+    $("#addDisplay").click(function () {
+        var tmpl = $("#displayTmpl").html();
+        var idx = $("#displays").children().length;
+        $("#displays").append(tmpl.replace(/\{idx\}/g, idx))
+    });
+    $("a.displayDelete").click(function(e) {
+        log($(this).parent().remove())
+    });
+</script>

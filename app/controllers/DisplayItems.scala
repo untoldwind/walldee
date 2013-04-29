@@ -4,7 +4,7 @@ import play.api.mvc.{Action, Controller}
 import models.{Team, Project, Display, DisplayItem}
 import play.api.data.Form
 import play.api.data.Forms._
-import widgets.{Widget, Clock, SprintTitle, Burndown}
+import widgets.Widget
 import models.widgetConfigs._
 
 object DisplayItems extends Controller {
@@ -37,7 +37,7 @@ object DisplayItems extends Controller {
       display <- Display.findById(displayId)
       displayItem <- DisplayItem.findById(displayItemId)
     } yield {
-      Ok(views.html.displayItem.edit(display, displayItem, Project.findAll, Team.findAll,
+      Ok(views.html.displayItem.edit(display, displayItem, Display.findAllOther(display.id.get), Project.findAll, Team.findAll,
         displayItemForm(displayItem)))
     }).getOrElse(NotFound)
   }
@@ -49,7 +49,7 @@ object DisplayItems extends Controller {
         displayItem <- DisplayItem.findById(displayItemId)
       } yield {
         displayItemForm(displayItem).bindFromRequest.fold(
-        formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Project.findAll,
+        formWithErrors => BadRequest(views.html.displayItem.edit(display, displayItem, Display.findAllOther(display.id.get), Project.findAll,
           Team.findAll, formWithErrors)), {
           displayItem =>
             displayItem.update

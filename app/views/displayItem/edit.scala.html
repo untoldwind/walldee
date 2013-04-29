@@ -1,4 +1,4 @@
-@(display: Display, displayItem: DisplayItem, projects: Seq[Project], teams: Seq[Team], displayItemForm: Form[DisplayItem])
+@(display: Display, displayItem: DisplayItem, otherDisplays:Seq[Display], projects: Seq[Project], teams: Seq[Team], displayItemForm: Form[DisplayItem])
 @import models.utils.Breadcrumb
 
 @main(displayItem.widget.toString,
@@ -35,6 +35,7 @@
                     case DisplayWidgets.BuildStatus => widgets.buildStatusConfig(widgetConfig("BuildStatus"))
                     case DisplayWidgets.HostStatus => widgets.hostStatusConfig(widgetConfig("HostStatus"))
                     case DisplayWidgets.Metrics => widgets.metricsConfig(widgetConfig("Metrics"))
+                    case DisplayWidgets.SubDisplays => widgets.subDisplaysConfig(widgetConfig("SubDisplays"), otherDisplays)
                 }
             }
             <div class="actions">
