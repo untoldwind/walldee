@@ -1,26 +1,38 @@
-@(statusMonitors: Seq[StatusMonitor])
+@(statusMonitors: Map[StatusMonitorTypes.Type, Seq[StatusMonitor]])
 
-<thead>
-    <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Active</th>
-        <th>Last queried</th>
-        <th>Last updated</th>
-    </tr>
-</thead>
-<tbody>
-@statusMonitors.map { statusMonitor =>
-    <tr>
-        <td><a href="@routes.StatusMonitors.show(statusMonitor.id.get)">@statusMonitor.name</a></td>
-        <td>@statusMonitor.monitorType.toString</td>
-        <td>@if(statusMonitor.active) { Active } else { Inactive }</td>
-        <td>@views.utils.dateFormat(statusMonitor.lastQueried)</td>
-        <td>@views.utils.dateFormat(statusMonitor.lastUpdated)</td>
-        <td>
-            <a href="@routes.StatusMonitors.edit(statusMonitor.id.get)" class="edit">Edit</a>
-            @common.deleteLink(routes.StatusMonitors.delete(statusMonitor.id.get), "statusMonitor-list")
-        </td>
-    </tr>
+@StatusMonitorTypes.values.map { statusMonitorType =>
+
+    <h1>@statusMonitorType.toString</h1>
+
+    <table id="statusMonitor-list">
+        <thead>
+            <tr>
+                <th> Name </th>
+                <th> Type </th>
+                <th> Active </th>
+                <th> Last queried </th>
+                <th> Last updated </th>
+            </tr>
+        </thead>
+        <tbody>
+
+                @statusMonitors(statusMonitorType).map { statusMonitor =>
+            <tr>
+                <td> <a href="@routes.StatusMonitors.show(statusMonitor.id.get)"> @statusMonitor.name </a> </td>
+                <td> @statusMonitor.monitorType.toString </td>
+                <td> @if(statusMonitor.active) {
+                        Active
+                    } else {
+                    Inactive
+                } </td>
+                <td> @views.utils.dateFormat(statusMonitor.lastQueried) </td>
+                <td> @views.utils.dateFormat(statusMonitor.lastUpdated) </td>
+                <td>
+                    <a href="@routes.StatusMonitors.edit(statusMonitor.id.get)" class="edit"> Edit </a>
+                        @common.deleteLink(routes.StatusMonitors.delete(statusMonitor.id.get), "statusMonitor-list")
+                </td>
+            </tr>
+                }
+        </tbody>
+    </table>
 }
-</tbody>

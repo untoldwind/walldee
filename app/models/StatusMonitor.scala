@@ -8,6 +8,7 @@ import play.api.libs.json.Json
 import statusMonitors.IcingaConfig
 import globals.Global
 import models.DateMapper.date2timestamp
+import scala.collection.mutable
 
 case class StatusMonitor(id: Option[Long],
                          projectId: Long,
@@ -150,6 +151,20 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
   def findAll: Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
       query.sortBy(s => s.name.asc).list
+  }
+
+  def findAllGroupedByType: Map[StatusMonitorTypes.Type, Seq[StatusMonitor]] = {
+    val byTypeBuilders = StatusMonitorTypes.values.toSeq.map {
+      statusMonitorType =>
+        statusMonitorType -> Seq.newBuilder[StatusMonitor]
+    }.toMap
+
+    findAll.foreach {
+      statusMonitor =>
+        byTypeBuilders(statusMonitor.monitorType) += statusMonitor
+    }
+
+    byTypeBuilders.mapValues(_.result())
   }
 
   def findAllActive: Seq[StatusMonitor] = database.withSession {

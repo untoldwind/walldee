@@ -1,17 +1,16 @@
-@(statusMonitors: Seq[StatusMonitor], projects:Seq[Project], form:Form[StatusMonitor])
+@(statusMonitors: Map[StatusMonitorTypes.Type, Seq[StatusMonitor]], projects: Seq[Project], form: Form[StatusMonitor])
 @import models.utils.Breadcrumb
 
 @main("Status monitors", Breadcrumb("Home", routes.Application.index, false) :: Breadcrumb("Status monitors", routes.StatusMonitors.index, true) :: Nil) {
 
-<table id="statusMonitor-list">
-    @list(statusMonitors)
-</table>
+    <div id="statusMonitor-list">
+        @list(statusMonitors)
+    </div>
 
-@helper.form(action = routes.StatusMonitors.create, 'id -> "statusMonitor-form") {
-@_fieldSet(projects, form)
-<div class="actions">
-    <input type="submit" class="btn primary" value="Create">
-</div>
-}
-
+    @helper.form(action = routes.StatusMonitors.create, 'id -> "statusMonitor-form") {
+        @_fieldSet(projects, form)
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Create">
+        </div>
+    }
 }

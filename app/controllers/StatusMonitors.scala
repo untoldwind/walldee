@@ -1,23 +1,24 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Project, StatusValue, StatusMonitor}
+import models.{StatusMonitorTypes, Project, StatusValue, StatusMonitor}
 import play.api.data._
 import play.api.data.Forms._
 import models.statusMonitors.{IcingaExpected, IcingaConfig}
+import scala.collection.mutable
 
 object StatusMonitors extends Controller {
   def index = Action {
-    Ok(views.html.statusMonitors.index(StatusMonitor.findAll, Project.findAll, statusMonitorForm()))
+    Ok(views.html.statusMonitors.index(StatusMonitor.findAllGroupedByType, Project.findAll, statusMonitorForm()))
   }
 
   def create = Action {
     implicit request =>
       statusMonitorForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.statusMonitors.index(StatusMonitor.findAll, Project.findAll, formWithErrors)), {
+      formWithErrors => BadRequest(views.html.statusMonitors.index(StatusMonitor.findAllGroupedByType, Project.findAll, formWithErrors)), {
         statusMonitor =>
           statusMonitor.insert
-          Ok(views.html.statusMonitors.index(StatusMonitor.findAll, Project.findAll, statusMonitorForm()))
+          Ok(views.html.statusMonitors.index(StatusMonitor.findAllGroupedByType, Project.findAll, statusMonitorForm()))
       })
   }
 
@@ -52,7 +53,7 @@ object StatusMonitors extends Controller {
     StatusMonitor.findById(statusMonitorId).map {
       statusMonitor =>
         statusMonitor.delete
-        Ok(views.html.statusMonitors.list(StatusMonitor.findAll))
+        Ok(views.html.statusMonitors.list(StatusMonitor.findAllGroupedByType))
     }.getOrElse(NotFound)
   }
 

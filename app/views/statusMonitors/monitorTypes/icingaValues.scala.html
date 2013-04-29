@@ -1,20 +1,38 @@
-@(statusValues:Seq[StatusValue])
+@(statusValues: Seq[StatusValue])
 
-<table>
-    <thead>
+<table class="statusMonitor-values">
+<thead>
     <tr>
-        <th>Status</th>
-        <td>Retrieved at</td>
-        <td>Host status</td>
+        <th> Status </th>
+        <td> Retrieved at </td>
+        <td> Host status </td>
     </tr>
-    </thead>
-    <tbody>
-    @statusValues.map { statusValue =>
-    <tr>
-        <td>@statusValue.status</td>
-        <td>@views.utils.dateFormat(statusValue.retrievedAt)</td>
-        <td>@statusValue.hostsStatus</td>
-    </tr>
-    }
-    </tbody>
+</thead>
+<tbody>
+        @statusValues.map { statusValue =>
+            <tr>
+                <td> @statusValue.status </td>
+                <td> @views.utils.dateFormat(statusValue.retrievedAt) </td>
+                <td>
+                    @statusValue.hostsStatus.map { hostStatus =>
+                        <ul>
+                            @hostStatus.groups.map { hostGroup =>
+                                <li> Hostgroup
+                                    <ul>
+                                        @hostGroup.hosts.map { host =>
+                                            <li>
+                                                @host.name : @host.hostStatus @host.serviceStatus
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    }.getOrElse {
+                        Invalid
+                        }
+                </td>
+            </tr>
+        }
+</tbody>
 </table>
