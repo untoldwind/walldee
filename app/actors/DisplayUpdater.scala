@@ -130,7 +130,7 @@ object DisplayUpdater {
           state.get(renderedWidget.id).map(_ != renderedWidget.etag).getOrElse(true)
       }
       val widgetIds = renderedWidgets.map(_.id).toSet
-      val removedIds = state.keys.filter(key => !widgetIds.contains(key) && !key.startsWith("sub-")).toSeq
+      val removedIds = state.keys.filter(!widgetIds.contains(_)).toSeq
       if (!changed.isEmpty || !removedIds.isEmpty) {
         result.redeem {
           DisplayUpdate(removedIds, changed, display.animationConfigJson)

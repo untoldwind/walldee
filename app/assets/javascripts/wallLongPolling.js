@@ -23,7 +23,7 @@ var longPolling = function () {
 
     function getUpdates(url, unit) {
         var state = {};
-        $("div.wall-widget").each(function () {
+        $("#displayItems > div.wall-widget").each(function () {
             state[$(this).attr("id")] = $(this).attr("etag");
         });
         $.ajax({
