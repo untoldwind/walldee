@@ -56,7 +56,7 @@ object JenkinsProcessor extends MonitorProcessor {
           lastBuild =>
             lastCompletedBuild.number != lastBuild.number
         }.getOrElse(false)
-        val json = Json.toJson(BuildStatus(lastCompletedBuild.number, running))
+        val json = Json.toJson(BuildStatus(lastCompletedBuild.number, running, jenkinsJob.name))
         jenkinsJob.lastStableBuild.map {
           case lastStableBuild if lastCompletedBuild.number == lastStableBuild.number =>
             updateStatus(statusMonitor, StatusTypes.Ok, json)

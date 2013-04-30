@@ -6,7 +6,22 @@ import play.api.libs.json._
 import models.statusValues.BuildStatus
 import play.api.libs.ws.Response
 
-case class TeamcityBuild(id: Long, number: String, status: String, running: Boolean)
+case class TeamcityBuildType(id: String, name: String, projectName: String)
+
+object TeamcityBuildType {
+
+  implicit object TeamcityBuildTypeReads extends Reads[TeamcityBuildType] {
+    override def reads(json: JsValue): JsResult[TeamcityBuildType] =
+      JsSuccess(TeamcityBuildType(
+        (json \ "id").as[String],
+        (json \ "name").as[String],
+        (json \ "projectName").as[String]
+      ))
+  }
+
+}
+
+case class TeamcityBuild(id: Long, number: String, status: String, running: Boolean, buildType: TeamcityBuildType)
 
 object TeamcityBuild {
 
@@ -16,7 +31,8 @@ object TeamcityBuild {
         (json \ "id").as[Long],
         (json \ "number").as[String],
         (json \ "status").as[String],
-        (json \ "running").asOpt[Boolean].getOrElse(false)
+        (json \ "running").asOpt[Boolean].getOrElse(false),
+        (json \ "buildType").as[TeamcityBuildType]
       ))
   }
 
@@ -34,7 +50,7 @@ object TeamcityProcessor extends MonitorProcessor {
   def process(statusMonitor: StatusMonitor, response: Response) {
     val teamcityBuild = response.json.as[TeamcityBuild]
 
-    val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running))
+    val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running, teamcityBuild.buildType.name))
     teamcityBuild.status match {
       case "SUCCESS" =>
         updateStatus(statusMonitor, StatusTypes.Ok, json)
