@@ -28,6 +28,10 @@ to created a backup first.
 Luckily creating a backup is easy: Just copy the walldee.h2.db file to somewhere else. Also note that walldee
 itself creates a backup on daily basis.
 
+# CI
+
+Is hosted by [Travis-CI](https://api.travis-ci.org/untoldwind/walldee) !(https://api.travis-ci.org/untoldwind/walldee.png)
+
 # Notes
 
 Large parts of the backend still look very very ugly. <do far most eye-candy went into the wall display itself.
