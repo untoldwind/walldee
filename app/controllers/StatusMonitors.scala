@@ -75,17 +75,17 @@ object StatusMonitors extends Controller {
       "icingaConfig" -> optional(icingaConfigMapping)
     )(StatusMonitor.formApply)(StatusMonitor.formUnapply)).fill(statusMonitor)
 
-  private val icingaConfigMapping = mapping(
+  private def icingaConfigMapping = mapping(
     "hostNameFilter" -> optional(regexMapping),
     "expected" -> seq(icingaExpectedMapping)
   )(IcingaConfig.apply)(IcingaConfig.unapply)
 
-  private val regexMapping = text.transform[Regex](
+  private def regexMapping = text.transform[Regex](
     str => str.r,
     regex => regex.toString()
   )
 
-  private val icingaExpectedMapping = mapping(
+  private def icingaExpectedMapping = mapping(
     "host" -> text,
     "criticals" -> number,
     "warnings" -> number
