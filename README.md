@@ -31,6 +31,7 @@ itself creates a backup on daily basis.
 # CI
 
 Is hosted by [Travis-CI](https://travis-ci.org/untoldwind/walldee)
+
 ![Build status](https://api.travis-ci.org/untoldwind/walldee.png)
 
 # Notes
