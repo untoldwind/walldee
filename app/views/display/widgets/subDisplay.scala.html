@@ -21,7 +21,7 @@
                         @Range(0, animatedSubDisplays.length).filter(_ != idx).map { otherIdx =>
                             $("#wall-subDisplay-@animatedSubDisplays(otherIdx)._1.displayId").clearQueue().hide();
                         }
-                        $("#wall-subDisplay-@subDisplay.displayId").clearQueue().fadeIn(300).delay(@subDisplay.duration).fadeOut(350, showSubDisplay@nextIdx);
+                        $("#wall-subDisplay-@subDisplay.displayId").clearQueue().fadeTo(1, 0.2, animations.animateElements).fadeTo(350, 1).delay(@subDisplay.duration).fadeTo(350, 0.2, showSubDisplay@nextIdx);
                     }
                 }
             }

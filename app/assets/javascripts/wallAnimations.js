@@ -82,7 +82,9 @@ var animations = (function () {
         nextCycle: function () {
             nextCycleQueued = false;
             applyAnimations();
-        }
+        },
+
+        animateElements: animateElements
     }
 })();
 
