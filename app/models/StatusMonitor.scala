@@ -23,7 +23,7 @@ case class StatusMonitor(id: Option[Long],
                          lastQueried: Option[Date],
                          lastUpdated: Option[Date],
                          configJson: Option[String]) {
-  def this() = this(None, 0, "", 0, "", None, None, true, 10, 60, None, None, None)
+  def this(projectId: Long) = this(None, projectId, "", 0, "", None, None, true, 10, 60, None, None, None)
 
   def config = configJson.map(Json.parse(_))
 
@@ -153,13 +153,13 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
       query.sortBy(s => s.name.asc).list
   }
 
-  def findAllGroupedByType: Map[StatusMonitorTypes.Type, Seq[StatusMonitor]] = {
+  def findAllGroupedByType(projectId: Long): Map[StatusMonitorTypes.Type, Seq[StatusMonitor]] = {
     val byTypeBuilders = StatusMonitorTypes.values.toSeq.map {
       statusMonitorType =>
         statusMonitorType -> Seq.newBuilder[StatusMonitor]
     }.toMap
 
-    findAll.foreach {
+    finaAllForProject(projectId).foreach {
       statusMonitor =>
         byTypeBuilders(statusMonitor.monitorType) += statusMonitor
     }
@@ -175,6 +175,11 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
   def findById(statusMonitorId: Long): Option[StatusMonitor] = database.withSession {
     implicit db: Session =>
       query.where(s => s.id === statusMonitorId).firstOption
+  }
+
+  def finaAllForProject(projectId: Long) = database.withSession {
+    implicit db: Session =>
+      query.where(s => s.projectId === projectId).sortBy(s => s.name.asc).list
   }
 
   def finaAllForProject(projectId: Long, types: Seq[StatusMonitorTypes.Type]): Seq[StatusMonitor] = database.withSession {

@@ -18,7 +18,7 @@
 
                 @statusMonitors(statusMonitorType).map { statusMonitor =>
             <tr>
-                <td> <a href="@routes.StatusMonitors.show(statusMonitor.id.get)"> @statusMonitor.name </a> </td>
+                <td> <a href="@routes.StatusMonitors.show(statusMonitor.projectId, statusMonitor.id.get)"> @statusMonitor.name </a> </td>
                 <td> @statusMonitor.monitorType.toString </td>
                 <td> @if(statusMonitor.active) {
                         Active
@@ -28,8 +28,8 @@
                 <td> @views.utils.dateFormat(statusMonitor.lastQueried) </td>
                 <td> @views.utils.dateFormat(statusMonitor.lastUpdated) </td>
                 <td>
-                    <a href="@routes.StatusMonitors.edit(statusMonitor.id.get)" class="edit"> Edit </a>
-                        @common.deleteLink(routes.StatusMonitors.delete(statusMonitor.id.get), "statusMonitor-list")
+                    <a href="@routes.StatusMonitors.edit(statusMonitor.projectId, statusMonitor.id.get)" class="edit"> Edit </a>
+                        @common.deleteLink(routes.StatusMonitors.delete(statusMonitor.projectId, statusMonitor.id.get), "statusMonitor-list")
                 </td>
             </tr>
                 }

@@ -1,18 +1,21 @@
-@(statusMonitor:StatusMonitor, statusValues:Seq[StatusValue])
+@(project: Project, statusMonitor: StatusMonitor, statusValues: Seq[StatusValue])
 @import models.utils.Breadcrumb
 
-@main(statusMonitor.name,
-Breadcrumb("Home", routes.Application.index, false) ::
-Breadcrumb("Status monitors", routes.StatusMonitors.index, false) ::
-Breadcrumb(statusMonitor.name, routes.StatusMonitors.show(statusMonitor.id.get), true) :: Nil) {
+@main("Project " + project.name,
+    Breadcrumb("Home", routes.Application.index, false) ::
+            Breadcrumb("Projects", routes.Projects.index, false) ::
+                    Breadcrumb(project.name, routes.Projects.show(project.id.get), false) ::
+                            Breadcrumb(statusMonitor.name, routes.StatusMonitors.show(project.id.get, statusMonitor.id.get), true) :: Nil) {
 
-<h1>@statusMonitor.name</h1>
+    <h1>@statusMonitor.name</h1>
 
-@{statusMonitor.monitorType match {
-    case StatusMonitorTypes.Jenkins => monitorTypes.jenkinsValues(statusValues)
-    case StatusMonitorTypes.Sonar => monitorTypes.sonarValues(statusValues)
-    case StatusMonitorTypes.Icinga => monitorTypes.icingaValues(statusValues)
-    case StatusMonitorTypes.Teamcity => monitorTypes.teamcityValues(statusValues)
-}}
+    @{
+        statusMonitor.monitorType match {
+            case StatusMonitorTypes.Jenkins => monitorTypes.jenkinsValues(statusValues)
+            case StatusMonitorTypes.Sonar => monitorTypes.sonarValues(statusValues)
+            case StatusMonitorTypes.Icinga => monitorTypes.icingaValues(statusValues)
+            case StatusMonitorTypes.Teamcity => monitorTypes.teamcityValues(statusValues)
+        }
+    }
 
 }

@@ -9,59 +9,69 @@ import scala.collection.mutable
 import scala.util.matching.Regex
 
 object StatusMonitors extends Controller {
-  def index = Action {
-    Ok(views.html.statusMonitors.index(StatusMonitor.findAllGroupedByType, Project.findAll, statusMonitorForm()))
-  }
-
-  def create = Action {
+  def create(projectId: Long) = Action {
     implicit request =>
-      statusMonitorForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.statusMonitors.index(StatusMonitor.findAllGroupedByType, Project.findAll, formWithErrors)), {
-        statusMonitor =>
-          statusMonitor.insert
-          Ok(views.html.statusMonitors.index(StatusMonitor.findAllGroupedByType, Project.findAll, statusMonitorForm()))
-      })
-  }
-
-  def show(statusMonitorId: Long) = Action {
-    StatusMonitor.findById(statusMonitorId).map {
-      statusMonitor =>
-        Ok(views.html.statusMonitors.show(statusMonitor, StatusValue.findAllForStatusMonitor(statusMonitorId)))
-    }.getOrElse(NotFound)
-  }
-
-  def edit(statusMonitorId: Long) = Action {
-    StatusMonitor.findById(statusMonitorId).map {
-      statusMonitor =>
-        Ok(views.html.statusMonitors.edit(statusMonitor, Project.findAll, statusMonitorForm(statusMonitor)))
-    }.getOrElse(NotFound)
-  }
-
-  def update(statusMonitorId: Long) = Action {
-    implicit request =>
-      StatusMonitor.findById(statusMonitorId).map {
-        statusMonitor =>
-          statusMonitorForm(statusMonitor).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.statusMonitors.edit(statusMonitor, Project.findAll, formWithErrors)), {
+      Project.findById(projectId).map {
+        project =>
+          statusMonitorForm(projectId).bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), Projects.projectForm(project), formWithErrors)), {
             statusMonitor =>
-              statusMonitor.update
-              Ok(views.html.statusMonitors.edit(statusMonitor, Project.findAll, statusMonitorForm(statusMonitor)))
+              statusMonitor.insert
+              Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), Projects.projectForm(project), statusMonitorForm(projectId)))
           })
       }.getOrElse(NotFound)
   }
 
-  def delete(statusMonitorId: Long) = Action {
-    StatusMonitor.findById(statusMonitorId).map {
-      statusMonitor =>
-        statusMonitor.delete
-        Ok(views.html.statusMonitors.list(StatusMonitor.findAllGroupedByType))
-    }.getOrElse(NotFound)
+  def show(projectId: Long, statusMonitorId: Long) = Action {
+    (for {
+      project <- Project.findById(projectId)
+      statusMonitor <- StatusMonitor.findById(statusMonitorId)
+    } yield {
+      Ok(views.html.statusMonitors.show(project, statusMonitor, StatusValue.findAllForStatusMonitor(statusMonitorId)))
+    }).getOrElse(NotFound)
   }
 
-  private def statusMonitorForm(statusMonitor: StatusMonitor = new StatusMonitor): Form[StatusMonitor] = Form(
+  def edit(projectId: Long, statusMonitorId: Long) = Action {
+    (for {
+      project <- Project.findById(projectId)
+      statusMonitor <- StatusMonitor.findById(statusMonitorId)
+    } yield {
+      Ok(views.html.statusMonitors.edit(project, statusMonitor,  statusMonitorForm(statusMonitor)))
+    }).getOrElse(NotFound)
+  }
+
+  def update(projectId: Long, statusMonitorId: Long) = Action {
+    implicit request =>
+      (for {
+        project <- Project.findById(projectId)
+        statusMonitor <- StatusMonitor.findById(statusMonitorId)
+      } yield {
+        statusMonitorForm(statusMonitor).bindFromRequest.fold(
+        formWithErrors => BadRequest(views.html.statusMonitors.edit(project, statusMonitor,  formWithErrors)), {
+          statusMonitor =>
+            statusMonitor.update
+            Ok(views.html.statusMonitors.edit(project, statusMonitor,  statusMonitorForm(statusMonitor)))
+        })
+      }).getOrElse(NotFound)
+  }
+
+  def delete(projectId: Long, statusMonitorId: Long) = Action {
+    (for {
+      project <- Project.findById(projectId)
+      statusMonitor <- StatusMonitor.findById(statusMonitorId)
+    } yield {
+      statusMonitor.delete
+      Ok(views.html.statusMonitors.list(StatusMonitor.findAllGroupedByType(projectId)))
+    }).getOrElse(NotFound)
+  }
+
+  def statusMonitorForm(projectId: Long): Form[StatusMonitor] =
+    statusMonitorForm(new StatusMonitor(projectId))
+
+  private def statusMonitorForm(statusMonitor: StatusMonitor): Form[StatusMonitor] = Form(
     mapping(
       "id" -> ignored(statusMonitor.id),
-      "projectId" -> longNumber,
+      "projectId" -> ignored(statusMonitor.projectId),
       "name" -> text,
       "typeNum" -> number,
       "url" -> text(),

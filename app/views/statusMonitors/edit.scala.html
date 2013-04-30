@@ -1,20 +1,23 @@
-@(statusMonitor:StatusMonitor, projects:Seq[Project], form:Form[StatusMonitor])
+@(project: Project, statusMonitor: StatusMonitor, form: Form[StatusMonitor])
 @import models.utils.Breadcrumb
 
 @main(statusMonitor.name,
     Breadcrumb("Home", routes.Application.index, false) ::
-    Breadcrumb("Status monitors", routes.StatusMonitors.index, false) ::
-    Breadcrumb(statusMonitor.name, routes.StatusMonitors.edit(statusMonitor.id.get), true) :: Nil) {
+            Breadcrumb("Projects", routes.Projects.index(), false) ::
+                    Breadcrumb(project.name, routes.Projects.show(project.id.get), false) ::
+                            Breadcrumb(statusMonitor.name, routes.StatusMonitors.edit(project.id.get, statusMonitor.id.get), true) :: Nil) {
 
-@helper.form(action = routes.StatusMonitors.update(statusMonitor.id.get), 'id -> "statusMonitor-form") {
-@_fieldSet(projects, form)
-@{statusMonitor.monitorType match {
-  case StatusMonitorTypes.Icinga => monitorTypes.icingaConfig(form("icingaConfig"))
-  case _ => Html("")
-}}
-<div class="actions">
-    <input type="submit" class="btn primary" value="Update">
-</div>
-}
+    @helper.form(action = routes.StatusMonitors.update(project.id.get, statusMonitor.id.get), 'id -> "statusMonitor-form") {
+        @_fieldSet(form)
+        @{
+            statusMonitor.monitorType match {
+                case StatusMonitorTypes.Icinga => monitorTypes.icingaConfig(form("icingaConfig"))
+                case _ => Html("")
+            }
+        }
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Update">
+        </div>
+    }
 
 }

@@ -1,10 +1,9 @@
-@(projects:Seq[Project], form:Form[StatusMonitor])
+@(form:Form[StatusMonitor])
 
 <fieldset>
     <legend>Status monitor</legend>
     @helper.inputText(form("name"), '_label -> "Name")
     @helper.select(form("typeNum"), models.StatusMonitorTypes.values.toSeq.map(t => t.id.toString -> t.toString), '_label -> "Type")
-    @helper.select(form("projectId"), projects.map(project => project.id.get.toString -> "Project %s".format(project.name)), '_label -> "Project")
     @helper.inputText(form("url"), '_label -> "Url")
     @helper.inputText(form("username"), '_label -> "Username")
     @helper.inputText(form("password"), '_label -> "Password")

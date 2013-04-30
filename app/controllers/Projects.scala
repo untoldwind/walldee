@@ -10,6 +10,14 @@ object Projects extends Controller {
     Ok(views.html.projects.index(Project.findAll, projectForm()))
   }
 
+  def show(projectId: Long) = Action {
+    Project.findById(projectId).map {
+      project =>
+        Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), projectForm(project),
+          StatusMonitors.statusMonitorForm(projectId)))
+    }.getOrElse(NotFound)
+  }
+
   def create = Action {
     implicit request =>
       projectForm().bindFromRequest.fold(
@@ -20,22 +28,17 @@ object Projects extends Controller {
       })
   }
 
-  def edit(projectId: Long) = Action {
-    Project.findById(projectId).map {
-      project =>
-        Ok(views.html.projects.edit(project, projectForm(project)))
-    }.getOrElse(NotFound)
-  }
-
   def update(projectId: Long) = Action {
     implicit request =>
       Project.findById(projectId).map {
         project =>
           projectForm(project).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.projects.edit(project, formWithErrors)), {
+          formWithErrors => BadRequest(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), formWithErrors,
+            StatusMonitors.statusMonitorForm(projectId))), {
             project =>
               project.update
-              Ok(views.html.projects.edit(project, projectForm(project)))
+              Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), projectForm(project),
+                StatusMonitors.statusMonitorForm(projectId)))
           })
       }.getOrElse(NotFound)
   }
@@ -48,7 +51,7 @@ object Projects extends Controller {
     }.getOrElse(NotFound)
   }
 
-  private def projectForm(project: Project = new Project): Form[Project] = Form(
+  def projectForm(project: Project = new Project): Form[Project] = Form(
     mapping(
       "id" -> ignored(project.id),
       "name" -> text(maxLength = 255)

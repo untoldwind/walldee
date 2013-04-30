@@ -8,9 +8,8 @@
 <tbody>
 @projects.map { project =>
 <tr>
-    <td>@project.name</td>
+    <td><a href="@routes.Projects.show(project.id.get)">@project.name</a></td>
     <td>
-        <a href="@routes.Projects.edit(project.id.get)" class="edit">Edit</a>
         @common.deleteLink(routes.Projects.delete(project.id.get), "project-list")
     </td>
 </tr>
