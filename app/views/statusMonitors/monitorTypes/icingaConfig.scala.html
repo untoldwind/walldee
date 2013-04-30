@@ -3,6 +3,7 @@
 <fieldset>
     <legend>Icinga</legend>
     <div id="items">
+        @helper.inputText(configField("hostNameFilter"))
         @helper.repeat(configField("expected")) { item =>
         <div id="item-@item.id">
             @helper.inputText(item("host"))

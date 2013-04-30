@@ -3,6 +3,7 @@ package models.statusMonitors
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
+import scala.util.matching.Regex
 
 case class IcingaExpected(host: String, criticals: Int, warnings: Int)
 
@@ -23,17 +24,19 @@ object IcingaExpected {
 
 }
 
-case class IcingaConfig(expected: Seq[IcingaExpected] = Seq.empty)
+case class IcingaConfig(hostNameFilter: Option[Regex] = None, expected: Seq[IcingaExpected] = Seq.empty)
 
 object IcingaConfig {
 
   implicit object IcingaConfigFormat extends Format[IcingaConfig] {
     override def reads(json: JsValue): JsResult[IcingaConfig] =
       JsSuccess(IcingaConfig(
+        (json \ "hostNameFilter").asOpt[String].map(_.r),
         (json \ "expected").as[Seq[IcingaExpected]]))
 
     override def writes(icingaConfig: IcingaConfig): JsValue = JsObject(
-      Seq("expected" -> Json.toJson(icingaConfig.expected)))
+      icingaConfig.hostNameFilter.map(_.toString()).map("hostNameFilter" -> JsString(_)).toSeq ++
+        Seq("expected" -> Json.toJson(icingaConfig.expected)))
   }
 
 }

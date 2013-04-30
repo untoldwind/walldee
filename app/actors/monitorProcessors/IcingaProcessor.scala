@@ -81,11 +81,19 @@ object IcingaProcessor extends MonitorProcessor {
   def process(statusMonitor: StatusMonitor, response: Response) {
     val icingaOverview = response.json.as[IcingaOverview]
 
+    val hostFilter = statusMonitor.icingaConfig.flatMap(_.hostNameFilter).map {
+      hostNameFilter => {
+        host: IcingaHost => hostNameFilter.pattern.matcher(host.hostName).matches()
+      }
+    }.getOrElse({
+      host: IcingaHost => true
+    })
+
     val expecteds = statusMonitor.icingaConfig.map(_.expected.map(expected => expected.host -> expected).toMap).getOrElse(Map.empty)
     var status = StatusTypes.Ok
     val icingaStatus = HostsStatus(icingaOverview.status.hostgroups.map {
       hostgroup =>
-        HostsGroup(hostgroup.members.map {
+        HostsGroup(hostgroup.members.filter(hostFilter).map {
           host =>
             val hostStatus = if (host.hostStatus == "UP") HostStatusTypes.Up else HostStatusTypes.Down
             val expected = expecteds.get(host.hostName)

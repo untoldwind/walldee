@@ -2,6 +2,7 @@ package models
 
 import models.widgetConfigs._
 import play.api.libs.json.Json
+import scala.language.implicitConversions
 
 object DisplayWidgets extends Enumeration {
   type Type = Value

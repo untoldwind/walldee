@@ -12,6 +12,11 @@ import models._
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
+import models.statusValues._
+import play.api.libs.ws.Response
+import scala.Some
+import play.api.test.FakeApplication
+import models.statusMonitors.IcingaConfig
 
 class IcingaProcessorSpec extends Specification with Mockito {
   "Icinga processor" should {
@@ -59,6 +64,52 @@ class IcingaProcessorSpec extends Specification with Mockito {
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
         statusValues(0).status must be_==(StatusTypes.Failure)
+        statusValues(0).hostsStatus must be_==(Some(
+          HostsStatus(Seq(HostsGroup(Seq(HostStatus("host1",HostStatusTypes.Up,HostServiceStatusTypes.Critical),
+            HostStatus("host2",HostStatusTypes.Up,HostServiceStatusTypes.Ok),
+            HostStatus("host3",HostStatusTypes.Up,HostServiceStatusTypes.Critical),
+            HostStatus("host4",HostStatusTypes.Up,HostServiceStatusTypes.Ok),
+            HostStatus("host5",HostStatusTypes.Up,HostServiceStatusTypes.Ok)))))))
+      }
+    }
+
+    "apply the hostname filter" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val project = Project(Some(1), "Project")
+
+        project.insert
+
+        val icingaConfig = IcingaConfig(hostNameFilter = Some("""host[45]""".r))
+        val statusMonitor =
+          StatusMonitor(
+            id = Some(1),
+            projectId = 1,
+            name = "Monitor",
+            typeNum = StatusMonitorTypes.Icinga.id,
+            url = "http://localhost",
+            username = None,
+            password = None,
+            active = true,
+            keepHistory = 10,
+            updatePeriod = 60,
+            lastQueried = None,
+            lastUpdated = None,
+            configJson = Some(Json.stringify(Json.toJson(icingaConfig)))
+          )
+
+        statusMonitor.insert
+
+        val response = sucessfulJobResponse
+
+        IcingaProcessor.process(statusMonitor, response)
+
+        val statusValues = StatusValue.findAllForStatusMonitor(1)
+        statusValues must have size (1)
+        statusValues(0).status must be_==(StatusTypes.Ok)
+        statusValues(0).hostsStatus must be_==(Some(
+          HostsStatus(Seq(HostsGroup(Seq(
+            HostStatus("host4",HostStatusTypes.Up,HostServiceStatusTypes.Ok),
+            HostStatus("host5",HostStatusTypes.Up,HostServiceStatusTypes.Ok)))))))
       }
     }
   }

@@ -6,6 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import models.statusMonitors.{IcingaExpected, IcingaConfig}
 import scala.collection.mutable
+import scala.util.matching.Regex
 
 object StatusMonitors extends Controller {
   def index = Action {
@@ -74,11 +75,17 @@ object StatusMonitors extends Controller {
       "icingaConfig" -> optional(icingaConfigMapping)
     )(StatusMonitor.formApply)(StatusMonitor.formUnapply)).fill(statusMonitor)
 
-  private def icingaConfigMapping = mapping(
+  private val icingaConfigMapping = mapping(
+    "hostNameFilter" -> optional(regexMapping),
     "expected" -> seq(icingaExpectedMapping)
   )(IcingaConfig.apply)(IcingaConfig.unapply)
 
-  private def icingaExpectedMapping = mapping(
+  private val regexMapping = text.transform[Regex](
+    str => str.r,
+    regex => regex.toString()
+  )
+
+  private val icingaExpectedMapping = mapping(
     "host" -> text,
     "criticals" -> number,
     "warnings" -> number

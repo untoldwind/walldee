@@ -34,12 +34,12 @@ object HostStatusConfig extends WidgetConfigMapper[HostStatusConfig] {
         hostStatusConfig.labelFont.map("labelFont" -> JsString(_)).toSeq ++
         hostStatusConfig.labelSize.map("labelSize" -> JsNumber(_)).toSeq ++
         hostStatusConfig.columns.map("columns" -> JsNumber(_)).toSeq ++
-        hostStatusConfig.hostNamePattern.map(_.toString).map("hostNamePattern" -> JsString(_)).toSeq)
+        hostStatusConfig.hostNamePattern.map(_.toString()).map("hostNamePattern" -> JsString(_)).toSeq)
   }
 
   val regexMapping = text.transform[Regex](
     str => str.r,
-    regex => regex.toString
+    regex => regex.toString()
   )
 
   implicit val formMapping = mapping(
