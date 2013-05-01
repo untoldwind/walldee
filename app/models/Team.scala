@@ -12,14 +12,14 @@ case class Team(id: Option[Long],
   def this() = this(None, "", None)
 
   def insert = {
-    Project.database.withSession {
+    Team.database.withSession {
       implicit db: Session =>
         Team.insert(this)
     }
   }
 
   def update = {
-    Project.database.withSession {
+    Team.database.withSession {
       implicit db: Session =>
         Team.where(_.id === id).update(this)
     }
@@ -27,7 +27,7 @@ case class Team(id: Option[Long],
   }
 
   def delete = {
-    Project.database.withTransaction {
+    Team.database.withTransaction {
       implicit db: Session =>
         Team.where(_.id === id).delete
     }

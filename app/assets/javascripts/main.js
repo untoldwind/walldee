@@ -24,9 +24,7 @@ $(document).on("click", ".delete dd a", function(e) {
     $.ajax({
 		url: href,
 		type: "DELETE",
-		success: function(result) {
-			$(ref).html(result);
-		},
+        dataType: "script",
 		error: function(request, error, exception) {
 			alert(exception);
 		}

@@ -40,11 +40,11 @@ object Teams extends Controller {
       }.getOrElse(NotFound)
   }
 
-  def delete(projectId: Long) = Action {
-    Team.findById(projectId).map {
+  def delete(teamId: Long) = Action {
+    Team.findById(teamId).map {
       team =>
         team.delete
-        Ok(views.html.teams.list(Team.findAll))
+        Ok(views.js.utils.jsReplace("team-list", views.html.teams.list(Team.findAll)))
     }.getOrElse(NotFound)
   }
 

@@ -142,7 +142,8 @@ object Displays extends Controller {
       Display.findById(displayId).map {
         display =>
           display.delete
-          Ok(views.html.display.list(Display.findAll))
+          Ok(views.js.utils.jsReplace("display-list",
+            views.html.display.list(Display.findAll)))
       }.getOrElse(NotFound)
   }
 

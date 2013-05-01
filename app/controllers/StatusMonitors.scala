@@ -36,7 +36,7 @@ object StatusMonitors extends Controller {
       project <- Project.findById(projectId)
       statusMonitor <- StatusMonitor.findById(statusMonitorId)
     } yield {
-      Ok(views.html.statusMonitors.edit(project, statusMonitor,  statusMonitorForm(statusMonitor)))
+      Ok(views.html.statusMonitors.edit(project, statusMonitor, statusMonitorForm(statusMonitor)))
     }).getOrElse(NotFound)
   }
 
@@ -47,10 +47,10 @@ object StatusMonitors extends Controller {
         statusMonitor <- StatusMonitor.findById(statusMonitorId)
       } yield {
         statusMonitorForm(statusMonitor).bindFromRequest.fold(
-        formWithErrors => BadRequest(views.html.statusMonitors.edit(project, statusMonitor,  formWithErrors)), {
+        formWithErrors => BadRequest(views.html.statusMonitors.edit(project, statusMonitor, formWithErrors)), {
           statusMonitor =>
             statusMonitor.update
-            Ok(views.html.statusMonitors.edit(project, statusMonitor,  statusMonitorForm(statusMonitor)))
+            Ok(views.html.statusMonitors.edit(project, statusMonitor, statusMonitorForm(statusMonitor)))
         })
       }).getOrElse(NotFound)
   }
@@ -61,7 +61,8 @@ object StatusMonitors extends Controller {
       statusMonitor <- StatusMonitor.findById(statusMonitorId)
     } yield {
       statusMonitor.delete
-      Ok(views.html.statusMonitors.list(StatusMonitor.findAllGroupedByType(projectId)))
+      Ok(views.js.utils.jsReplace("statusMonitor-list",
+        views.html.statusMonitors.list(StatusMonitor.findAllGroupedByType(projectId))))
     }).getOrElse(NotFound)
   }
 

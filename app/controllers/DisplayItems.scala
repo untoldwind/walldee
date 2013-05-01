@@ -65,7 +65,8 @@ object DisplayItems extends Controller {
         displayItem <- DisplayItem.findById(displayItemId)
       } yield {
         displayItem.delete
-        Ok(views.html.displayItem.list(display, DisplayItem.findAllForDisplay(displayId)))
+        Ok(views.js.utils.jsReplace("displayItem-list",
+          views.html.displayItem.list(display, DisplayItem.findAllForDisplay(displayId))))
       }).getOrElse(NotFound)
   }
 

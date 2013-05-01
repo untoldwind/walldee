@@ -18,7 +18,13 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here
-    scalacOptions += "-feature"
+    scalacOptions += "-feature",
+    templatesTypes := {
+      case "html" => ("play.api.templates.Html", "play.api.templates.HtmlFormat")
+      case "txt" => ("play.api.templates.Txt", "play.api.templates.TxtFormat")
+      case "xml" => ("play.api.templates.Xml", "play.api.templates.XmlFormat")
+      case "js" => ("templates.Js", "templates.JsFormat")
+    }
   )
 
 }
