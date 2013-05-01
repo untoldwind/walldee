@@ -47,7 +47,7 @@ object Projects extends Controller {
     Project.findById(projectId).map {
       project =>
         project.delete
-        Ok(views.js.utils.jsReplace("project-list", views.html.projects.list(Project.findAll)))
+        Ok(views.js.projects.ajaxList(Project.findAll))
     }.getOrElse(NotFound)
   }
 

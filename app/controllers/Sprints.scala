@@ -65,8 +65,7 @@ object Sprints extends Controller {
         sprint <- Sprint.findById(sprintId)
       } yield {
         sprint.delete
-        Ok(views.js.utils.jsReplace("sprint-list",
-          views.html.sprints.list(Sprint.findAllForTeam(teamId))))
+        Ok(views.js.sprints.ajaxList(Sprint.findAllForTeam(teamId)))
       }).getOrElse(NotFound)
   }
 

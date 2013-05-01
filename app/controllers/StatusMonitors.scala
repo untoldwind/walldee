@@ -61,8 +61,7 @@ object StatusMonitors extends Controller {
       statusMonitor <- StatusMonitor.findById(statusMonitorId)
     } yield {
       statusMonitor.delete
-      Ok(views.js.utils.jsReplace("statusMonitor-list",
-        views.html.statusMonitors.list(StatusMonitor.findAllGroupedByType(projectId))))
+      Ok(views.js.statusMonitors.ajaxList(StatusMonitor.findAllGroupedByType(projectId)))
     }).getOrElse(NotFound)
   }
 

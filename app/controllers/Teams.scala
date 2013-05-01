@@ -44,7 +44,7 @@ object Teams extends Controller {
     Team.findById(teamId).map {
       team =>
         team.delete
-        Ok(views.js.utils.jsReplace("team-list", views.html.teams.list(Team.findAll)))
+        Ok(views.js.teams.ajaxList(Team.findAll))
     }.getOrElse(NotFound)
   }
 
