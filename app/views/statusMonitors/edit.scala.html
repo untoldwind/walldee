@@ -12,6 +12,7 @@
         @{
             statusMonitor.monitorType match {
                 case StatusMonitorTypes.Icinga => monitorTypes.icingaConfig(form("icingaConfig"))
+                case StatusMonitorTypes.Freestyle => monitorTypes.freestyleConfig(form("freestyleConfig"))
                 case _ => Html("")
             }
         }

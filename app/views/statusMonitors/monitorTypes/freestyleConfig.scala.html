@@ -1,0 +1,10 @@
+@(configField:play.api.data.Field)
+@import models.statusMonitors.FreestyleTypes
+
+<fieldset>
+<legend>Freestyle</legend>
+<div id="items">
+    @helper.select(configField("freestyleType"), FreestyleTypes.values.map(t => t.id.toString -> t.toString).toSeq)
+    @helper.inputText(configField("selector"))
+</div>
+</fieldset>

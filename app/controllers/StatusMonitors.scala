@@ -1,11 +1,10 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{StatusMonitorTypes, Project, StatusValue, StatusMonitor}
+import models.{Project, StatusValue, StatusMonitor}
 import play.api.data._
 import play.api.data.Forms._
-import models.statusMonitors.{IcingaExpected, IcingaConfig}
-import scala.collection.mutable
+import models.statusMonitors.{FreestyleTypes, FreestyleConfig, IcingaExpected, IcingaConfig}
 import scala.util.matching.Regex
 
 object StatusMonitors extends Controller {
@@ -82,13 +81,24 @@ object StatusMonitors extends Controller {
       "updatePeriod" -> number,
       "lastQueried" -> ignored(statusMonitor.lastQueried),
       "lastUpdated" -> ignored(statusMonitor.lastUpdated),
-      "icingaConfig" -> optional(icingaConfigMapping)
+      "icingaConfig" -> optional(icingaConfigMapping),
+      "freestyleConfig" -> optional(freestyleConfigMapping)
     )(StatusMonitor.formApply)(StatusMonitor.formUnapply)).fill(statusMonitor)
 
   private def icingaConfigMapping = mapping(
     "hostNameFilter" -> optional(regexMapping),
     "expected" -> seq(icingaExpectedMapping)
   )(IcingaConfig.apply)(IcingaConfig.unapply)
+
+  private def freestyleConfigMapping = mapping(
+    "freestyleType" -> freestyleTypeMapping,
+    "selector" -> optional(text)
+  )(FreestyleConfig.apply)(FreestyleConfig.unapply)
+
+  private def freestyleTypeMapping = number.transform[FreestyleTypes.Type](
+    i => FreestyleTypes(i),
+    freestyleType => freestyleType.id
+  )
 
   private def regexMapping = text.transform[Regex](
     str => str.r,

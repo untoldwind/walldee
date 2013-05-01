@@ -1,6 +1,6 @@
 package actors.monitorProcessors
 
-import models.{StatusValue, StatusTypes, StatusMonitor}
+import models.{StatusMonitorTypes, StatusValue, StatusTypes, StatusMonitor}
 import play.api.libs.ws.Response
 import play.api.libs.json.{Json, JsValue}
 
@@ -8,6 +8,8 @@ trait MonitorProcessor {
   def apiUrl(url: String) = url
 
   def process(statusMonitor: StatusMonitor, response: Response)
+
+  def accepts: String = "application/json"
 
   def updateStatus(statusMonitor: StatusMonitor, status: StatusTypes.Type, json: JsValue) {
     val lastStatusValue = StatusValue.findLastForStatusMonitor(statusMonitor.id.get)
@@ -19,7 +21,7 @@ trait MonitorProcessor {
 
       val statusValues = StatusValue.findAllForStatusMonitor(statusMonitor.id.get)
 
-      if ( statusValues.length > statusMonitor.keepHistory ) {
+      if (statusValues.length > statusMonitor.keepHistory) {
         statusValues.slice(statusMonitor.keepHistory, statusValues.length).foreach {
           statusValue =>
             statusValue.delete
@@ -27,4 +29,15 @@ trait MonitorProcessor {
       }
     }
   }
+}
+
+object MonitorProcessor {
+  def apply(statusMonitorType: StatusMonitorTypes.Type): MonitorProcessor = statusMonitorType match {
+    case StatusMonitorTypes.Jenkins => JenkinsProcessor
+    case StatusMonitorTypes.Teamcity => TeamcityProcessor
+    case StatusMonitorTypes.Sonar => SonarProcessor
+    case StatusMonitorTypes.Icinga => IcingaProcessor
+    case StatusMonitorTypes.Freestyle => FreestyleProcessor
+  }
+
 }

@@ -5,7 +5,7 @@ import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import java.util.Date
 import play.api.libs.json.Json
-import statusMonitors.IcingaConfig
+import models.statusMonitors.{FreestyleConfig, IcingaConfig}
 import globals.Global
 import models.DateMapper.date2timestamp
 import scala.collection.mutable
@@ -32,6 +32,13 @@ case class StatusMonitor(id: Option[Long],
   def icingaConfig: Option[IcingaConfig] = {
     if (monitorType == StatusMonitorTypes.Icinga)
       config.flatMap(Json.fromJson[IcingaConfig](_).asOpt)
+    else
+      None
+  }
+
+  def freestyleConfig: Option[FreestyleConfig] = {
+    if (monitorType == StatusMonitorTypes.Freestyle)
+      config.flatMap(Json.fromJson[FreestyleConfig](_).asOpt)
     else
       None
   }
@@ -120,10 +127,13 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
                 updatePeriod: Int,
                 lastQueried: Option[Date],
                 lastUpdated: Option[Date],
-                icingaConfig: Option[IcingaConfig]): StatusMonitor = {
+                icingaConfig: Option[IcingaConfig],
+                freestyleConfig: Option[FreestyleConfig]): StatusMonitor = {
     val config = StatusMonitorTypes(typeNum) match {
       case StatusMonitorTypes.Icinga =>
         Some(Json.toJson(icingaConfig.getOrElse(IcingaConfig())))
+      case StatusMonitorTypes.Freestyle =>
+        Some(Json.toJson(freestyleConfig.getOrElse(FreestyleConfig())))
       case _ =>
         None
     }
@@ -144,7 +154,8 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
       statusMonitor.updatePeriod,
       statusMonitor.lastQueried,
       statusMonitor.lastUpdated,
-      statusMonitor.icingaConfig)
+      statusMonitor.icingaConfig,
+      statusMonitor.freestyleConfig)
 
   def query = Query(this)
 

@@ -13,6 +13,8 @@ object ApplicationBuild extends Build {
 
     "org.jfree" % "jfreechart" % "1.0.14",
     "com.typesafe.slick" %% "slick" % "1.0.0",
+    "jaxen" % "jaxen" % "1.1.4" intransitive(),
+    "org.jsoup" % "jsoup" % "1.7.2" intransitive(),
     "org.mockito" % "mockito-all" % "1.9.0" % "test"
   )
 

@@ -1,0 +1,31 @@
+@(statusValues: Seq[StatusValue])
+
+<table class="statusMonitor-values">
+    <thead>
+        <tr>
+            <th> Status </th>
+            <td> Retrieved at </td>
+            <td> Free status </td>
+        </tr>
+    </thead>
+    <tbody>
+        @statusValues.map { statusValue =>
+            <tr>
+                <td> @statusValue.status </td>
+                <td> @views.utils.dateFormat(statusValue.retrievedAt) </td>
+                <td>
+                @statusValue.freestyleStatus.map { freestyleStatus =>
+                <dl>
+                    @freestyleStatus.values.map { case (key, value) =>
+                        <dt>@key</dt>
+                        <dd>@value</dd>
+                    }
+                </dl>
+                }.getOrElse {
+                    Invalid
+                }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -7,13 +7,14 @@ import actors.StatusMonitorUpdater.UpdateAll
 import play.api.libs.ws.WS
 import com.ning.http.client.Realm.AuthScheme
 import play.api.libs.concurrent.Execution.Implicits._
+import actors.monitorProcessors.MonitorProcessor
 
 class StatusMonitorUpdater extends Actor with SLF4JLogging {
   def receive = {
     case UpdateAll() =>
       StatusMonitor.findAllActive.foreach {
         statusMonitor =>
-          val processor = monitorProcessors.processor(statusMonitor.monitorType)
+          val processor = MonitorProcessor(statusMonitor.monitorType)
           val url = processor.apiUrl(statusMonitor.url)
 
           val wsRequest = if (statusMonitor.username.isDefined && statusMonitor.password.isDefined)
@@ -23,7 +24,7 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
 
           statusMonitor.updateLastQueried
 
-          wsRequest.withHeaders("Accept" -> "application/json").get().map {
+          wsRequest.withHeaders("Accept" -> processor.accepts).get().map {
             response =>
               processor.process(statusMonitor, response)
               statusMonitor.updateLastUpdated

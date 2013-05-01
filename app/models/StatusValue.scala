@@ -5,7 +5,7 @@ import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import java.util.Date
 import play.api.libs.json.{Json, JsValue}
-import statusValues.{MetricStatus, BuildStatus, HostsStatus}
+import models.statusValues.{FreestyleStatus, MetricStatus, BuildStatus, HostsStatus}
 import globals.Global
 import models.DateMapper.date2timestamp
 
@@ -41,6 +41,14 @@ case class StatusValue(id: Option[Long],
   def metricStatus = {
     if (status != StatusTypes.Unknown) {
       Json.fromJson[MetricStatus](statusValues).asOpt
+    } else {
+      None
+    }
+  }
+
+  def freestyleStatus = {
+    if (status != StatusTypes.Unknown) {
+      Json.fromJson[FreestyleStatus](statusValues).asOpt
     } else {
       None
     }
