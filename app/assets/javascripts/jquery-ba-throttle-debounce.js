@@ -13,7 +13,7 @@
 // 
 // Project Home - http://benalman.com/projects/jquery-throttle-debounce-plugin/
 // GitHub       - http://github.com/cowboy/jquery-throttle-debounce/
-// Source       - http://github.com/cowboy/jquery-throttle-debounce/raw/master/jquery.ba-throttle-debounce.js
+// Source       - http://github.com/cowboy/jquery-throttle-debounce/raw/master/jquery-ba-throttle-debounce.js
 // (Minified)   - http://github.com/cowboy/jquery-throttle-debounce/raw/master/jquery.ba-throttle-debounce.min.js (0.7kb)
 // 
 // About: License

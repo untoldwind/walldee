@@ -42,7 +42,7 @@ var animations = (function () {
         }
     }
 
-    function animateElements() {
+    function animateElementsRaw() {
         $(".wall-bigText").textfill({debug: false, maxFontPixels: 0});
 
         $(".wall-bigImage").each(function(idx, elem) {
@@ -57,6 +57,8 @@ var animations = (function () {
 
         $(".wall-running").fadeTo(500, 0.3).fadeTo(500, 1.0, animateElements);
     }
+
+    var animateElements = $.throttle(350, animateElementsRaw);
 
     return {
         start: function (config) {
