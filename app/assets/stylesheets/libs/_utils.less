@@ -18,10 +18,17 @@
 }
 
 .transform(@props) {
-    -moz-transform: @arguments;
-    -webkit-transform: @arguments;
-    -o-transform: @arguments;
-    transform: @arguments;
+    -moz-transform: @props;
+    -webkit-transform: @props;
+    -o-transform: @props;
+    transform: @props;
+}
+
+.transform-origin(@props) {
+  -moz-transform-origin: @props;
+  -webkit-transform-origin: @props;
+  -o-transform-origin: @props;
+  transform-origin: @props;
 }
 
 .ellipsis() {

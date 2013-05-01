@@ -1,0 +1,7 @@
+@(configField: play.api.data.Field)
+
+<fieldset>
+    <legend>Heading</legend>
+    @helper.inputText(configField("title"))
+    @helper.select(configField("rotation"), Seq("" -> "0", "90" -> "90", "270" -> "-90"))
+    </fieldset>

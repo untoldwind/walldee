@@ -1,0 +1,10 @@
+@(display: Display, displayItem: DisplayItem)
+@import models.widgetConfigs.HeadingConfig
+
+@defining(displayItem.widgetConfig[HeadingConfig]) { config =>
+    <div class="wall-inner">
+        <div class="wall-bigText">
+            <span>@config.flatMap(_.title).getOrElse("")</span>
+        </div>
+    </div>
+}
