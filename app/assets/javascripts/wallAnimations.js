@@ -49,9 +49,9 @@ var animations = (function () {
             var width = $(elem).width();
             var height = $(elem).height();
             var ref = $(elem).attr("ref");
-            var src = ref + "&width=" + width + "&height=" + height;
-            if ( width > 0 && height > 0 && src != $(elem).children("img").first().attr("src")) {
-                $(elem).html("<img src=\"" + src + "\"/>");
+            var background = "url(" + ref + "&width=" + width + "&height=" + height + ")";
+            if ( width > 0 && height > 0 ) {
+                $(elem).css("background-image", background);
             }
         });
 
@@ -67,9 +67,7 @@ var animations = (function () {
             log(typeof config.animations);
             animateElements();
 
-            $(window).resize(function() {
-                animateElements();
-            });
+            $(window).resize($.debounce(500,animateElements));
 
             if (typeof config.animations !== "undefined" && config.animations !== null) {
                 animations = config.animations;
