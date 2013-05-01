@@ -34,6 +34,18 @@ div.wall-widget {
     right: 2px;
     .rounded-corners(10px);
 
+    div.wall-grid {
+      position: absolute;
+      top: 0px;
+      bottom: 0px;
+      left: 0px;
+      right: 0px;
+    }
+
+    div.wall-cell {
+      position: absolute;
+    }
+
     .wall-bigText {
       top: 2px;
       bottom: 2px;
@@ -65,14 +77,16 @@ div.wall-widget {
       }
     }
 
-    ul.wall-buildStatus {
-      margin: 0;
-      padding: 2px;
-      li {
-        list-style: none;
-        .rounded-corners(8px);
-        margin: 2px 0px 2px 0px;
-        padding: 2px 0px 2px 0px;
+    div.wall-buildStatus {
+      div.wall-cell {
+        div {
+          position: absolute;
+          top: 2px;
+          bottom: 2px;
+          left: 2px;
+          right: 2px;
+          .rounded-corners(8px);
+        }
       }
     }
 

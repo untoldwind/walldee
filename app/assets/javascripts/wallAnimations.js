@@ -48,14 +48,10 @@ var animations = (function () {
         $(".wall-bigImage").each(function(idx, elem) {
             var width = $(elem).width();
             var height = $(elem).height();
-            log(elem);
-            log(width);
-            log(height);
-            if ( width > 0 && height > 0) {
             var ref = $(elem).attr("ref");
-                $(elem).html("<img src=\"" + ref + "&width=" + width + "&height=" + height + "\"/>");
-            } else {
-                $(elem).html("");
+            var src = ref + "&width=" + width + "&height=" + height;
+            if ( width > 0 && height > 0 && src != $(elem).children("img").first().attr("src")) {
+                $(elem).html("<img src=\"" + src + "\"/>");
             }
         });
 

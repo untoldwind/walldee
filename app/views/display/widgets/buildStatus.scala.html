@@ -3,14 +3,11 @@
 
 <div class="wall-inner">
 @defining(displayItem.widgetConfig[BuildStatusConfig]) { config =>
-<ul class="wall-buildStatus">
-    @statusMonitors.map { case (statusMonitor, status, running) =>
-    <li class="wall-@{status.toString} @{if(running) "wall-running" else "wall-notRunning"}">
-        <div style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">
-        @statusMonitor.name
+    @views.utils.mkGrid(statusMonitors, styles = Seq("wall-buildStatus")) { case (statusMonitor, status, running) =>
+        <div class="wall-bigText wall-@{status.toString} @{if(running) "wall-running" else "wall-notRunning"}"
+             style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif");">
+            <span>@statusMonitor.name</span>
         </div>
-    </li>
     }
-</ul>
 }
 </div>
