@@ -5,8 +5,6 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.JsNumber
-import scala.util.matching.Regex
-import org.dom4j.{DocumentFactory, XPath}
 
 object FreestyleTypes extends Enumeration {
   type Type = Value
