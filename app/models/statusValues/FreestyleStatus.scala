@@ -13,16 +13,17 @@ case class FreestyleStatus(jsValues: Option[JsObject] = None) {
         case JsString(value) => builder += key -> value
         case JsBoolean(value) => builder += key -> value
         case JsNumber(value) => builder += key -> value
-        case JsObject(value) => processObject(key, value)
+        case JsObject(value) => processObject(key + ".", value)
         case JsArray(value) => value.zipWithIndex.foreach {
           case (elem, idx) => processValue(key + "[" + idx + "]", elem)
         }
+        case _ => // ignore
       }
     }
 
     def processObject(prefix: String, fields: Seq[(String, JsValue)]) {
       fields.foreach {
-        case (key, value) => processValue(prefix + "." + key, value)
+        case (key, value) => processValue(prefix + key, value)
       }
     }
 

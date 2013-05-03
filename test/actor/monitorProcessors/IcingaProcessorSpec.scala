@@ -5,13 +5,8 @@ import org.specs2.mutable._
 
 import play.api.test.Helpers._
 import actors.monitorProcessors.IcingaProcessor
-import play.api.libs.ws.Response
 import play.api.libs.json.Json
-import play.api.test.FakeApplication
 import models._
-import play.api.libs.ws.Response
-import play.api.test.FakeApplication
-import scala.Some
 import models.statusValues._
 import play.api.libs.ws.Response
 import scala.Some
