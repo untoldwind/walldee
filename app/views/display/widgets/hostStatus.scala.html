@@ -3,21 +3,19 @@
 
 <div class="wall-inner">
 @defining(displayItem.widgetConfig[HostStatusConfig]) { config =>
-<ul class="wall-hostStatus">
-    @statusMonitors.map { case (statusMonitor, statusValue) =>
-    <li>
-        <div style="font-family: @config.flatMap(_.titleFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.titleSize).getOrElse(20)}px;">@statusMonitor.name</div>
+    @views.utils.mkGrid(statusMonitors, styles = Seq("wall-hostStatus")) { case (statusMonitor, statusValue) =>
+        <div class="wall-hostStatus-name wall-bigText" style="font-family: @config.flatMap(_.titleFont).getOrElse("sans-serif");"><span>@statusMonitor.name</span></div>
+        <div class="wall-hostStatus-groups">
         @statusValue.flatMap(_.hostsStatus).map { hostsStatus =>
-            @hostsStatus.groups.map { group =>
-            <table class="wall-group">
-                @views.utils.mkTable(config.flatMap(_.columns).getOrElse(1), group.hosts) { host =>
-                    <td class="wall-@host.hostStatus-@host.serviceStatus" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif"); font-size: @{config.flatMap(_.labelSize).getOrElse(20)}px;">@views.utils.simplify(config.flatMap(_.hostNamePattern), host.name).toUpperCase</td>
+            @views.utils.mkGrid(hostsStatus.groups, styles = Seq("wall-hostStatus-group")) { group =>
+                @views.utils.mkGrid(group.hosts, columns = config.flatMap(_.columns).getOrElse(1), styles = Seq("wall-hostStatus-hosts")) { host =>
+                    <div class="wall-bigText wall-hostStatus-host wall-@host.hostStatus-@host.serviceStatus" style="font-family: @config.flatMap(_.labelFont).getOrElse("sans-serif");">
+                        <span>@views.utils.simplify(config.flatMap(_.hostNamePattern), host.name).toUpperCase</span>
+                    </div>
                 }
-            </table>
             }
         }
-    </li>
+        </div>
     }
-</ul>
 }
 </div>

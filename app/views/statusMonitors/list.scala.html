@@ -1,6 +1,6 @@
 @(statusMonitors: Map[StatusMonitorTypes.Type, Seq[StatusMonitor]])
 
-@StatusMonitorTypes.values.map { statusMonitorType =>
+@StatusMonitorTypes.values.toSeq.sortBy(_.id).map { statusMonitorType =>
 
     <h1>@statusMonitorType.toString</h1>
 
@@ -16,7 +16,7 @@
         </thead>
         <tbody>
 
-                @statusMonitors(statusMonitorType).map { statusMonitor =>
+            @statusMonitors(statusMonitorType).map { statusMonitor =>
             <tr>
                 <td> <a href="@routes.StatusMonitors.show(statusMonitor.projectId, statusMonitor.id.get)"> @statusMonitor.name </a> </td>
                 <td> @statusMonitor.monitorType.toString </td>

@@ -29,19 +29,20 @@
     }
   }
 
-  ul.wall-hostStatus {
-    li {
-      table.wall-group {
+  div.wall-hostStatus {
+    div.wall-hostStatus-groups {
+      div.wall-hostStatus-group {
         background: #111122;
-      }
-      td.wall-Up-Ok {
-        background: #008800;
-      }
-      td.wall-Up-Warning {
-        background: #888800;
-      }
-      td.wall-Down-Ok, td.wall-Down-Warning, td.wall-Down-Critical, td.wall-Up-Critical {
-        background: #880000;
+
+        div.wall-Up-Ok {
+          background: #008800;
+        }
+        div.wall-Up-Warning {
+          background: #888800;
+        }
+        div.wall-Down-Ok, div.wall-Down-Warning, div.wall-Down-Critical, div.wall-Up-Critical {
+          background: #880000;
+        }
       }
     }
   }
