@@ -1,14 +1,11 @@
 package controllers.widgets
 
 import play.api.Play.current
-import play.api.data.Forms._
-import models.statusValues.MetricSeverityTypes
 import models._
 import play.api.templates.Html
 import play.api.mvc.{RequestHeader, Controller, Action}
 import utils.{AtomState, DataDigest}
-import models.widgetConfigs.{BurndownConfig, MetricsConfig, MetricsItem, MetricsItemTypes}
-import java.awt.Color
+import models.widgetConfigs.{MetricsConfig, MetricsItemTypes}
 import xml.NodeSeq
 import play.api.cache.Cache
 import org.joda.time.format.ISODateTimeFormat
@@ -64,6 +61,7 @@ object Metrics extends Controller with Widget[MetricsConfig] {
 
   def getGaugePng(displayItemId: Long, projectId: Long, itemIdx: Int, token: String, width: Int, height: Int) = Action {
     request =>
+      val size = Math.min(width, height)
       (for {
         displayItem <- DisplayItem.findById(displayItemId)
         display <- Display.findById(displayItem.displayId)
@@ -80,9 +78,9 @@ object Metrics extends Controller with Widget[MetricsConfig] {
           val configItem = config.items(itemIdx)
           val chart = configItem.itemType match {
             case MetricsItemTypes.Coverage =>
-              new CoverageGauge(statusMonitorsWithValues, display.style, width, config, configItem)
+              new CoverageGauge(statusMonitorsWithValues, display.style, size, config, configItem)
             case MetricsItemTypes.ViolationsDetail =>
-              new ViolationsGauge(statusMonitorsWithValues, display.style, width, config, configItem)
+              new ViolationsGauge(statusMonitorsWithValues, display.style, size, config, configItem)
           }
 
           Ok(content = chart.toPng).withHeaders(CONTENT_TYPE -> "image/png", ETAG -> token)
@@ -136,12 +134,4 @@ object Metrics extends Controller with Widget[MetricsConfig] {
     }
     state.lastUpdate
   }
-
-  private val okHighlight = Color.decode("#00FF00")
-
-  private val okColor = Color.decode("#008800")
-
-  private val warnHighlight = Color.decode("#FF0000")
-
-  private val warnColor = Color.decode("#880000")
 }

@@ -27,7 +27,7 @@ var animations = (function () {
 
             log(selector);
             log(animation.effect);
-            log(animation.params)
+            log(animation.params);
 
             $(selector).toggle(animation.effect, animation.options, animation.duration, function() {
                 animateElements();
@@ -50,7 +50,9 @@ var animations = (function () {
             var height = $(elem).height();
             var ref = $(elem).attr("ref");
             var background = "url(" + ref + "&width=" + width + "&height=" + height + ")";
-            if ( width > 0 && height > 0 ) {
+            var currentSize = width + "x" + height;
+            if ( width > 0 && height > 0 && $(elem).attr("current-size") != currentSize) {
+                $(elem).attr("current-size", currentSize);
                 $(elem).css("background-image", background);
             }
         });
