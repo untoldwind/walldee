@@ -14,6 +14,7 @@ import scala.collection.mutable
 import play.api.libs.ws.Response
 import play.api.libs.json.JsString
 import play.api.libs.json.JsNumber
+import org.jsoup.Jsoup
 
 object FreestyleProcessor extends MonitorProcessor {
   override def accepts: String = "application/json"
@@ -28,7 +29,11 @@ object FreestyleProcessor extends MonitorProcessor {
           document =>
             FreestyleXmlProcessor.processXml(statusMonitor.freestyleConfig.flatMap(_.selector), document)
         }
-      case FreestyleTypes.Html => None
+      case FreestyleTypes.Html =>
+        parseHtml(response.body).flatMap {
+          document =>
+            FreestyleHtmlProcessor.processHtml(statusMonitor.freestyleConfig.flatMap(_.selector), document)
+        }
     }
     statusOpt.map {
       status =>
@@ -41,6 +46,16 @@ object FreestyleProcessor extends MonitorProcessor {
   private def parserXML(xml: String): Option[Document] = {
     try {
       Some(XML.fromString(xml))
+    } catch {
+      case e: Throwable =>
+        logger.error("Exception", e)
+        None
+    }
+  }
+
+  private def parseHtml(html:String):Option[org.jsoup.nodes.Document] = {
+    try {
+      Some(Jsoup.parse(html))
     } catch {
       case e: Throwable =>
         logger.error("Exception", e)
