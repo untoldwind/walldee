@@ -22,7 +22,7 @@
                 } else {
                     <a href="@breadcrump.link">@breadcrump.name</a>
                 }
-            }.reduce(_ + Html("&gt;") + _)
+            }.reduce(_ += Html("&gt;") += _)
         </div>
         <div id="content">
         @content

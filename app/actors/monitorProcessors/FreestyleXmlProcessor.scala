@@ -4,18 +4,18 @@ import org.w3c.dom._
 import play.api.libs.json._
 import scala.collection.mutable
 import models.statusValues.FreestyleStatus
-import play.libs.XPath
 import play.api.libs.json.JsArray
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 import scala.Some
 import play.api.libs.json.JsNumber
+import javax.xml.xpath.{XPathConstants, XPathFactory}
 
 object FreestyleXmlProcessor {
   def processXml(selectorOpt: Option[String], doc: Document): Option[FreestyleStatus] = {
     selectorOpt.map {
       selector =>
-        val nodes = XPath.selectNodes(selector, doc)
+        val nodes = selectNodes(selector, doc)
         if (nodes.getLength > 0)
           Some(FreestyleStatus(Some(JsObject(handleNodes(nodes)))))
         else
@@ -23,6 +23,13 @@ object FreestyleXmlProcessor {
     }.getOrElse {
       Some(FreestyleStatus(Some(JsObject(handleElement(doc.getDocumentElement).toSeq))))
     }
+  }
+
+  private def selectNodes(path: String, doc: Document): NodeList = {
+    val factory = XPathFactory.newInstance()
+    val xpath = factory.newXPath()
+
+    xpath.evaluate(path, doc, XPathConstants.NODESET).asInstanceOf[NodeList]
   }
 
   private def addField(fields: mutable.Map[String, JsValue], key: String, value: JsValue) {
