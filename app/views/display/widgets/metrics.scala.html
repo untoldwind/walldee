@@ -21,11 +21,11 @@
             <div class="wall-value" style="font-family:  @item.valueFont.getOrElse("sans-serif"); font-size: @{item.valueSize.getOrElse(20)} px;">
                 @{
                     item.itemType match {
-                        case MetricsItemTypes.Coverage => "Coverage"
-                        statusMonitors.map {
-                            case (statusMonitor, statusValues) =>
-                                statusValues.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
-                        }.max.toString + "%"
+                        case MetricsItemTypes.Coverage =>
+                            statusMonitors.map {
+                                case (statusMonitor, statusValues) =>
+                                    statusValues.flatMap(_.metricStatus).map(_.coverage).getOrElse(0.0)
+                            }.max.toString + "%"
                         case MetricsItemTypes.ViolationsCount =>
                             statusMonitors.map {
                                 case (statusMonitor, statusValues) =>
