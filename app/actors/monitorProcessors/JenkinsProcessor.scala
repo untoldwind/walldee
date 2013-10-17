@@ -1,9 +1,11 @@
 package actors.monitorProcessors
 
-import models.{StatusTypes, StatusValue, StatusMonitor}
+import models.{StatusTypes, StatusMonitor}
 import play.api.libs.json._
 import play.api.libs.ws.Response
 import models.statusValues.BuildStatus
+import play.api.Logger
+import scala.util.{Success, Failure, Try}
 
 case class JenkinsJobBuild(number: Int, url: String)
 
@@ -48,25 +50,28 @@ object JenkinsProcessor extends MonitorProcessor {
   }
 
   def process(statusMonitor: StatusMonitor, response: Response) {
-    val jenkinsJob = response.json.as[JenkinsJob]
 
-    jenkinsJob.lastCompletedBuild.map {
-      lastCompletedBuild =>
-        val running = jenkinsJob.lastBuild.map {
-          lastBuild =>
-            lastCompletedBuild.number != lastBuild.number
-        }.getOrElse(false)
-        val json = Json.toJson(BuildStatus(lastCompletedBuild.number, running, jenkinsJob.name))
-        jenkinsJob.lastStableBuild.map {
-          case lastStableBuild if lastCompletedBuild.number == lastStableBuild.number =>
-            updateStatus(statusMonitor, StatusTypes.Ok, json)
-          case _ =>
-            updateStatus(statusMonitor, StatusTypes.Failure, json)
+    Try(response.json.as[JenkinsJob]) match {
+      case Failure(e) =>
+        val body = response.body
+        Logger.error(s"cannot parse json from response. Status=${response.status}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
+        updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
+      case Success(jenkinsJob) =>
+        jenkinsJob.lastCompletedBuild.map {
+          lastCompletedBuild =>
+            val running = jenkinsJob.lastBuild.exists(lastBuild => lastCompletedBuild.number != lastBuild.number)
+            val json = Json.toJson(BuildStatus(lastCompletedBuild.number, running, jenkinsJob.name))
+            jenkinsJob.lastStableBuild.map {
+              case lastStableBuild if lastCompletedBuild.number == lastStableBuild.number =>
+                updateStatus(statusMonitor, StatusTypes.Ok, json)
+              case _ =>
+                updateStatus(statusMonitor, StatusTypes.Failure, json)
+            }.getOrElse {
+              updateStatus(statusMonitor, StatusTypes.Failure, json)
+            }
         }.getOrElse {
-          updateStatus(statusMonitor, StatusTypes.Failure, json)
+          updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
         }
-    }.getOrElse {
-      updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
     }
   }
 
