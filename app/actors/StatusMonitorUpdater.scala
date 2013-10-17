@@ -17,10 +17,10 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
           val processor = MonitorProcessor(statusMonitor.monitorType)
           val url = processor.apiUrl(statusMonitor.url)
 
-          val wsRequest = if (statusMonitor.username.isDefined && statusMonitor.password.isDefined)
-            WS.url(url).withAuth(statusMonitor.username.get, statusMonitor.password.get, AuthScheme.BASIC)
-          else
-            WS.url(url)
+          val wsRequest = (
+            for (username <- statusMonitor.username; password <- statusMonitor.password)
+            yield WS.url(url).withAuth(username, password, AuthScheme.BASIC)
+          ).getOrElse(WS.url(url))
 
           statusMonitor.updateLastQueried
 
