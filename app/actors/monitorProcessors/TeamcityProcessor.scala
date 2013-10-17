@@ -1,10 +1,11 @@
 package actors.monitorProcessors
 
 import models.{StatusTypes, StatusMonitor}
-import play.api.libs.ws.Response
 import play.api.libs.json._
 import models.statusValues.BuildStatus
 import play.api.libs.ws.Response
+import scala.util.{Success, Failure, Try}
+import play.api.Logger
 
 case class TeamcityBuildType(id: String, name: String, projectName: String)
 
@@ -48,15 +49,21 @@ object TeamcityProcessor extends MonitorProcessor {
   }
 
   def process(statusMonitor: StatusMonitor, response: Response) {
-    val teamcityBuild = response.json.as[TeamcityBuild]
-
-    val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running, teamcityBuild.buildType.name))
-    teamcityBuild.status match {
-      case "SUCCESS" =>
-        updateStatus(statusMonitor, StatusTypes.Ok, json)
-      case _ =>
-        updateStatus(statusMonitor, StatusTypes.Failure, json)
+    Try(response.json.as[TeamcityBuild]) match {
+      case Failure(e) =>
+        val body = response.body
+        Logger.error(s"cannot parse json from response. Status=${response.status}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
+        updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
+      case Success(teamcityBuild) =>
+        val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running, teamcityBuild.buildType.name))
+        teamcityBuild.status match {
+          case "SUCCESS" =>
+            updateStatus(statusMonitor, StatusTypes.Ok, json)
+          case _ =>
+            updateStatus(statusMonitor, StatusTypes.Failure, json)
+        }
     }
+
   }
 
 }
