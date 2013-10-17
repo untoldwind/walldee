@@ -13,7 +13,7 @@ object ApplicationBuild extends Build {
     "com.h2database" % "h2" % "1.3.170",
 
     "org.jfree" % "jfreechart" % "1.0.14",
-    "com.typesafe.slick" %% "slick" % "1.0.0",
+    "com.typesafe.slick" %% "slick" % "1.0.1",
     "org.jsoup" % "jsoup" % "1.7.2" intransitive(),
     "org.mockito" % "mockito-all" % "1.9.0" % "test"
   )

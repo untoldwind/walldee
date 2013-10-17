@@ -6,7 +6,7 @@ import slick.driver.H2Driver.simple._
 import globals.Global
 import scala.slick.session.{Database, Session}
 
-case class Display(id: Option[Long],
+case class Display(id: Option[Long] = None,
                    name: String,
                    projectId: Option[Long],
                    teamId: Option[Long],
@@ -20,9 +20,9 @@ case class Display(id: Option[Long],
 
   def style: DisplayStyles.Type = DisplayStyles(styleNum)
 
-  def insert = Display.database.withSession {
+  def insert: Long = Display.database.withSession {
     implicit db: Session =>
-      Display.insert(this)
+      Display.forInsert.insert(this)
   }
 
   def update = {
@@ -66,6 +66,9 @@ object Display extends Table[Display]("DISPLAY") {
   def * = id.? ~ name ~ projectId.? ~ teamId.? ~ styleNum ~ refreshTime ~ useLongPolling ~
     relativeLayout ~ animationConfig <>((apply _).tupled, unapply _)
 
+  def forInsert = id.? ~ name ~ projectId.? ~ teamId.? ~ styleNum ~ refreshTime ~ useLongPolling ~
+    relativeLayout ~ animationConfig <> (apply _, unapply _) returning id
+
   def query = Query(this)
 
   def findAll: Seq[Display] = database.withSession {
@@ -92,4 +95,11 @@ object Display extends Table[Display]("DISPLAY") {
     implicit db: Session =>
       query.where(d => d.id === displayId).firstOption
   }
+
+  def findFirstForTeam(teamId: Long): Option[Display] = database.withSession {
+    implicit db: Session =>
+      query.where(d => d.teamId === teamId).firstOption
+  }
+
+
 }
