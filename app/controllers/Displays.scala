@@ -6,13 +6,13 @@ import play.api.data.Form
 import play.api.data.Forms._
 import utils.{DisplayUpdate, DataDigest}
 import widgets.Widget
-import play.api.libs.concurrent.Promise
 import globals.Global
 import actors.DisplayUpdater
 import play.api.libs.json.Json
 import xml.NodeSeq
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.{Promise, Future}
 
 object Displays extends Controller {
   def index = Action {
@@ -75,20 +75,18 @@ object Displays extends Controller {
       }.getOrElse(NotFound)
   }
 
-  def wallUpdates(displayId: Long) = Action(parse.json) {
+  def wallUpdates(displayId: Long) = Action.async(parse.json) {
     implicit request =>
       Display.findById(displayId).map {
         display =>
-          Async {
-            val result = Promise[DisplayUpdate]()
+          val result = Promise[DisplayUpdate]()
 
-            Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], result)
-            result.future.map {
-              displayUpdate =>
-                Ok(Json.stringify(Json.toJson(displayUpdate)))
-            }
+          Global.displayUpdater ! DisplayUpdater.FindUpdates(display, request.body.as[Map[String, String]], result)
+          result.future.map {
+            displayUpdate =>
+              Ok(Json.stringify(Json.toJson(displayUpdate)))
           }
-      }.getOrElse(NotFound)
+      }.getOrElse(Future.successful(NotFound))
   }
 
   def atomFeed(displayId: Long) = Action {
