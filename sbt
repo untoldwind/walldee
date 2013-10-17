@@ -2,7 +2,7 @@
 
 if [ -z "$SBT_VERSION" ]
 then
-  SBT_VERSION=0.12.4
+  SBT_VERSION=0.13.0
 fi
 
 SBT_LAUNCH_JAR=$HOME/.sbt/sbt-launch-$SBT_VERSION.jar

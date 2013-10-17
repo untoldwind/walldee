@@ -1,6 +1,6 @@
 import sbt._
-import PlayKeys._
-import Keys._
+import sbt.Keys._
+import play.Project._
 
 object ApplicationBuild extends Build {
 
@@ -9,6 +9,7 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     jdbc,
+    cache,
     "com.h2database" % "h2" % "1.3.170",
 
     "org.jfree" % "jfreechart" % "1.0.14",
@@ -19,13 +20,7 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here
-    scalacOptions += "-feature",
-    templatesTypes := {
-      case "html" => ("play.api.templates.Html", "play.api.templates.HtmlFormat")
-      case "txt" => ("play.api.templates.Txt", "play.api.templates.TxtFormat")
-      case "xml" => ("play.api.templates.Xml", "play.api.templates.XmlFormat")
-      case "js" => ("templates.Js", "templates.JsFormat")
-    }
+    scalacOptions += "-feature"
   )
 
 }
