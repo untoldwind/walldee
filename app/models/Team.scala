@@ -5,16 +5,16 @@ import slick.driver.H2Driver.simple._
 import play.api.db.DB
 import globals.Global
 
-case class Team(id: Option[Long],
+case class Team(id: Option[Long] = None,
                 name: String,
-                currentSprintId: Option[Long]) {
+                currentSprintId: Option[Long] = None) {
 
   def this() = this(None, "", None)
 
-  def insert = {
+  def insert: Long = {
     Team.database.withSession {
       implicit db: Session =>
-        Team.insert(this)
+        Team.forInsert.insert(this)
     }
   }
 
@@ -46,11 +46,18 @@ object Team extends Table[Team]("TEAM") {
 
   def * = id.? ~ name ~ currentSprintId.? <>((apply _).tupled, (unapply _))
 
+  def forInsert = id.? ~ name ~ currentSprintId.? <> (apply _, unapply _) returning id
+
   def query = Query(this)
 
   def findAll: Seq[Team] = database.withSession {
     implicit db: Session =>
       query.sortBy(t => t.name.asc).list
+  }
+
+  def findFirstByName(name: String): Option[Team] = database.withSession {
+    implicit db: Session =>
+      query.where(_.name === name).firstOption
   }
 
   def findById(teamId: Long): Option[Team] = database.withSession {

@@ -8,7 +8,7 @@ import slick.driver.H2Driver.simple._
 import scala.Some
 import globals.Global
 
-case class DisplayItem(id: Option[Long],
+case class DisplayItem(id: Option[Long] = None,
                        displayId: Long,
                        posx: Int,
                        posy: Int,
@@ -39,8 +39,7 @@ case class DisplayItem(id: Option[Long],
         DisplayItem.insert(this)
         Query(DisplayItem.seqID).first
     }
-    val result = DisplayItem(Some(insertedId), displayId, posx, posy, width, height, widgetNum,
-      projectId, teamId, appearsInFeed, hidden, widgetConfigJson)
+    val result = this.copy(id = Some(insertedId))
     Global.displayUpdater ! result
     result
   }

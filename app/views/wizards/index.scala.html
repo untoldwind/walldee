@@ -1,0 +1,24 @@
+@(form:Form[controllers.Wizards.Wizard])
+
+@import models.utils.Breadcrumb
+
+@main("Projects",
+    Breadcrumb("Home", routes.Application.index, false) ::
+    Breadcrumb("Wizards", routes.Wizards.index, true) :: Nil) {
+
+@helper.form(action = routes.Wizards.create) {
+    <fieldset>
+        <legend>Create a new project by importing one from TeamCity</legend>
+        @helper.inputText(form("displayName"), '_label -> "Display/Team Name")
+        @helper.inputText(form("projectName"), '_label -> "Project Name")
+        <input type="hidden" id="ciServer" name="ciServer" value="Teamcity"/>
+        @helper.inputText(form("url"), '_label -> "URL from project in TeamCity")
+        @helper.inputText(form("username"), '_label -> "Username (optional)")
+        @helper.inputText(form("password"), '_label -> "Password (optional)")
+    </fieldset>
+    <div class="actions">
+        <input type="submit" class="btn primary" value="Import">
+    </div>
+}
+
+}

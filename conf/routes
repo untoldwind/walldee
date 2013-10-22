@@ -42,6 +42,10 @@ GET     /projects/:projectId/statusMonitors/:statusMonitorId/edit controllers.St
 POST    /projects/:projectId/statusMonitors/:statusMonitorId    controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
 DELETE  /projects/:projectId/statusMonitors/:statusMonitorId    controllers.StatusMonitors.delete(projectId:Long, statusMonitorId:Long)
 
+GET     /wizards                                  controllers.Wizards.index
+POST    /wizards                                  controllers.Wizards.create
+
+
 GET     /displays                                 controllers.Displays.index
 POST    /displays                                 controllers.Displays.create
 GET     /displays/:displayId                      controllers.Displays.showWall(displayId:Long)

@@ -10,7 +10,7 @@ import globals.Global
 import models.DateMapper.date2timestamp
 import scala.collection.mutable
 
-case class StatusMonitor(id: Option[Long],
+case class StatusMonitor(id: Option[Long] = None,
                          projectId: Long,
                          name: String,
                          typeNum: Int,
@@ -20,9 +20,9 @@ case class StatusMonitor(id: Option[Long],
                          active: Boolean,
                          keepHistory: Int,
                          updatePeriod: Int,
-                         lastQueried: Option[Date],
-                         lastUpdated: Option[Date],
-                         configJson: Option[String]) {
+                         lastQueried: Option[Date] = None,
+                         lastUpdated: Option[Date] = None,
+                         configJson: Option[String] = None) {
   def this(projectId: Long) = this(None, projectId, "", 0, "", None, None, true, 10, 60, None, None, None)
 
   def config = configJson.map(Json.parse(_))
