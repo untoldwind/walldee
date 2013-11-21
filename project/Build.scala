@@ -15,6 +15,9 @@ object ApplicationBuild extends Build {
     "org.jfree" % "jfreechart" % "1.0.14",
     "com.typesafe.slick" %% "slick" % "1.0.1",
     "org.jsoup" % "jsoup" % "1.7.2" intransitive(),
+    "org.webjars" % "angularjs" % "1.1.5-1",
+    "org.webjars" % "requirejs" % "2.1.1",
+    "org.webjars" %% "webjars-play" % "2.2.1",
     "org.mockito" % "mockito-all" % "1.9.0" % "test"
   )
 
@@ -22,5 +25,4 @@ object ApplicationBuild extends Build {
     // Add your own project settings here
     scalacOptions += "-feature"
   )
-
 }

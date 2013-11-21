@@ -3,62 +3,67 @@
 # ~~~~
 
 # Home page
-GET     /                                         controllers.Application.index
+GET           /                                                                controllers.Application.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                             controllers.Assets.at(path="/public", file)
+GET           /assets/*file                                                    controllers.Assets.at(path="/public", file)
 
-GET     /alarms                                   controllers.Alarms.index
-POST    /alarms                                   controllers.Alarms.create
-GET     /alarms/events.json                       controllers.Alarms.eventsJson(start:Long, end:Long)
-PUT     /alarms/:alarmId                          controllers.Alarms.update(alarmId:Long)
-DELETE  /alarms/:alarmId                          controllers.Alarms.delete(alarmId:Long)
+GET           /lib/require.js                                                  controllers.WebJarAssets.requirejs
+GET           /webjars/*file                                                   controllers.WebJarAssets.at(file)
 
-GET     /teams                                    controllers.Teams.index
-POST    /teams                                    controllers.Teams.create
-GET     /teams/:teamId                            controllers.Teams.show(teamId:Long)
-POST    /teams/:teamId                            controllers.Teams.update(teamId:Long)
-DELETE  /teams/:teamId                            controllers.Teams.delete(teamId:Long)
+GET           /config                                                          controllers.Assets.at(path="/public",file= "config/index.html")
 
-POST    /teams/:teamId/sprints                                  controllers.Sprints.create(teamId:Long)
-GET     /teams/:teamId/sprints/:sprintId                        controllers.Sprints.show(teamId:Long, sprintId:Long)
-GET     /teams/:teamId/sprints/:sprintId/edit                   controllers.Sprints.edit(teamId:Long, sprintId:Long)
-POST    /teams/:teamId/sprints/:sprintId                        controllers.Sprints.update(teamId:Long, sprintId:Long)
-DELETE  /teams/:teamId/sprints/:sprintId                        controllers.Sprints.delete(teamId:Long, sprintId:Long)
-POST    /teams/:teamId/sprints/:sprintId/stories                controllers.Stories.create(teamId:Long, sprintId:Long)
-POST    /teams/:teamId/sprints/:sprintId/dayCounts              controllers.DayCounts.create(teamId:Long, sprintId:Long)
-PUT     /teams/:teamId/sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.update(teamId:Long, sprintId:Long, dayCountId:Long)
-DELETE  /teams/:teamId/sprints/:sprintId/dayCounts/:dayCountId  controllers.DayCounts.delete(teamId:Long, sprintId:Long, dayCountId:Long)
+GET           /alarms                                                          controllers.Alarms.index
+POST          /alarms                                                          controllers.Alarms.create
+GET           /alarms/events.json                                              controllers.Alarms.eventsJson(start:Long, end:Long)
+PUT           /alarms/:alarmId                                                 controllers.Alarms.update(alarmId:Long)
+DELETE        /alarms/:alarmId                                                 controllers.Alarms.delete(alarmId:Long)
 
-GET     /projects                                 controllers.Projects.index
-POST    /projects                                 controllers.Projects.create
-GET     /projects/:projectId                      controllers.Projects.show(projectId:Long)
-POST    /projects/:projectId                      controllers.Projects.update(projectId:Long)
-DELETE  /projects/:projectId                      controllers.Projects.delete(projectId:Long)
+GET           /teams                                                           controllers.Teams.index
+POST          /teams                                                           controllers.Teams.create
+GET           /teams/:teamId                                                   controllers.Teams.show(teamId:Long)
+POST          /teams/:teamId                                                   controllers.Teams.update(teamId:Long)
+DELETE        /teams/:teamId                                                   controllers.Teams.delete(teamId:Long)
 
-POST    /projects/:projectId/statusMonitors                     controllers.StatusMonitors.create(projectId:Long)
-GET     /projects/:projectId/statusMonitors/:statusMonitorId    controllers.StatusMonitors.show(projectId:Long, statusMonitorId:Long)
-GET     /projects/:projectId/statusMonitors/:statusMonitorId/edit controllers.StatusMonitors.edit(projectId:Long, statusMonitorId:Long)
-POST    /projects/:projectId/statusMonitors/:statusMonitorId    controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
-DELETE  /projects/:projectId/statusMonitors/:statusMonitorId    controllers.StatusMonitors.delete(projectId:Long, statusMonitorId:Long)
+POST          /teams/:teamId/sprints                                           controllers.Sprints.create(teamId:Long)
+GET           /teams/:teamId/sprints/:sprintId                                 controllers.Sprints.show(teamId:Long, sprintId:Long)
+GET           /teams/:teamId/sprints/:sprintId/edit                            controllers.Sprints.edit(teamId:Long, sprintId:Long)
+POST          /teams/:teamId/sprints/:sprintId                                 controllers.Sprints.update(teamId:Long, sprintId:Long)
+DELETE        /teams/:teamId/sprints/:sprintId                                 controllers.Sprints.delete(teamId:Long, sprintId:Long)
+POST          /teams/:teamId/sprints/:sprintId/stories                         controllers.Stories.create(teamId:Long, sprintId:Long)
+POST          /teams/:teamId/sprints/:sprintId/dayCounts                       controllers.DayCounts.create(teamId:Long, sprintId:Long)
+PUT           /teams/:teamId/sprints/:sprintId/dayCounts/:dayCountId           controllers.DayCounts.update(teamId:Long, sprintId:Long, dayCountId:Long)
+DELETE        /teams/:teamId/sprints/:sprintId/dayCounts/:dayCountId           controllers.DayCounts.delete(teamId:Long, sprintId:Long, dayCountId:Long)
 
-GET     /wizards                                  controllers.Wizards.index
-POST    /wizards                                  controllers.Wizards.create
+GET           /projects                                                        controllers.Projects.index
+POST          /projects                                                        controllers.Projects.create
+GET           /projects/:projectId                                             controllers.Projects.show(projectId:Long)
+POST          /projects/:projectId                                             controllers.Projects.update(projectId:Long)
+DELETE        /projects/:projectId                                             controllers.Projects.delete(projectId:Long)
+
+POST          /projects/:projectId/statusMonitors                              controllers.StatusMonitors.create(projectId:Long)
+GET           /projects/:projectId/statusMonitors/:statusMonitorId             controllers.StatusMonitors.show(projectId:Long, statusMonitorId:Long)
+GET           /projects/:projectId/statusMonitors/:statusMonitorId/edit        controllers.StatusMonitors.edit(projectId:Long, statusMonitorId:Long)
+POST          /projects/:projectId/statusMonitors/:statusMonitorId             controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
+DELETE        /projects/:projectId/statusMonitors/:statusMonitorId             controllers.StatusMonitors.delete(projectId:Long, statusMonitorId:Long)
+
+GET           /wizards                                                         controllers.Wizards.index
+POST          /wizards                                                         controllers.Wizards.create
 
 
-GET     /displays                                 controllers.Displays.index
-POST    /displays                                 controllers.Displays.create
-GET     /displays/:displayId                      controllers.Displays.showWall(displayId:Long)
-GET     /displays/:displayId/config               controllers.Displays.showConfig(displayId:Long)
-POST    /displays/:displayId/updates              controllers.Displays.wallUpdates(displayId:Long)
-GET     /displays/:displayId/atom                 controllers.Displays.atomFeed(displayId:Long)
-POST    /displays/:displayId                      controllers.Displays.update(displayId:Long)
-DELETE  /displays/:displayId                      controllers.Displays.delete(displayId:Long)
-POST    /displays/:displayId/items                controllers.DisplayItems.create(displayId:Long)
-GET     /displays/:displayId/items/:itemId        controllers.DisplayItems.show(displayId:Long, itemId:Long)
-GET     /displays/:displayId/items/:itemId/edit   controllers.DisplayItems.edit(displayId:Long, itemId:Long)
-POST    /displays/:displayId/items/:itemId        controllers.DisplayItems.update(displayId:Long, itemId:Long)
-DELETE  /displays/:displayId/items/:itemId        controllers.DisplayItems.delete(displayId:Long, itemId:Long)
+GET           /displays                                                        controllers.Displays.index
+POST          /displays                                                        controllers.Displays.create
+GET           /displays/:displayId                                             controllers.Displays.showWall(displayId:Long)
+GET           /displays/:displayId/config                                      controllers.Displays.showConfig(displayId:Long)
+POST          /displays/:displayId/updates                                     controllers.Displays.wallUpdates(displayId:Long)
+GET           /displays/:displayId/atom                                        controllers.Displays.atomFeed(displayId:Long)
+POST          /displays/:displayId                                             controllers.Displays.update(displayId:Long)
+DELETE        /displays/:displayId                                             controllers.Displays.delete(displayId:Long)
+POST          /displays/:displayId/items                                       controllers.DisplayItems.create(displayId:Long)
+GET           /displays/:displayId/items/:itemId                               controllers.DisplayItems.show(displayId:Long, itemId:Long)
+GET           /displays/:displayId/items/:itemId/edit                          controllers.DisplayItems.edit(displayId:Long, itemId:Long)
+POST          /displays/:displayId/items/:itemId                               controllers.DisplayItems.update(displayId:Long, itemId:Long)
+DELETE        /displays/:displayId/items/:itemId                               controllers.DisplayItems.delete(displayId:Long, itemId:Long)
 
-GET     /widgets/burndown/:itemId                             controllers.widgets.Burndown.getPng(itemId:Long, token:String ?= "", width:Int ?=100, height:Int ?= 100)
-GET     /widgets/metrics/coverage/:itemId/:projectId/:itemIdx controllers.widgets.Metrics.getGaugePng(itemId:Long, projectId:Long, itemIdx:Int, token:String ?= "", width:Int ?= 100, height:Int ?= 100)
+GET           /widgets/burndown/:itemId                                        controllers.widgets.Burndown.getPng(itemId:Long, token:String ?= "", width:Int ?=100, height:Int ?= 100)
+GET           /widgets/metrics/coverage/:itemId/:projectId/:itemIdx            controllers.widgets.Metrics.getGaugePng(itemId:Long, projectId:Long, itemIdx:Int, token:String ?= "", width:Int ?= 100, height:Int ?= 100)
