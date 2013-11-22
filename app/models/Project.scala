@@ -4,6 +4,12 @@ import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import play.api.db.DB
 import globals.Global
+import play.api.libs.json._
+import models.widgetConfigs.AlarmsConfig
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsString
+import play.api.libs.json.JsNumber
 
 case class Project(id: Option[Long] = None,
                    name: String) {
@@ -43,7 +49,7 @@ object Project extends Table[Project]("PROJECT") {
 
   def * = id.? ~ name <>((apply _).tupled, (unapply _))
 
-  def forInsert = id.? ~ name <> (apply _, unapply _) returning id
+  def forInsert = id.? ~ name <>(apply _, unapply _) returning id
 
   def query = Query(this)
 
@@ -60,5 +66,18 @@ object Project extends Table[Project]("PROJECT") {
   def findByName(name: String): Option[Project] = database.withSession {
     implicit db: Session =>
       query.where(p => p.name === name).firstOption
+  }
+
+  implicit val jsonFormat = new Format[Project] {
+    override def reads(json: JsValue): JsResult[Project] =
+      JsSuccess(Project(
+        (json \ "id").asOpt[Long],
+        (json \ "name").as[String]))
+
+    override def writes(project: Project): JsValue = JsObject(
+      project.id.map("id" -> JsNumber(_)).toSeq ++
+        Seq(
+          "name" -> JsString(project.name)
+        ))
   }
 }

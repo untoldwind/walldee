@@ -1,13 +1,20 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{StatusMonitor, Project, Sprint}
+import models.{StatusMonitor, Project}
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.libs.json.{JsArray, JsObject, Json}
 
 object Projects extends Controller {
   def index = Action {
-    Ok(views.html.projects.index(Project.findAll, projectForm()))
+    implicit request =>
+      render {
+        case Accepts.Html() =>
+          Ok(views.html.projects.index(Project.findAll, projectForm()))
+        case Accepts.Json() =>
+          Ok(JsArray(Project.findAll.map(Json.toJson(_))))
+      }
   }
 
   def show(projectId: Long) = Action {

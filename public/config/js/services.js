@@ -2,13 +2,25 @@
 
 'use strict';
 
-define(['angular'], function(angular) {
+define(['angular'], function (angular) {
 
     /* Services */
 
-// Demonstrate how to register services
-// In this case it is a simple value service.
-    angular.module('myApp.services', []).
-        value('version', '0.1');
+    var services = angular.module('walldee.services', []);
 
+    services.value('version', '0.1');
+
+    services.factory("projectService", ['$resource', function ($resource) {
+        var projectsResource = $resource('/projects', {}, {
+            'get': {
+                method: 'GET',
+                isArray: true
+            }});
+
+        return {
+            findAll: function () {
+                return projectsResource.get().$promise;
+            }
+        };
+    }]);
 });

@@ -2,18 +2,12 @@
 
 'use strict';
 
-define(function() {
+define(['angular'], function (angular) {
+    var controllers = angular.module('walldee.controllers', []);
 
-    /* Controllers */
-
-    var controllers = {};
-
-    controllers.MyCtrl1 = function() {}
-    controllers.MyCtrl1.$inject = [];
-
-    controllers.MyCtrl2 = function() {}
-    controllers.MyCtrl2.$inject = [];
-
-    return controllers;
-
+    controllers.controller('Projects', ['$scope', 'projectService', function ($scope, projectService) {
+        projectService.findAll().then(function (projects) {
+            $scope.projects = projects;
+        });
+    }]);
 });

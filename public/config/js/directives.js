@@ -6,8 +6,7 @@ define(['angular'], function(angular) {
 
     /* Directives */
 
-    console.log("Ja hier");
-    angular.module('myApp.directives', []).
+    angular.module('walldee.directives', []).
         directive('appVersion', ['version', function(version) {
             return function(scope, elm, attrs) {
                 elm.text(version);
