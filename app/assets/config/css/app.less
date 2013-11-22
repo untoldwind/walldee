@@ -1,36 +1,8 @@
 /* app css stylesheet */
 
-.menu {
-  list-style: none;
-  border-bottom: 0.1em solid black;
-  margin-bottom: 2em;
-  padding: 0 0 0.5em;
-
-  &:before {
-    content: "[";
-  }
-
-  &:after {
-    content: "]";
-  }
-
-  li {
-    display: inline;
-
-    a.active {
-      background: red;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    &:before {
-      content: "|";
-      padding-right: 0.3em;
-    }
-
-    &:nth-child(1):before {
-      content: "";
-      padding: 0;
-    }
-  }
+body {
+  min-height: 2000px;
+}
+.navbar-static-top {
+  margin-bottom: 19px;
 }

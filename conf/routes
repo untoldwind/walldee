@@ -11,7 +11,7 @@ GET           /assets/*file                                                    c
 GET           /lib/require.js                                                  controllers.WebJarAssets.requirejs
 GET           /webjars/*file                                                   controllers.WebJarAssets.at(file)
 
-GET           /config                                                          controllers.Assets.at(path="/public",file= "config/index.html")
+GET           /config                                                          controllers.Config.index
 
 GET           /alarms                                                          controllers.Alarms.index
 POST          /alarms                                                          controllers.Alarms.create

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Walldee confiugration</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="@routes.Assets.at("config/css/app.css")">
+        <link rel="stylesheet" href="@routes.WebJarAssets.at(WebJarAssets.locate("css/bootstrap.css"))">
+        <script data-main="@routes.Assets.at("config/js/app")" src="@routes.WebJarAssets.requirejs"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <a class="brand" href="#">Walldee</a>
+                    <ul class="nav">
+                        <li><a href="#/projects" active-link>Projects</a></li>
+                        <li><a href="#/teams" active-link>Teams</a></li>
+                        <li><a href="#/alarms" active-link>Alarms</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div ng-view></div>
+
+            <div>Angular seed app: v<span app-version></span></div>
+        </div>
+
+    </body>
+</html>

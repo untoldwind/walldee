@@ -6,6 +6,7 @@ define(['angular'], function(angular) {
 
     /* Directives */
 
+    console.log("Ja hier");
     angular.module('myApp.directives', []).
         directive('appVersion', ['version', function(version) {
             return function(scope, elm, attrs) {
@@ -21,9 +22,9 @@ define(['angular'], function(angular) {
                     scope.location = location;
                     scope.$watch('location.path()', function(newPath) {
                         if (path === newPath) {
-                            element.addClass('active');
+                            element.parent().addClass('active');
                         } else {
-                            element.removeClass('active');
+                            element.parent().removeClass('active');
                         }
                     });
                 }
