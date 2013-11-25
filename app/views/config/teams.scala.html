@@ -1,0 +1,15 @@
+<div class="tabbable tabs-left" ng-controller="Teams">
+    <ul class="nav nav-tabs">
+        <li ng-repeat="team in teams" ng-class="{active: team == selectedTeam}">
+            <a ng-click="select(team)">{{ team.name }}</a>
+        </li>
+        <li>
+            <a ng-click="newTeam()"><span class="glyphicon glyphicon-plus-sign"></span> New Team</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active">
+        {{ selectedTeam }}
+        </div>
+    </div>
+</div>

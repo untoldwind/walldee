@@ -23,4 +23,18 @@ define(['angular'], function (angular) {
             }
         };
     }]);
+
+    services.factory('teamService', ['$resource', function ($resource) {
+        var teamsResource = $resource('/teams', {}, {
+            'get': {
+                method: 'GET',
+                isArray: true
+            }});
+
+        return {
+            findAll: function () {
+                return teamsResource.get().$promise;
+            }
+        }
+    }]);
 });

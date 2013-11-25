@@ -4,6 +4,10 @@ import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import play.api.db.DB
 import globals.Global
+import play.api.libs.json._
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsNumber
 
 case class Team(id: Option[Long] = None,
                 name: String,
@@ -46,7 +50,7 @@ object Team extends Table[Team]("TEAM") {
 
   def * = id.? ~ name ~ currentSprintId.? <>((apply _).tupled, (unapply _))
 
-  def forInsert = id.? ~ name ~ currentSprintId.? <> (apply _, unapply _) returning id
+  def forInsert = id.? ~ name ~ currentSprintId.? <>(apply _, unapply _) returning id
 
   def query = Query(this)
 
@@ -63,5 +67,20 @@ object Team extends Table[Team]("TEAM") {
   def findById(teamId: Long): Option[Team] = database.withSession {
     implicit db: Session =>
       query.where(p => p.id === teamId).firstOption
+  }
+
+  implicit val jsonFormat = new Format[Team] {
+    override def reads(json: JsValue): JsResult[Team] =
+      JsSuccess(Team(
+        (json \ "id").asOpt[Long],
+        (json \ "name").as[String],
+        (json \ "currentSprintId").asOpt[Long]))
+
+    override def writes(team: Team): JsValue = JsObject(
+      team.id.map("id" -> JsNumber(_)).toSeq ++
+        Seq(
+          "name" -> JsString(team.name)
+        ) ++
+        team.currentSprintId.map("currentSprintId" -> JsNumber(_)).toSeq)
   }
 }

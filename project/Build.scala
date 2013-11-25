@@ -18,6 +18,8 @@ object ApplicationBuild extends Build {
     "org.webjars" % "angularjs" % "1.2.1",
     "org.webjars" % "requirejs" % "2.1.1",
     "org.webjars" %% "webjars-play" % "2.2.1",
+    "org.webjars" % "bootstrap" % "3.0.2",
+    "org.webjars" % "bootstrap-glyphicons" % "bdd2cbfba0",
     "org.webjars" % "ng-grid" % "2.0.7",
     "org.webjars" % "jquery-ui" % "1.10.3",
     "org.webjars" % "jquery" % "1.10.2-1",
@@ -27,8 +29,8 @@ object ApplicationBuild extends Build {
     "org.mockito" % "mockito-all" % "1.9.0" % "test"
   )
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
+  val main = play.Project(appName, appVersion, appDependencies).settings {
     // Add your own project settings here
     scalacOptions += "-feature"
-  )
+  }
 }

@@ -12,6 +12,7 @@ GET           /lib/require.js                                                  c
 GET           /webjars/*file                                                   controllers.WebJarAssets.at(file)
 
 GET           /config                                                          controllers.Config.index
+GET           /config/:partial                                                 controllers.Config.partial(partial:String)
 
 GET           /alarms                                                          controllers.Alarms.index
 POST          /alarms                                                          controllers.Alarms.create

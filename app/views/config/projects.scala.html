@@ -1,0 +1,15 @@
+<div class="tabbable tabs-left" ng-controller="Projects">
+    <ul class="nav nav-tabs">
+        <li ng-repeat="project in projects" ng-class="{active: project == selectedProject}">
+            <a ng-click="select(project)">{{ project.name }}</a>
+        </li>
+        <li>
+            <a ng-click="newProject()"><span class="glyphicon glyphicon-plus-sign"></span> New Project</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active">
+        {{ selectedProject }}
+        </div>
+    </div>
+</div>

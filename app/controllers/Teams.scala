@@ -4,10 +4,17 @@ import play.api.mvc.{Action, Controller}
 import models.{Sprint, Team, Project}
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.libs.json.{Json, JsArray}
 
 object Teams extends Controller {
   def index = Action {
-    Ok(views.html.teams.index(Team.findAll, teamForm()))
+    implicit request =>
+      render {
+        case Accepts.Html() =>
+          Ok(views.html.teams.index(Team.findAll, teamForm()))
+        case Accepts.Json() =>
+          Ok(JsArray(Team.findAll.map(Json.toJson(_))))
+      }
   }
 
   def create = Action {
@@ -21,10 +28,16 @@ object Teams extends Controller {
   }
 
   def show(teamId: Long) = Action {
-    Team.findById(teamId).map {
-      team =>
-        Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), teamForm(team), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
-    }.getOrElse(NotFound)
+    implicit request =>
+      Team.findById(teamId).map {
+        team =>
+          render {
+            case Accepts.Html() =>
+              Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), teamForm(team), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
+            case Accepts.Json() =>
+              Ok(Json.toJson(team))
+          }
+      }.getOrElse(NotFound)
   }
 
   def update(teamId: Long) = Action {
@@ -48,7 +61,7 @@ object Teams extends Controller {
     }.getOrElse(NotFound)
   }
 
-   def teamForm(team: Team = new Team): Form[Team] = Form(
+  def teamForm(team: Team = new Team): Form[Team] = Form(
     mapping(
       "id" -> ignored(team.id),
       "name" -> text(maxLength = 255),

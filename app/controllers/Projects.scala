@@ -18,11 +18,17 @@ object Projects extends Controller {
   }
 
   def show(projectId: Long) = Action {
-    Project.findById(projectId).map {
-      project =>
-        Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), projectForm(project),
-          StatusMonitors.statusMonitorForm(projectId)))
-    }.getOrElse(NotFound)
+    implicit request =>
+      Project.findById(projectId).map {
+        project =>
+          render {
+            case Accepts.Html() =>
+              Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), projectForm(project),
+                StatusMonitors.statusMonitorForm(projectId)))
+            case Accepts.Json() =>
+              Ok(Json.toJson(project))
+          }
+      }.getOrElse(NotFound)
   }
 
   def create = Action {

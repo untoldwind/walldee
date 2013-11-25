@@ -4,7 +4,7 @@
 
 // Declare here that angular is the US version - other locales can be easily substituted.
 
-define('angular', ['webjars!angular-locale_en-us.js', 'webjars!angular-route.js', 'webjars!angular-resource.js', 'webjars!ui-bootstrap.js'], function () {
+define('angular', ['webjars!angular.js', 'webjars!angular-route.js', 'webjars!angular-resource.js'], function () {
     return angular;
 });
 
@@ -18,10 +18,10 @@ require([ 'angular', './controllers', './directives', './filters', './services']
 
 // Declare app level module which depends on filters, and services
 
-    angular.module('walldee', ['ngRoute', 'ngResource', 'ui.bootstrap', 'walldee.filters', 'walldee.services', 'walldee.directives', 'walldee.controllers']).
+    angular.module('walldee', ['ngRoute', 'ngResource', 'walldee.filters', 'walldee.services', 'walldee.directives', 'walldee.controllers']).
         config(['$routeProvider', function ($routeProvider) {
-            $routeProvider.when('/projects', {templateUrl: '/assets/config/partials/partial1.html'});
-            $routeProvider.when('/teams', {templateUrl: '/assets/config/partials/partial2.html'});
+            $routeProvider.when('/projects', {templateUrl: '/config/projects'});
+            $routeProvider.when('/teams', {templateUrl: '/config/teams'});
             $routeProvider.otherwise({redirectTo: '/view1'});
         }]);
 
