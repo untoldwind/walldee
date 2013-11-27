@@ -217,7 +217,7 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
         statusMonitor.password.map("password" -> JsString(_)).toSeq ++
         statusMonitor.lastUpdated.map(d => "lastUpdated" -> JsNumber(d.getTime)).toSeq ++
         statusMonitor.lastQueried.map(d => "lastQueried" -> JsNumber(d.getTime)).toSeq ++
-        statusMonitor.config.map("config" ->).toSeq
+        statusMonitor.config.map("config" -> _).toSeq
     )
   }
 }

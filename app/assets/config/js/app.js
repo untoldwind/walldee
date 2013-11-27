@@ -20,9 +20,9 @@ require([ 'angular', './controllers', './directives', './filters', './services']
 
     angular.module('walldee', ['ngRoute', 'ngResource', 'walldee.filters', 'walldee.services', 'walldee.directives', 'walldee.controllers']).
         config(['$routeProvider', function ($routeProvider) {
-            $routeProvider.when('/projects', {templateUrl: '/config/projects'});
-            $routeProvider.when('/teams', {templateUrl: '/config/teams'});
-            $routeProvider.otherwise({redirectTo: '/view1'});
+            $routeProvider.when('/projects', {templateUrl: '/config/projects', reloadOnSearch:false});
+            $routeProvider.when('/teams', {templateUrl: '/config/teams', reloadOnSearch:false});
+            $routeProvider.otherwise({redirectTo: '/'});
         }]);
 
     angular.bootstrap(document, ['walldee']);

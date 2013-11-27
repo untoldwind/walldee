@@ -1,15 +1,29 @@
 package controllers
 
 import play.api.mvc.{Action, Controller}
-import models.{Team, DayCount, Story, Sprint}
+import models._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import models.sprints.{SprintCounter, SprintCounterSide}
 import validation.Constraints
 import play.api.data.format._
+import scala.Some
+import play.api.libs.json.{Json, JsArray}
+import scala.Some
 
 object Sprints extends Controller {
+  def index(teamId: Long) = Action {
+    implicit request =>
+      render {
+        case Accepts.Json() =>
+          Team.findById(teamId).map {
+            team =>
+              Ok(JsArray(Sprint.findAllForTeam(teamId).map(Json.toJson(_))))
+          }.getOrElse(NotFound)
+      }
+  }
+
   def create(teamId: Long) = Action {
     implicit request =>
       Team.findById(teamId).map {

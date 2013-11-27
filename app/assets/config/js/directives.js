@@ -68,10 +68,10 @@ define(['angular'], function (angular) {
             restrict: 'A',
             scope: {
                 editText: "=inPlaceEdit",
-                textChanged: "=inPlaceChange"
+                textChanged: "=inPlaceOnChange"
             },
             template: '<form ng-submit="textChanged(editText); formVisible=false" style="display: inline-block">' +
-                '<span ng-hide="formVisible">{{ editText }}' +
+                '<span ng-hide="formVisible">{{ editText }} ' +
                 '<button type="button" class="btn btn-xs btn-default" ng-click="formVisible=true">' +
                 '<span class="glyphicon glyphicon-pencil"></span></button></span>' +
                 '<span ng-show="formVisible">' +

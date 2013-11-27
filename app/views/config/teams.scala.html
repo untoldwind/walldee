@@ -8,7 +8,28 @@
         </li>
     </ul>
     <div class="tab-content">
-        <div class="tab-pane active">
+        <div class="tab-pane jumbotron" ng-class="{active: selectedTeam == null}">
+            <h1>Teams</h1>
+
+            <p>
+                Teams are just what you would expect: Groups of people working together as a team on all sorts for
+                projects.
+            </p>
+            <p>
+                In WallDee teams serve as container for all team-specific information you might want to see on your
+                wall display. If you are organized in Scrum-teams this may be:
+            </p>
+            <ul>
+                <li>Sprints you are or have been working on.</li>
+                <li>Your task burndown.</li>
+                <lI>...</lI>
+            </ul>
+            <p>
+                <button class="btn btn-lg btn-success ng-click="newTeam()">Create new team</button>
+            </p>
+        </div>
+        <div class="tab-pane" ng-class="{active: selectedTeam != null}">
+            <h1>Team: <span in-place-edit="selectedTeam.name"></span></h1>
         {{ selectedTeam }}
         </div>
     </div>

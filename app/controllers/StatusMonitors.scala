@@ -6,8 +6,20 @@ import play.api.data._
 import play.api.data.Forms._
 import models.statusMonitors.{FreestyleTypes, FreestyleConfig, IcingaExpected, IcingaConfig}
 import scala.util.matching.Regex
+import play.api.libs.json.{JsArray, Json}
 
 object StatusMonitors extends Controller {
+  def index(projectId: Long) = Action {
+    implicit request =>
+      render {
+        case Accepts.Json() =>
+          Project.findById(projectId).map {
+            project =>
+              Ok(JsArray(StatusMonitor.finaAllForProject(projectId).map(Json.toJson(_))))
+          }.getOrElse(NotFound)
+      }
+  }
+
   def create(projectId: Long) = Action {
     implicit request =>
       Project.findById(projectId).map {
@@ -28,6 +40,20 @@ object StatusMonitors extends Controller {
     } yield {
       Ok(views.html.statusMonitors.show(project, statusMonitor, StatusValue.findAllForStatusMonitor(statusMonitorId)))
     }).getOrElse(NotFound)
+  }
+
+  def values(projectId: Long, statusMonitorId: Long) = Action {
+    implicit request =>
+      render {
+        case Accepts.Json() =>
+          Project.findById(projectId).flatMap {
+            project =>
+              StatusMonitor.findById(statusMonitorId).map {
+                statusMonitor =>
+                  Ok(JsArray(StatusValue.findAllForStatusMonitor(statusMonitorId).map(Json.toJson(_))))
+              }
+          }.getOrElse(NotFound)
+      }
   }
 
   def edit(projectId: Long, statusMonitorId: Long) = Action {

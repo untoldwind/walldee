@@ -1,4 +1,4 @@
-<div class="tabbable tabs-left" ng-controller="Projects">
+<div class="tabbable tabs-left" ng-controller="Projects" xmlns="http://www.w3.org/1999/html">
     <ul class="nav nav-tabs">
         <li ng-repeat="project in projects" ng-class="{active: project == selectedProject}">
             <a ng-click="select(project)">{{ project.name }}</a>
@@ -12,7 +12,7 @@
             <h1>Projects</h1>
 
             <p>
-                Projects are just what you would assume them to be: Some sort of project you and your teammates are
+                Projects are just what you would expect: Some sort of project you and your teammates are
                 currently working on.
             </p>
             <p>
@@ -24,10 +24,53 @@
                 <lI>Status of your staging systems (Nagios)</lI>
                 <li>...</li>
             </ul>
+            <p>
+                <button class="btn btn-lg btn-success ng-click="newProject()">Create new project</button>
+            </p>
         </div>
         <div class="tab-pane" ng-class="{active: selectedProject != null}">
-            <h1>Project: <span in-place-edit="selectedProject.name" in-place-change="changeProjectName"></span></h1>
-        {{ selectedProject }}
+            <h1>Project: <span in-place-edit="selectedProject.name" in-place-on-change="changeProjectName"></span></h1>
+            <div class="tabbable">
+                <ul class="nav nav-tabs">
+                    @StatusMonitorTypes.values.iterator.map { statusMonitorType =>
+                        <li ng-class="{active: currentStatusMonitors == '@statusMonitorType'}">
+                            <a ng-click="currentStatusMonitors = '@statusMonitorType'">@statusMonitorType Status</a>
+                        </li>
+                    }
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active">
+                        <table class="table table-striped table-hover">
+                            <tr>
+                                <th>Active</th>
+                                <th>Name</th>
+                                <th>Last updated</th>
+                                <th>Last queried</th>
+                            </tr>
+                            <tr ng-repeat="statusMonitor in statusMonitors | filter:isCurrentStatusMonitor" ng-class="{success: statusMonitor == selectedStatusMonitor}" ng-click="selectStatusMonitor(statusMonitor)">
+                                <td><span class="glyphicon" ng-class="{'glyphicon-check': statusMonitor.active, 'glyphicon-unchecked': !statusMonitor.active}"></span></td>
+                                <td>{{ statusMonitor.name }}</td>
+                                <td>{{ statusMonitor.lastUpdated | date:'medium' }}</td>
+                                <td>{{ statusMonitor.lastQueried | date:'medium' }}</td>
+                            </tr>
+                        </table>
+                        <div>
+                            <button class="btn btn-success">New {{ currentStatusMonitors }} status</button>
+                        </div>
+                    </div>
+                    <div class="tab-pane" ng-class="{active: selectedStatusMonitor != null}">
+                        <h1>{{ currentStatusMonitors }}: <span in-place-edit="selectedStatusMonitor.name"></span></h1>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="statucMonitor-url" class="col-sm-1 control-label">Url:</label>
+                                <div class="col-sm-11">
+                                    <input type="text" id="statucMonitor-url" class="form-control" ng-model="selectedStatusMonitor.url">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

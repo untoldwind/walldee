@@ -1,7 +1,7 @@
 package models
 
 import java.sql.Date
-import play.api.libs.json.Json
+import play.api.libs.json._
 import org.joda.time.{DateTimeConstants, DateMidnight}
 import play.api.db._
 import play.api.Play.current
@@ -10,6 +10,9 @@ import org.joda.time.format.DateTimeFormat
 import java.util.Locale
 import sprints.SprintCounter
 import globals.Global
+import scala.Some
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
 
 case class Sprint(id: Option[Long],
                   teamId: Long,
@@ -134,5 +137,20 @@ object Sprint extends Table[Sprint]("SPRINT") {
   def findById(sprintId: Long): Option[Sprint] = database.withSession {
     implicit db: Session =>
       query.where(s => s.id === sprintId).firstOption
+  }
+
+  implicit val jsonWrites = new Writes[Sprint] {
+    def writes(sprint: Sprint) = JsObject(
+      sprint.id.map("id" -> JsNumber(_)).toSeq ++
+        Seq(
+          "teamId" -> JsNumber(sprint.teamId),
+          "title" -> JsString(sprint.title),
+          "num" -> JsNumber(sprint.num),
+          "sprintStart" -> JsNumber(sprint.sprintStart.getTime),
+          "sprintEnd" -> JsNumber(sprint.sprintEnd.getTime),
+          "languageTag" -> JsString(sprint.languageTag),
+          "counters" -> Json.parse(sprint.countersJson)
+        )
+    )
   }
 }

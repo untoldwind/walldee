@@ -10,16 +10,16 @@ define(['angular'], function (angular) {
 
     services.value('version', '0.1');
 
-    services.factory("projectService", ['$resource', function ($resource) {
-        var projectResource = $resource('/projects/:projectId', {projectId:'@id'}, {
-            'update': {method:'PUT'}
+    services.factory('projectResource', ['$resource', function ($resource) {
+        return $resource('/projects/:projectId', {projectId: '@id'}, {
+            'update': {method: 'PUT'}
         });
+    }]);
 
-        return {
-            findAll: function () {
-                return projectResource.query().$promise;
-            }
-        };
+    services.factory('statusMonitorResource', ['$resource', function ($resource) {
+        return $resource('/projects/:projectId/statusMonitors/:statusMonitorId', {projectId: '@projectId', statusMonitorId: '@id'}, {
+            'update': {method: 'PUT'}
+        });
     }]);
 
     services.factory('teamService', ['$resource', function ($resource) {

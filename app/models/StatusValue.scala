@@ -4,10 +4,11 @@ import play.api.db._
 import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import java.util.Date
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json._
 import models.statusValues.{FreestyleStatus, MetricStatus, BuildStatus, HostsStatus}
 import globals.Global
 import models.DateMapper.date2timestamp
+import play.api.libs.json.JsObject
 
 case class StatusValue(id: Option[Long],
                        statusMonitorId: Long,
@@ -104,5 +105,17 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
   def findLastForStatusMonitor(statusMonitorId: Long): Option[StatusValue] = database.withSession {
     implicit db: Session =>
       query.where(s => s.statusMonitorId === statusMonitorId).sortBy(s => s.id.desc).firstOption
+  }
+
+  implicit val jsonWrites = new Writes[StatusValue] {
+    def writes(statusValue: StatusValue) = JsObject(
+      statusValue.id.map("id" -> JsNumber(_)).toSeq ++
+        Seq(
+          "statusMonitorId" -> JsNumber(statusValue.statusMonitorId),
+          "statusNum" -> JsNumber(statusValue.statusNum),
+          "retrievedAt" -> JsNumber(statusValue.retrievedAt.getTime),
+          "values" -> statusValue.statusValues
+        )
+    )
   }
 }
