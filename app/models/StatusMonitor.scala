@@ -4,11 +4,14 @@ import play.api.db._
 import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import java.util.Date
-import play.api.libs.json.Json
+import play.api.libs.json._
 import models.statusMonitors.{FreestyleConfig, IcingaConfig}
 import globals.Global
 import models.DateMapper.date2timestamp
 import scala.collection.mutable
+import scala.Some
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
 
 case class StatusMonitor(id: Option[Long] = None,
                          projectId: Long,
@@ -25,7 +28,7 @@ case class StatusMonitor(id: Option[Long] = None,
                          configJson: Option[String] = None) {
   def this(projectId: Long) = this(None, projectId, "", 0, "", None, None, true, 10, 60, None, None, None)
 
-  def config = configJson.map(Json.parse(_))
+  def config = configJson.map(Json.parse)
 
   def monitorType = StatusMonitorTypes(typeNum)
 
@@ -138,7 +141,7 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
         None
     }
     StatusMonitor(id, projectId, name, typeNum, url, username, password, active, keepHistory, updatePeriod,
-      lastQueried, lastUpdated, config.map(Json.stringify(_)))
+      lastQueried, lastUpdated, config.map(Json.stringify))
   }
 
   def formUnapply(statusMonitor: StatusMonitor) =
@@ -196,5 +199,25 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
   def finaAllForProject(projectId: Long, types: Seq[StatusMonitorTypes.Type]): Seq[StatusMonitor] = database.withSession {
     implicit db: Session =>
       query.where(s => s.projectId === projectId && s.active && s.typeNum.inSet(types.map(_.id))).sortBy(s => s.name.asc).list
+  }
+
+  implicit val jsonWrites = new Writes[StatusMonitor] {
+    def writes(statusMonitor: StatusMonitor) = JsObject(
+      statusMonitor.id.map("id" -> JsNumber(_)).toSeq ++
+        Seq(
+          "projectId" -> JsNumber(statusMonitor.projectId),
+          "name" -> JsString(statusMonitor.name),
+          "type" -> JsString(StatusMonitorTypes(statusMonitor.typeNum).toString),
+          "url" -> JsString(statusMonitor.url),
+          "active" -> JsBoolean(statusMonitor.active),
+          "keepHistory" -> JsNumber(statusMonitor.keepHistory),
+          "updatePeriod" -> JsNumber(statusMonitor.updatePeriod)
+        ) ++
+        statusMonitor.username.map("username" -> JsString(_)).toSeq ++
+        statusMonitor.password.map("password" -> JsString(_)).toSeq ++
+        statusMonitor.lastUpdated.map(d => "lastUpdated" -> JsNumber(d.getTime)).toSeq ++
+        statusMonitor.lastQueried.map(d => "lastQueried" -> JsNumber(d.getTime)).toSeq ++
+        statusMonitor.config.map("config" ->).toSeq
+    )
   }
 }
