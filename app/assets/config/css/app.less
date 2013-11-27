@@ -1,7 +1,11 @@
 /* app css stylesheet */
 
+html, body {
+  height: 100%;
+}
+
 body {
-  min-height: 2000px;
+  margin: 0;
 }
 .navbar-static-top {
   margin-bottom: 19px;
@@ -11,6 +15,12 @@ body {
 .tabs-right > .nav-tabs,
 .tabs-left > .nav-tabs {
   border-bottom: 0;
+}
+
+.tabs-left > .tab-content {
+  display: table-cell;
+  padding: 0px 00px 00px 10px;
+  vertical-align: top;
 }
 
 .tab-content > .tab-pane,
@@ -60,10 +70,13 @@ body {
   min-width: 74px;
   margin-right: 0;
   margin-bottom: 3px;
+  white-space: nowrap;
 }
 
 .tabs-left > .nav-tabs {
-  float: left;
+  display: table-cell;
+  vertical-align: top;
+//  float: left;
   margin-right: 19px;
   border-right: 1px solid #ddd;
 }
@@ -110,4 +123,20 @@ body {
 .tabs-right > .nav-tabs .active > a:focus {
   border-color: #ddd #ddd #ddd transparent;
   *border-left-color: #ffffff;
+}
+
+#wrap {
+  height: auto;
+  margin: 0 auto -30px;
+  min-height: 100%;
+  padding: 0 0 30px;
+}
+
+#footer .container {
+  background-color: #F5F5F5;
+  height: 30px;
+}
+
+.container .credit {
+  margin: 5px 0;
 }

@@ -9,33 +9,40 @@
         <script data-main="@routes.Assets.at("config/js/app")" src="@routes.WebJarAssets.requirejs"></script>
     </head>
     <body>
-        <div class="container">
-            <nav class="navbar navbar-default" role="navigation">
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Walldee</a>
+        <div id="wrap">
+            <div class="container">
+                <div class="navbar navbar-default" role="navigation">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">Walldee</a>
+                    </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#/projects" active-link>Projects</a></li>
+                            <li><a href="#/teams" active-link>Teams</a></li>
+                            <li><a href="#/alarms" active-link>Alarms</a></li>
+                            <li><a href="#/displays" active-link>Displays</a></li>
+                        </ul>
+                    </div> <!-- /.navbar-collapse -->
                 </div>
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="nav navbar-nav">
-                        <li><a href="#/projects" active-link>Projects</a></li>
-                        <li><a href="#/teams" active-link>Teams</a></li>
-                        <li><a href="#/alarms" active-link>Alarms</a></li>
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </nav>
-
-            <div ng-view></div>
-
-            <div>Angular seed app: v<span app-version></span></div>
+                <div ng-view></div>
+            </div>
         </div>
-
+        <div id="footer">
+            <div class="container">
+                <p class="text-muted credit">
+                    <a href="https://github.com/untoldwind/walldee">WallDee</a> v<span app-version></span>
+                </p>
+            </div>
+        </div>
     </body>
 </html>

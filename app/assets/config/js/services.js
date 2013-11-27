@@ -11,15 +11,13 @@ define(['angular'], function (angular) {
     services.value('version', '0.1');
 
     services.factory("projectService", ['$resource', function ($resource) {
-        var projectsResource = $resource('/projects', {}, {
-            'get': {
-                method: 'GET',
-                isArray: true
-            }});
+        var projectResource = $resource('/projects/:projectId', {projectId:'@id'}, {
+            'update': {method:'PUT'}
+        });
 
         return {
             findAll: function () {
-                return projectsResource.get().$promise;
+                return projectResource.query().$promise;
             }
         };
     }]);

@@ -1,10 +1,10 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{AnyContentAsJson, Action, Controller}
 import models.{StatusMonitor, Project}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{JsArray, JsObject, Json}
+import play.api.libs.json.{JsSuccess, JsArray, Json}
 
 object Projects extends Controller {
   def index = Action {
@@ -43,17 +43,27 @@ object Projects extends Controller {
 
   def update(projectId: Long) = Action {
     implicit request =>
-      Project.findById(projectId).map {
-        project =>
-          projectForm(project).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), formWithErrors,
-            StatusMonitors.statusMonitorForm(projectId))), {
+      request.body match {
+        case AnyContentAsJson(json) =>
+          Json.fromJson[Project](json)(Project.jsonReads(Some(projectId))) match {
+            case JsSuccess(projectFromJson, _) =>
+              if (projectFromJson.update) NoContent else NotFound
+            case _ =>
+              BadRequest
+          }
+        case _ =>
+          Project.findById(projectId).map {
             project =>
-              project.update
-              Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), projectForm(project),
-                StatusMonitors.statusMonitorForm(projectId)))
-          })
-      }.getOrElse(NotFound)
+              projectForm(project).bindFromRequest.fold(
+              formWithErrors => BadRequest(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), formWithErrors,
+                StatusMonitors.statusMonitorForm(projectId))), {
+                project =>
+                  project.update
+                  Ok(views.html.projects.show(project, StatusMonitor.findAllGroupedByType(projectId), projectForm(project),
+                    StatusMonitors.statusMonitorForm(projectId)))
+              })
+          }.getOrElse(NotFound)
+      }
   }
 
   def delete(projectId: Long) = Action {

@@ -23,12 +23,16 @@ case class Project(id: Option[Long] = None,
     }
   }
 
-  def update = {
-    Project.database.withSession {
+  def update: Boolean = {
+    if (Project.database.withSession {
       implicit db: Session =>
-        Project.where(_.id === id).update(this)
+        Project.where(_.id === id).update(this) == 1
+    }) {
+      Global.displayUpdater ! this
+      true
+    } else {
+      false
     }
-    Global.displayUpdater ! this
   }
 
   def delete = {
@@ -68,16 +72,18 @@ object Project extends Table[Project]("PROJECT") {
       query.where(p => p.name === name).firstOption
   }
 
-  implicit val jsonFormat = new Format[Project] {
-    override def reads(json: JsValue): JsResult[Project] =
-      JsSuccess(Project(
-        (json \ "id").asOpt[Long],
-        (json \ "name").as[String]))
-
+  implicit val jsonWrites = new Writes[Project] {
     override def writes(project: Project): JsValue = JsObject(
       project.id.map("id" -> JsNumber(_)).toSeq ++
         Seq(
           "name" -> JsString(project.name)
         ))
+  }
+
+  def jsonReads(projectId: Option[Long]): Reads[Project] = new Reads[Project] {
+    override def reads(json: JsValue): JsResult[Project] =
+      JsSuccess(Project(
+        projectId,
+        (json \ "name").as[String]))
   }
 }

@@ -40,6 +40,7 @@ GET           /projects                                                        c
 POST          /projects                                                        controllers.Projects.create
 GET           /projects/:projectId                                             controllers.Projects.show(projectId:Long)
 POST          /projects/:projectId                                             controllers.Projects.update(projectId:Long)
+PUT           /projects/:projectId                                             controllers.Projects.update(projectId:Long)
 DELETE        /projects/:projectId                                             controllers.Projects.delete(projectId:Long)
 
 POST          /projects/:projectId/statusMonitors                              controllers.StatusMonitors.create(projectId:Long)

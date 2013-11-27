@@ -8,7 +8,25 @@
         </li>
     </ul>
     <div class="tab-content">
-        <div class="tab-pane active">
+        <div class="tab-pane jumbotron" ng-class="{active: selectedProject == null}">
+            <h1>Projects</h1>
+
+            <p>
+                Projects are just what you would assume them to be: Some sort of project you and your teammates are
+                currently working on.
+            </p>
+            <p>
+                In WallDee projects serve as container for all project-specific information you might want to see on
+                your wall display. Like:
+            </p>
+            <ul>
+                <li>Current build status of your CI (Teamcity or Jenkins atm)</li>
+                <lI>Status of your staging systems (Nagios)</lI>
+                <li>...</li>
+            </ul>
+        </div>
+        <div class="tab-pane" ng-class="{active: selectedProject != null}">
+            <h1>Project: <span in-place-edit="selectedProject.name" in-place-change="changeProjectName"></span></h1>
         {{ selectedProject }}
         </div>
     </div>
