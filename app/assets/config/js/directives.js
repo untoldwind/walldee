@@ -79,5 +79,32 @@ define(['angular'], function (angular) {
                 '</span>' +
                 '</form>'
         };
-    })
+    });
+
+    directives.directive('confirmDelete', ['$document', function ($document) {
+        return {
+            restrict: 'A',
+            scope: {
+                title: '=confirmDelete',
+                deleteAction: '=onDelete'
+            },
+            template: '<button class="btn btn-danger dropdown-toggle" ng-click="opened = true; $event.stopPropagation()">Delete <span class="caret"></span></button>' +
+                '<ul class="dropdown-menu" role="menu">' +
+                '<li><a ng-click="deleteAction()">Delete {{ title }}</a></li>' +
+                '</ul>',
+            link: function (scope, element, attrs) {
+                element.addClass('btn-group');
+                scope.opened = false;
+                scope.$watch('opened', function(opened) {
+                    if (opened)
+                        element.addClass('open');
+                    else
+                        element.removeClass('open');
+                });
+                $document.bind('click', function() {
+                    scope.$apply(scope.opened = false);
+                })
+            }
+        };
+    }]);
 });

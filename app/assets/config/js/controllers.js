@@ -5,37 +5,51 @@
 define(['angular'], function (angular) {
     var controllers = angular.module('walldee.controllers', []);
 
-    controllers.controller('Projects', ['$scope', '$route', '$location', 'projectResource', 'statusMonitorResource',
-        function ($scope, $route, $location, projectResource, statusMonitorResource) {
-            $scope.selectedProject = null;
-            $scope.statusMonitors = [];
+    controllers.controller('Projects', ['$scope', '$route', '$location', 'projectResource',
+        function ($scope, $route, $location, projectResource) {
 
-            projectResource.query().$promise.then(function (projects) {
-                $scope.projects = projects;
-                var paramProjectId = $route.current.params.projectId;
+            function loadProjects(selectedProjectId) {
+                projectResource.query().$promise.then(function (projects) {
+                    $scope.select(null);
+                    $scope.projects = projects;
 
-                angular.forEach(projects, function (project) {
-                    if (project.id == paramProjectId) {
-                        $scope.select(project);
-                    }
+                    angular.forEach(projects, function (project) {
+                        if (project.id == selectedProjectId) {
+                            $scope.select(project);
+                        }
+                    });
                 });
-            });
+            }
+
+            loadProjects($route.current.params.projectId);
 
             $scope.select = function (project) {
                 $scope.selectedProject = project;
-                $scope.statusMonitors = statusMonitorResource.query({projectId: project.id})
-                $scope.currentStatusMonitorType = "Jenkins";
-                $scope.selectedStatusMonitor = null;
-                $location.search('projectId', $scope.selectedProject.id);
+                $location.search('projectId', $scope.selectedProject != null ? $scope.selectedProject.id : null);
             };
 
-            $scope.selectStatusMonitorType = function (statusMonitorType) {
-                $scope.currentStatusMonitorType = statusMonitorType;
-                $scope.selectedStatusMonitor = null;
-            }
+            $scope.isSelected = function (project) {
+                if ( project == null )
+                    return $scope.selectedProject != null && $scope.selectedProject.id == null;
+                else
+                    return $scope.selectedProject != null && project.id == $scope.selectedProject.id;
+            };
 
             $scope.newProject = function () {
+                $scope.selectedProject = { name:'' };
+                $location.search('projectId', null);
+            };
 
+            $scope.createProject = function() {
+                projectResource.create($scope.selectedProject).$promise.then(function (response) {
+                    loadProjects(response.id);
+                });
+            };
+
+            $scope.deleteProject = function() {
+                $scope.selectedProject.$delete().then(function() {
+                    loadProjects(null);
+                });
             };
 
             $scope.changeProjectName = function (name) {
@@ -44,18 +58,47 @@ define(['angular'], function (angular) {
                     $scope.selectedProject.$get();
                 });
             };
+        }]);
 
-            $scope.changeStatusMonitorName = function(name) {
+    controllers.controller('Project', ['$scope', 'statusMonitorResource',
+        function ($scope, statusMonitorResource) {
+            $scope.$watch('selectedProject', function (project) {
+                $scope.project = project;
+                $scope.selectedStatusMonitor = null;
+                $scope.currentStatusMonitorType = "Jenkins";
+                if (project != null && project.id != null) {
+                    $scope.statusMonitors = statusMonitorResource.query({projectId: project.id});
+                }
+            });
+
+            $scope.isNoProject = function () {
+                return $scope.project == null;
+            };
+
+            $scope.isProjectEdit = function () {
+                return $scope.project != null && $scope.project.id != null;
+            };
+
+            $scope.isProjectCreate = function () {
+                return $scope.project != null && $scope.project.id == null;
+            };
+
+            $scope.selectStatusMonitorType = function (statusMonitorType) {
+                $scope.currentStatusMonitorType = statusMonitorType;
+                $scope.selectedStatusMonitor = null;
+            };
+
+            $scope.changeStatusMonitorName = function (name) {
                 $scope.selectedStatusMonitor.name = name;
                 $scope.saveCurrentStatusMonitor();
             };
 
-            $scope.saveCurrentStatusMonitor = function() {
+            $scope.saveCurrentStatusMonitor = function () {
                 $scope.statusMonitorChanged = false;
-                $scope.selectedStatusMonitor.$update().then(null, function() {
+                $scope.selectedStatusMonitor.$update().then(null, function () {
                     $scope.selectedStatusMonitor.$get();
                 });
-            }
+            };
 
             $scope.isCurrentStatusMonitorType = function (statusMonitor) {
                 return statusMonitor.type == $scope.currentStatusMonitorType;

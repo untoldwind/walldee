@@ -12,6 +12,14 @@ define(['angular'], function (angular) {
 
     services.factory('projectResource', ['$resource', function ($resource) {
         return $resource('/projects/:projectId', {projectId: '@id'}, {
+            'create': {
+                method: 'POST',
+                transformResponse: function(data, headers) {
+                    var location = headers('Location');
+
+                    return {location: location, id: location.substring(10)};
+                }
+            },
             'update': {method: 'PUT'}
         });
     }]);

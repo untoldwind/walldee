@@ -1,14 +1,14 @@
 <div class="tabbable tabs-left" ng-controller="Projects" xmlns="http://www.w3.org/1999/html">
     <ul class="nav nav-tabs">
-        <li ng-repeat="project in projects" ng-class="{active: project == selectedProject}">
+        <li ng-repeat="project in projects" ng-class="{active: isSelected(project)}">
             <a ng-click="select(project)">{{ project.name }}</a>
         </li>
-        <li>
+        <li ng-class="{active: isSelected()}">
             <a ng-click="newProject()"><span class="glyphicon glyphicon-plus-sign"></span> New Project</a>
         </li>
     </ul>
-    <div class="tab-content">
-        <div class="tab-pane jumbotron" ng-class="{active: selectedProject == null}">
+    <div class="tab-content" ng-controller="Project">
+        <div class="tab-pane jumbotron" ng-class="{active: isNoProject()}">
             <h1>Projects</h1>
 
             <p>
@@ -25,15 +25,17 @@
                 <li>...</li>
             </ul>
             <p>
-                <button class="btn btn-lg btn-success ng-click=" newProject()">Create new project</button>
+                <button class="btn btn-lg btn-success" ng-click="newProject()">Create new project</button>
             </p>
         </div>
-        <div class="tab-pane" ng-class="{active: selectedProject != null}">
+        <div class="tab-pane" ng-class="{active: isProjectEdit()}">
+            <div class="pull-right" confirm-delete="selectedProject.name" on-delete="deleteProject">
+            </div>
             <h1>Project: <span in-place-edit="selectedProject.name" in-place-on-change="changeProjectName"></span></h1>
             <div class="tabbable">
                 <ul class="nav nav-tabs">
                 @StatusMonitorTypes.values.iterator.map { statusMonitorType =>
-                    <li ng-class="{active: currentStatusMontorType == '@statusMonitorType'}">
+                    <li ng-class="{active: currentStatusMonitorType == '@statusMonitorType'}">
                         <a ng-click="selectStatusMonitorType('@statusMonitorType')">@statusMonitorType Status</a>
                     </li>
                 }
@@ -55,7 +57,8 @@
                             </tr>
                         </table>
                         <div>
-                            <button class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span> New {{ currentStatusMonitorType }} status</button>
+                            <button class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span>
+                                New {{ currentStatusMonitorType }} status</button>
                         </div>
                     </div>
                     <div class="tab-pane" ng-class="{active: selectedStatusMonitor != null}">
@@ -96,6 +99,18 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="tab-pane" ng-class="{active: isProjectCreate()}">
+            <h1>New Project</h1>
+            <form class="form-horizontal" role="form" ng-submit="createProject()">
+                <div class="form-group">
+                    <label for="project-name" class="col-sm-1 control-label">Name:</label>
+                    <div class="col-sm-11">
+                        <input type="text" id="project-name" class="form-control" ng-model="project.name">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="project.name == ''">Create project</button>
+            </form>
         </div>
     </div>
 </div>
