@@ -26,7 +26,8 @@ object ApplicationBuild extends Build {
     "org.webjars" % "angular-ui" % "0.4.0-1",
     "org.webjars" % "angular-ui-bootstrap" % "0.6.0-1",
     "org.webjars" % "angular-ui-utils" % "47ff7ef35c",
-    "org.mockito" % "mockito-all" % "1.9.0" % "test"
+    "org.mockito" % "mockito-all" % "1.9.0" % "test",
+    "com.github.tomakehurst" % "wiremock" % "1.33" % "test" classifier "standalone"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings {

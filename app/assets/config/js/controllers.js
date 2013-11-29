@@ -5,7 +5,7 @@
 define(['angular'], function (angular) {
     var controllers = angular.module('walldee.controllers', []);
 
-    controllers.controller('Projects', ['$scope', '$route', '$location',  'projectResource', 'statusMonitorResource',
+    controllers.controller('Projects', ['$scope', '$route', '$location', 'projectResource', 'statusMonitorResource',
         function ($scope, $route, $location, projectResource, statusMonitorResource) {
             $scope.selectedProject = null;
             $scope.statusMonitors = [];
@@ -14,8 +14,8 @@ define(['angular'], function (angular) {
                 $scope.projects = projects;
                 var paramProjectId = $route.current.params.projectId;
 
-                angular.forEach(projects, function(project) {
-                    if ( project.id == paramProjectId ) {
+                angular.forEach(projects, function (project) {
+                    if (project.id == paramProjectId) {
                         $scope.select(project);
                     }
                 });
@@ -24,10 +24,15 @@ define(['angular'], function (angular) {
             $scope.select = function (project) {
                 $scope.selectedProject = project;
                 $scope.statusMonitors = statusMonitorResource.query({projectId: project.id})
-                $scope.currentStatusMonitors = "Jenkins";
+                $scope.currentStatusMonitorType = "Jenkins";
                 $scope.selectedStatusMonitor = null;
                 $location.search('projectId', $scope.selectedProject.id);
             };
+
+            $scope.selectStatusMonitorType = function (statusMonitorType) {
+                $scope.currentStatusMonitorType = statusMonitorType;
+                $scope.selectedStatusMonitor = null;
+            }
 
             $scope.newProject = function () {
 
@@ -36,15 +41,27 @@ define(['angular'], function (angular) {
             $scope.changeProjectName = function (name) {
                 $scope.selectedProject.name = name;
                 $scope.selectedProject.$update().then(null, function () {
-                    $scope.selectedProject.$get()
+                    $scope.selectedProject.$get();
                 });
             };
 
-            $scope.isCurrentStatusMonitor = function(statusMonitor) {
-                return statusMonitor.type == $scope.currentStatusMonitors;
+            $scope.changeStatusMonitorName = function(name) {
+                $scope.selectedStatusMonitor.name = name;
+                $scope.saveCurrentStatusMonitor();
             };
 
-            $scope.selectStatusMonitor = function(statusMonitor) {
+            $scope.saveCurrentStatusMonitor = function() {
+                $scope.statusMonitorChanged = false;
+                $scope.selectedStatusMonitor.$update().then(null, function() {
+                    $scope.selectedStatusMonitor.$get();
+                });
+            }
+
+            $scope.isCurrentStatusMonitorType = function (statusMonitor) {
+                return statusMonitor.type == $scope.currentStatusMonitorType;
+            };
+
+            $scope.selectStatusMonitor = function (statusMonitor) {
                 $scope.selectedStatusMonitor = statusMonitor;
             };
         }]);

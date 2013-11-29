@@ -51,6 +51,7 @@ GET           /projects/:projectId/statusMonitors/:statusMonitorId              
 GET           /projects/:projectId/statusMonitors/:statusMonitorId/edit          controllers.StatusMonitors.edit(projectId:Long, statusMonitorId:Long)
 GET           /projects/:projectId/statusMonitors/:statusMonitorId/values        controllers.StatusMonitors.values(projectId:Long, statusMonitorId:Long)
 POST          /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
+PUT           /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
 DELETE        /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.delete(projectId:Long, statusMonitorId:Long)
 
 GET           /wizards                                                           controllers.Wizards.index

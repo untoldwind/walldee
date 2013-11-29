@@ -33,12 +33,23 @@ object Projects extends Controller {
 
   def create = Action {
     implicit request =>
-      projectForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.projects.index(Project.findAll, formWithErrors)), {
-        project =>
-          project.insert
-          Ok(views.html.projects.index(Project.findAll, projectForm()))
-      })
+      request.body match {
+        case AnyContentAsJson(json) =>
+          Json.fromJson[Project](json)(Project.jsonReads(None)) match {
+            case JsSuccess(project, _) =>
+              val projectId = project.insert
+              Created.withHeaders(LOCATION -> routes.Projects.show(projectId).url)
+            case _ =>
+              BadRequest
+          }
+        case _ =>
+          projectForm().bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.projects.index(Project.findAll, formWithErrors)), {
+            project =>
+              project.insert
+              Ok(views.html.projects.index(Project.findAll, projectForm()))
+          })
+      }
   }
 
   def update(projectId: Long) = Action {
@@ -46,8 +57,8 @@ object Projects extends Controller {
       request.body match {
         case AnyContentAsJson(json) =>
           Json.fromJson[Project](json)(Project.jsonReads(Some(projectId))) match {
-            case JsSuccess(projectFromJson, _) =>
-              if (projectFromJson.update) NoContent else NotFound
+            case JsSuccess(project, _) =>
+              if (project.update) NoContent else NotFound
             case _ =>
               BadRequest
           }

@@ -1,12 +1,12 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{AnyContentAsJson, Action, Controller}
 import models.{Project, StatusValue, StatusMonitor}
 import play.api.data._
 import play.api.data.Forms._
 import models.statusMonitors.{FreestyleTypes, FreestyleConfig, IcingaExpected, IcingaConfig}
 import scala.util.matching.Regex
-import play.api.libs.json.{JsArray, Json}
+import play.api.libs.json.{JsSuccess, JsArray, Json}
 
 object StatusMonitors extends Controller {
   def index(projectId: Long) = Action {
@@ -34,25 +34,30 @@ object StatusMonitors extends Controller {
   }
 
   def show(projectId: Long, statusMonitorId: Long) = Action {
-    (for {
-      project <- Project.findById(projectId)
-      statusMonitor <- StatusMonitor.findById(statusMonitorId)
-    } yield {
-      Ok(views.html.statusMonitors.show(project, statusMonitor, StatusValue.findAllForStatusMonitor(statusMonitorId)))
-    }).getOrElse(NotFound)
+    implicit request =>
+      (for {
+        project <- Project.findById(projectId)
+        statusMonitor <- StatusMonitor.findById(statusMonitorId)
+      } yield {
+        render {
+          case Accepts.Html() =>
+            Ok(views.html.statusMonitors.show(project, statusMonitor, StatusValue.findAllForStatusMonitor(statusMonitorId)))
+          case Accepts.Json() =>
+            Ok(Json.toJson(statusMonitor))
+        }
+      }).getOrElse(NotFound)
   }
 
   def values(projectId: Long, statusMonitorId: Long) = Action {
     implicit request =>
       render {
         case Accepts.Json() =>
-          Project.findById(projectId).flatMap {
-            project =>
-              StatusMonitor.findById(statusMonitorId).map {
-                statusMonitor =>
-                  Ok(JsArray(StatusValue.findAllForStatusMonitor(statusMonitorId).map(Json.toJson(_))))
-              }
-          }.getOrElse(NotFound)
+          (for {
+            project <- Project.findById(projectId)
+            statusMonitor <- StatusMonitor.findById(statusMonitorId)
+          } yield {
+            Ok(JsArray(StatusValue.findAllForStatusMonitor(statusMonitorId).map(Json.toJson(_))))
+          }).getOrElse(NotFound)
       }
   }
 
@@ -71,12 +76,22 @@ object StatusMonitors extends Controller {
         project <- Project.findById(projectId)
         statusMonitor <- StatusMonitor.findById(statusMonitorId)
       } yield {
-        statusMonitorForm(statusMonitor).bindFromRequest.fold(
-        formWithErrors => BadRequest(views.html.statusMonitors.edit(project, statusMonitor, formWithErrors)), {
-          statusMonitor =>
-            statusMonitor.update
-            Ok(views.html.statusMonitors.edit(project, statusMonitor, statusMonitorForm(statusMonitor)))
-        })
+        request.body match {
+          case AnyContentAsJson(json) =>
+            Json.fromJson[StatusMonitor](json)(StatusMonitor.jsonReads(projectId, Some(statusMonitorId))) match {
+              case JsSuccess(statusMonitorFromJson, _) =>
+                if (statusMonitorFromJson.update) NoContent else NotFound
+              case _ =>
+                BadRequest
+            }
+          case _ =>
+            statusMonitorForm(statusMonitor).bindFromRequest.fold(
+            formWithErrors => BadRequest(views.html.statusMonitors.edit(project, statusMonitor, formWithErrors)), {
+              statusMonitor =>
+                statusMonitor.update
+                Ok(views.html.statusMonitors.edit(project, statusMonitor, statusMonitorForm(statusMonitor)))
+            })
+        }
       }).getOrElse(NotFound)
   }
 

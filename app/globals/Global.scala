@@ -8,8 +8,9 @@ import play.api.{Application, GlobalSettings}
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
 import org.h2.tools.Server
+import akka.event.slf4j.SLF4JLogging
 
-object Global extends GlobalSettings {
+object Global extends GlobalSettings with SLF4JLogging {
   lazy val displayUpdater = Akka.system.actorOf(Props(new DisplayUpdater))
 
   lazy val backup = Akka.system.actorOf(Props(new Backup))
@@ -28,14 +29,19 @@ object Global extends GlobalSettings {
     app.configuration.getConfig("h2.server").foreach {
       h2ServerConfig =>
         if (h2ServerConfig.getBoolean("start").getOrElse(false)) {
-          h2ServerConfig.getInt("web.port").foreach {
-            webPort =>
-              h2WebServer = Some(Server.createWebServer("-webPort", webPort.toString))
+          try {
+            h2ServerConfig.getInt("web.port").foreach {
+              webPort =>
+                h2WebServer = Some(Server.createWebServer("-webPort", webPort.toString))
 
-          }
-          h2ServerConfig.getInt("tcp.port").foreach {
-            tcpPort =>
-              h2TcpServer = Some(Server.createTcpServer("-tcpPort", tcpPort.toString))
+            }
+            h2ServerConfig.getInt("tcp.port").foreach {
+              tcpPort =>
+                h2TcpServer = Some(Server.createTcpServer("-tcpPort", tcpPort.toString))
+            }
+          } catch {
+            case e: Exception =>
+              log.error("Failed to start h2 service", e)
           }
         }
     }

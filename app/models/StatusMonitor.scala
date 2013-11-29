@@ -54,12 +54,16 @@ case class StatusMonitor(id: Option[Long] = None,
     Global.displayUpdater ! this
   }
 
-  def update = {
-    StatusMonitor.database.withSession {
+  def update: Boolean = {
+    if (StatusMonitor.database.withSession {
       implicit db: Session =>
-        StatusMonitor.where(_.id === id).update(this)
+        StatusMonitor.where(_.id === id).update(this) == 1
+    }) {
+      Global.displayUpdater ! this
+      true
+    } else {
+      false
     }
-    Global.displayUpdater ! this
   }
 
   def updateLastQueried = {
@@ -219,5 +223,24 @@ object StatusMonitor extends Table[StatusMonitor]("STATUSMONITOR") {
         statusMonitor.lastQueried.map(d => "lastQueried" -> JsNumber(d.getTime)).toSeq ++
         statusMonitor.config.map("config" -> _).toSeq
     )
+  }
+
+  def jsonReads(projectId: Long, statusMonitorId: Option[Long]) = new Reads[StatusMonitor] {
+    def reads(json: JsValue) =
+      JsSuccess(StatusMonitor(
+        statusMonitorId,
+        projectId,
+        name = (json \ "name").as[String],
+        typeNum = StatusMonitorTypes.withName((json \ "type").as[String]).id,
+        url = (json \ "url").as[String],
+        username = (json \ "username").asOpt[String],
+        password = (json \ "password").asOpt[String],
+        active = (json \ "active").as[Boolean],
+        keepHistory = (json \ "keepHistory").as[Int],
+        updatePeriod = (json \ "updatePeriod").as[Int],
+        lastQueried = (json \ "lastQueried").asOpt[Long].map(new Date(_)),
+        lastUpdated = (json \ "lastUpdated").asOpt[Long].map(new Date(_)),
+        configJson = (json \ "config").asOpt[JsValue].map(Json.stringify)
+      ))
   }
 }
