@@ -12,6 +12,7 @@ object Config extends Controller {
     partial match {
       case "projects" => Ok(views.html.config.projects())
       case "teams" => Ok(views.html.config.teams())
+      case "statusMonitor" => Ok(views.html.config.statusMonitor())
     }
   }
 }

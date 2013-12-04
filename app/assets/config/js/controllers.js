@@ -29,25 +29,25 @@ define(['angular'], function (angular) {
             };
 
             $scope.isSelected = function (project) {
-                if ( project == null )
+                if (project == null)
                     return $scope.selectedProject != null && $scope.selectedProject.id == null;
                 else
                     return $scope.selectedProject != null && project.id == $scope.selectedProject.id;
             };
 
             $scope.newProject = function () {
-                $scope.selectedProject = { name:'' };
+                $scope.selectedProject = { name: '' };
                 $location.search('projectId', null);
             };
 
-            $scope.createProject = function() {
+            $scope.createProject = function () {
                 projectResource.create($scope.selectedProject).$promise.then(function (response) {
                     loadProjects(response.id);
                 });
             };
 
-            $scope.deleteProject = function() {
-                $scope.selectedProject.$delete().then(function() {
+            $scope.deleteProject = function () {
+                $scope.selectedProject.$delete().then(function () {
                     loadProjects(null);
                 });
             };
@@ -60,12 +60,12 @@ define(['angular'], function (angular) {
             };
         }]);
 
-    controllers.controller('Project', ['$scope', 'statusMonitorResource',
-        function ($scope, statusMonitorResource) {
+    controllers.controller('Project', ['$scope', '$route', '$location', 'statusMonitorResource',
+        function ($scope, $route, $location, statusMonitorResource) {
             $scope.$watch('selectedProject', function (project) {
                 $scope.project = project;
                 $scope.selectedStatusMonitor = null;
-                $scope.currentStatusMonitorType = "Jenkins";
+                $scope.currentStatusMonitorType = $route.current.params.statusMonitorType != null ? $route.current.params.statusMonitorType : "Jenkins";
                 if (project != null && project.id != null) {
                     $scope.statusMonitors = statusMonitorResource.query({projectId: project.id});
                 }
@@ -86,6 +86,7 @@ define(['angular'], function (angular) {
             $scope.selectStatusMonitorType = function (statusMonitorType) {
                 $scope.currentStatusMonitorType = statusMonitorType;
                 $scope.selectedStatusMonitor = null;
+                $location.search('statusMonitorType', statusMonitorType != null ? statusMonitorType : null);
             };
 
             $scope.changeStatusMonitorName = function (name) {
@@ -105,9 +106,18 @@ define(['angular'], function (angular) {
             };
 
             $scope.selectStatusMonitor = function (statusMonitor) {
-                $scope.selectedStatusMonitor = statusMonitor;
+                $location.path('/project/' + $scope.project.id + '/statusMonitor/' + statusMonitor.id);
             };
         }]);
+
+    controllers.controller('StatusMonitor', ['$scope', '$route', 'projectResource', 'statusMonitorResource',
+        function ($scope, $route, projectResource, statusMonitorResource) {
+            $scope.project = projectResource.get($route.current.params);
+            $scope.statusMonitor = statusMonitorResource.get($route.current.params);
+
+            console.log($scope.project);
+        }
+    ]);
 
     controllers.controller('Teams', ['$scope', 'teamService', function ($scope, teamService) {
         $scope.selectedTeam = null;

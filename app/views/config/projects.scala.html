@@ -1,4 +1,11 @@
 <div class="tabbable tabs-left" ng-controller="Projects" xmlns="http://www.w3.org/1999/html">
+    <ol class="breadcrumb">
+        <li class="active" ng-if="selectedProject == null">Projects</li>
+        <li ng-if="selectedProject != null"><a ng-click="select(null)">Projects</a></li>
+        <li ng-if="selectedProject != null && selectedProject.id != null" class="active">{{ selectedProject.name}}</li>
+        <li ng-if="selectedProject != null && selectedProject.id == null" class="active">New Project</li>
+    </ol>
+
     <ul class="nav nav-tabs">
         <li ng-repeat="project in projects" ng-class="{active: isSelected(project)}">
             <a ng-click="select(project)">{{ project.name }}</a>
@@ -48,54 +55,35 @@
                                 <th>Name</th>
                                 <th>Last updated</th>
                                 <th>Last queried</th>
+                                <th></th>
                             </tr>
-                            <tr ng-repeat="statusMonitor in statusMonitors | filter:isCurrentStatusMonitorType" ng-class="{success: statusMonitor == selectedStatusMonitor}" ng-click="selectStatusMonitor(statusMonitor)">
-                                <td><span class="glyphicon" ng-class="{'glyphicon-check': statusMonitor.active, 'glyphicon-unchecked': !statusMonitor.active}"></span></td>
+                            <tr ng-repeat="statusMonitor in statusMonitors | filter:isCurrentStatusMonitorType" ng-click="selectStatusMonitor(statusMonitor)">
+                                <td>
+                                    <div class="btn-group" ng-if="!statusMonitor.active" popup-button>
+                                        <button class="btn btn-danger dropdown-toggle" ng-click='toggle(); $event.stopPropagation()'><span class="glyphicon glyphicon-pause"></span> <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a ng-click="activeStatusMonitor(statusMonitor)">Active {{ statusMonitor.name }}</a></li>
+                                        </ul>
+                                    </div>
+                                    <div ng-if="statusMonitor.active" popup-button>
+                                        <button class="btn btn-success dropdown-toggle" ng-click='toggle(); $event.stopPropagation()'><span class="glyphicon glyphicon-play"></span> <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a ng-click="deactivateStatusMonitor(statusMonitor)">Deactivate {{ statusMonitor.name }}</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
                                 <td>{{ statusMonitor.name }}</td>
                                 <td>{{ statusMonitor.lastUpdated | date:'medium' }}</td>
                                 <td>{{ statusMonitor.lastQueried | date:'medium' }}</td>
+                                <td>
+                                    <div class="pull-right" confirm-delete="statusMonitor.name" on-delete="deleteStatusMonitor(statusMonitor)"></div>
+                                </td>
                             </tr>
                         </table>
                         <div>
                             <button class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span>
                                 New {{ currentStatusMonitorType }} status</button>
                         </div>
-                    </div>
-                    <div class="tab-pane" ng-class="{active: selectedStatusMonitor != null}">
-                        <h1>{{ currentStatusMonitorType }}: <span in-place-edit="selectedStatusMonitor.name" in-place-on-change="changeStatusMonitorName"></span></h1>
-                        <form class="form-horizontal" role="form" ng-submit="saveCurrentStatusMonitor()">
-                            <div class="form-group">
-                                <label for="statucMonitor-url" class="col-sm-1 control-label">Url:</label>
-                                <div class="col-sm-11">
-                                    <input type="text" id="statucMonitor-url" class="form-control" ng-model="selectedStatusMonitor.url" ng-change="statusMonitorChanged = true">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="statusMonitor-username" class="col-sm-1 control-label">Username</label>
-                                <div class="col-sm-5">
-                                    <input type="text" id="statusMonitor-username" class="form-control" ng-model="selectedStatusMonitor.username" ng-change="statusMonitorChanged = true">
-                                </div>
-                                <label for="statusMonitor-password" class="col-sm-1 control-label">Password</label>
-                                <div class="col-sm-5">
-                                    <input type="text" id="statusMonitor-password" class="form-control" ng-model="selectedStatusMonitor.password" ng-change="statusMonitorChanged = true">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="statusMonitor-active" class="col-sm-1 control-label">Active</label>
-                                <div class="col-sm-1">
-                                    <input type="checkbox" id="statusMonitor-active" class="form-control" ng-model="selectedStatusMonitor.active" ng-change="statusMonitorChanged = true">
-                                </div>
-                                <label for="statusMonitor-updatePeriod" class="col-sm-3 control-label">Update period (seconds)</label>
-                                <div class="col-sm-3">
-                                    <input type="text" id="statusMonitor-updatePeriod" class="form-control" ng-model="selectedStatusMonitor.updatePeriod" ng-change="statusMonitorChanged = true">
-                                </div>
-                                <label for="statusMonitor-keepHistory" class="col-sm-2 control-label">Kepp history</label>
-                                <div class="col-sm-2">
-                                    <input type="text" id="statusMonitor-keepHistory" class="form-control" ng-model="selectedStatusMonitor.keepHistory" ng-change="statusMonitorChanged = true">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary" ng-disabled="!statusMonitorChanged">Save changes</button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -113,4 +101,5 @@
             </form>
         </div>
     </div>
+
 </div>

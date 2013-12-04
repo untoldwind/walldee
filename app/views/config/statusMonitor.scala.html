@@ -1,0 +1,60 @@
+<div class="tabbable tabs-left" ng-controller="StatusMonitor">
+    <ol class="breadcrumb">
+        <li><a href="#/projects">Projects</a></li>
+        <li><a href="#/projects?projectId={{ project.id }}&statusMonitorType={{ statusMonitor.type }}">{{ project.name }}</a></li>
+        <li class="active">{{ statusMonitor.type}}: {{ statusMonitor.name}}</li>
+    </ol>
+
+    <ul class="nav nav-tabs">
+        <li class="active"><a>Configuration</a></li>
+        <li><a>History</a></li>
+        <li><a>Test</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active">
+            <form class="form-horizontal" role="form" ng-submit="saveCurrentStatusMonitor()">
+                <div class="form-group">
+                    <label for="statucMonitor-name" class="col-sm-1 control-label">Name:</label>
+                    <div class="col-sm-11">
+                        <input type="text" id="statucMonitor-name" class="form-control" ng-model="statusMonitor.name" ng-change="statusMonitorChanged = true">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="statucMonitor-url" class="col-sm-1 control-label">Url:</label>
+                    <div class="col-sm-11">
+                        <input type="text" id="statucMonitor-url" class="form-control" ng-model="statusMonitor.url" ng-change="statusMonitorChanged = true">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="statusMonitor-username" class="col-sm-1 control-label">Username:</label>
+                    <div class="col-sm-5">
+                        <input type="text" id="statusMonitor-username" class="form-control" ng-model="statusMonitor.username" ng-change="statusMonitorChanged = true">
+                    </div>
+                    <label for="statusMonitor-password" class="col-sm-1 control-label">Password:</label>
+                    <div class="col-sm-5">
+                        <input type="text" id="statusMonitor-password" class="form-control" ng-model="statusMonitor.password" ng-change="statusMonitorChanged = true">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="statusMonitor-active" class="col-sm-1 control-label">Active</label>
+                    <div class="col-sm-1">
+                        <input type="checkbox" id="statusMonitor-active" class="form-control" ng-model="statusMonitor.active" ng-change="statusMonitorChanged = true">
+                    </div>
+                    <label for="statusMonitor-updatePeriod" class="col-sm-2 control-label">Update period (seconds)</label>
+                    <div class="col-sm-3">
+                        <input type="text" id="statusMonitor-updatePeriod" class="form-control" ng-model="statusMonitor.updatePeriod" ng-change="statusMonitorChanged = true">
+                    </div>
+                    <label for="statusMonitor-keepHistory" class="col-sm-2 control-label">Kepp history</label>
+                    <div class="col-sm-3">
+                        <input type="text" id="statusMonitor-keepHistory" class="form-control" ng-model="statusMonitor.keepHistory" ng-change="statusMonitorChanged = true">
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <a href="#/projects?projectId={{ project.id }}&statusMonitorType={{ statusMonitor.type }}" class="btn btn-default">Close</a>
+                    <button type="submit" class="btn btn-primary" ng-disabled="!statusMonitorChanged">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

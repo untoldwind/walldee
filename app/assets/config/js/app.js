@@ -22,6 +22,7 @@ require([ 'angular', './controllers', './directives', './filters', './services']
         config(['$routeProvider', function ($routeProvider) {
             $routeProvider.when('/projects', {templateUrl: '/config/projects', reloadOnSearch:false});
             $routeProvider.when('/teams', {templateUrl: '/config/teams', reloadOnSearch:false});
+            $routeProvider.when('/project/:projectId/statusMonitor/:statusMonitorId', {templateUrl:'/config/statusMonitor'});
             $routeProvider.otherwise({redirectTo: '/'});
         }]);
 

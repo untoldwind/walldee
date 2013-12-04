@@ -50,13 +50,13 @@ define(['angular'], function (angular) {
                 var model = $parse(attrs.setFocus);
                 scope.$watch(model, function (value) {
                     if (value) {
-                        $timeout(function() {
+                        $timeout(function () {
                             element[0].focus();
                             moveCursorToEnd(element[0]);
                         });
                     }
                 });
-                element.bind('blur', function() {
+                element.bind('blur', function () {
                     scope.$apply(model.assign(scope, false));
                 });
             }
@@ -88,22 +88,73 @@ define(['angular'], function (angular) {
                 title: '=confirmDelete',
                 deleteAction: '=onDelete'
             },
-            template: '<button class="btn btn-danger dropdown-toggle" ng-click="opened = true; $event.stopPropagation()">Delete <span class="caret"></span></button>' +
+            template: '<button class="btn btn-danger dropdown-toggle" ng-click="opened = !opened; $event.stopPropagation()">Delete <span class="caret"></span></button>' +
                 '<ul class="dropdown-menu" role="menu">' +
                 '<li><a ng-click="deleteAction()">Delete {{ title }}</a></li>' +
                 '</ul>',
             link: function (scope, element, attrs) {
                 element.addClass('btn-group');
                 scope.opened = false;
-                scope.$watch('opened', function(opened) {
+                scope.$watch('opened', function (opened) {
                     if (opened)
                         element.addClass('open');
                     else
                         element.removeClass('open');
                 });
-                $document.bind('click', function() {
+                $document.bind('click', function () {
                     scope.$apply(scope.opened = false);
                 })
+            }
+        };
+    }]);
+
+    directives.directive('popupButton',  ['$document', function ($document) {
+        return {
+            restrict: 'A',
+            controller: function($scope) {
+                $scope.opened = false;
+
+                $scope.toggle = function() {
+                    $scope.opened = !$scope.opened;
+                }
+            },
+            link: function (scope, element, attrs) {
+                element.addClass('btn-group');
+                scope.$watch('opened', function (opened) {
+                    if (opened)
+                        element.addClass('open');
+                    else
+                        element.removeClass('open');
+                });
+                $document.bind('click', function () {
+                    scope.$apply(scope.opened = false);
+                })
+            }
+        }
+    }]);
+
+    directives.directive('showModal', ['$document', function ($document) {
+        return {
+            restrict: 'A',
+            scope: {
+                opened: '=showModal'
+            },
+            link: function (scope, element, attrs) {
+                element.addClass('modal');
+
+                scope.$watch('opened', function (opened) {
+                    var body = angular.element($document[0].body);
+                    console.log(body);
+                    if (opened) {
+                        body.addClass('modal-open');
+                        element.addClass('in');
+                        element.css('display', 'block');
+                    } else {
+                        body.removeClass('modal-open');
+                        element.removeClass('in');
+                        element.css('display', 'none');
+                    }
+                });
             }
         };
     }]);
