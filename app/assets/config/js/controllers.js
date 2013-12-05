@@ -101,8 +101,8 @@ define(['angular'], function (angular) {
     controllers.controller('StatusMonitor', ['$scope', '$route', 'projectResource', 'statusMonitorResource',
         function ($scope, $route, projectResource, statusMonitorResource) {
             $scope.project = projectResource.get({projectId: $route.current.params.projectId});
-            if ( $route.current.params.statusMonitorId == null ) {
-                $scope.statusMonitor = {projectId: $route.current.params.projectId, statusMonitorType: $route.current.params.statusMonitorType};
+            if ($route.current.params.statusMonitorId == null) {
+                $scope.statusMonitor = {projectId: $route.current.params.projectId, type: $route.current.params.statusMonitorType};
             } else {
                 $scope.statusMonitor = statusMonitorResource.get({projectId: $route.current.params.projectId, statusMonitorId: $route.current.params.statusMonitorId});
             }
@@ -126,7 +126,7 @@ define(['angular'], function (angular) {
 
     controllers.controller('StatusMonitorHistory', ['$scope', 'statusMonitorValuesResource',
         function ($scope, statusMonitorValuesResource) {
-            $scope.refresh = function() {
+            $scope.refresh = function () {
                 $scope.statusValues = statusMonitorValuesResource.query({projectId: $scope.statusMonitor.projectId, statusMonitorId: $scope.statusMonitor.id});
             }
 
@@ -134,19 +134,76 @@ define(['angular'], function (angular) {
         }
     ]);
 
-    controllers.controller('Teams', ['$scope', 'teamService', function ($scope, teamService) {
-        $scope.selectedTeam = null;
+    controllers.controller('Teams', ['$scope', '$route', '$location', 'teamResource',
+        function ($scope, $route, $location, teamResource) {
+            function loadTeams(selectedTeamId) {
+                teamResource.query().$promise.then(function (teams) {
+                    $scope.select(null);
+                    $scope.teams = teams;
 
-        $scope.select = function (team) {
-            $scope.selectedTeam = team;
-        };
+                    angular.forEach(teams, function (team) {
+                        if (team.id == selectedTeamId) {
+                            $scope.select(team);
+                        }
+                    });
+                });
+            }
 
-        $scope.newTeam = function () {
+            loadTeams($route.current.params.teamId);
 
-        };
+            $scope.select = function (team) {
+                $scope.selectedTeam = team;
+                $location.search('teamId', $scope.selectedTeam != null ? $scope.selectedTeam.id : null);
+            };
 
-        teamService.findAll().then(function (teams) {
-            $scope.teams = teams;
-        });
-    }]);
+            $scope.isSelected = function (team) {
+                if (team == null)
+                    return $scope.selectedTeam != null && $scope.selectedTeam.id == null;
+                else
+                    return $scope.selectedTeam != null && team.id == $scope.selectedTeam.id;
+            };
+
+            $scope.newTeam = function () {
+                $scope.selectedTeam = { name: '' };
+                $location.search('teamId', null);
+            };
+
+            $scope.createTeam = function () {
+                teamResource.create($scope.selectedTeam).$promise.then(function (response) {
+                    loadTeams(response.id);
+                });
+            };
+
+            $scope.deleteTeam = function () {
+                $scope.selectedTeam.$delete().then(function () {
+                    loadTeams(null);
+                });
+            };
+
+            $scope.changeTeamName = function (name) {
+                $scope.selectedTeam.name = name;
+                $scope.selectedTeam.$update().then(null, function () {
+                    $scope.selectedTeam.$get();
+                });
+            };
+        }]);
+
+    controllers.controller('Team', ['$scope', '$route', '$location',
+        function ($scope, $route, $location) {
+            $scope.$watch('selectedTeam', function (team) {
+                $scope.team = team;
+            });
+
+            $scope.isNoTeam = function () {
+                return $scope.team == null;
+            };
+
+            $scope.isTeamEdit = function () {
+                return $scope.team != null && $scope.team.id != null;
+            };
+
+            $scope.isTeamCreate = function () {
+                return $scope.team != null && $scope.team.id == null;
+            };
+        }]);
 });

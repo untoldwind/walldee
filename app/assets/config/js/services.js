@@ -34,17 +34,17 @@ define(['angular'], function (angular) {
         return $resource('/projects/:projectId/statusMonitors/:statusMonitorId/values', {projectId: '@projectId', statusMonitorId: '@id'});
     }]);
 
-    services.factory('teamService', ['$resource', function ($resource) {
-        var teamsResource = $resource('/teams', {}, {
-            'get': {
-                method: 'GET',
-                isArray: true
-            }});
+    services.factory('teamResource', ['$resource', function ($resource) {
+        return $resource('/teams/:teamId', {teamId: '@id'}, {
+            'create': {
+                method: 'POST',
+                transformResponse: function (data, headers) {
+                    var location = headers('Location');
 
-        return {
-            findAll: function () {
-                return teamsResource.get().$promise;
-            }
-        }
+                    return {location: location, id: location.substring(7)};
+                }
+            },
+            'update': {method: 'PUT'}
+        });
     }]);
 });

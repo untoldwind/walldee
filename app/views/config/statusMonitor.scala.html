@@ -2,7 +2,8 @@
     <ol class="breadcrumb">
         <li><a href="#/projects">Projects</a></li>
         <li><a href="#/projects?projectId={{ project.id }}&statusMonitorType={{ statusMonitor.type }}">{{ project.name }}</a></li>
-        <li class="active">{{ statusMonitor.type}}: {{ statusMonitor.name}}</li>
+        <li class="active" ng-if="statusMonitor.id != null">{{ statusMonitor.type}}: {{ statusMonitor.name}}</li>
+        <li class="active" ng-if="statusMonitor.id == null">New {{ statusMonitor.type}} status</li>
     </ol>
 
     <ul class="nav nav-tabs">
@@ -45,7 +46,7 @@
                     <div class="col-sm-3">
                         <input type="text" id="statusMonitor-updatePeriod" class="form-control" ng-model="statusMonitor.updatePeriod" ng-change="statusMonitorChanged = true">
                     </div>
-                    <label for="statusMonitor-keepHistory" class="col-sm-2 control-label">Kepp history</label>
+                    <label for="statusMonitor-keepHistory" class="col-sm-2 control-label">Keep history</label>
                     <div class="col-sm-3">
                         <input type="text" id="statusMonitor-keepHistory" class="form-control" ng-model="statusMonitor.keepHistory" ng-change="statusMonitorChanged = true">
                     </div>

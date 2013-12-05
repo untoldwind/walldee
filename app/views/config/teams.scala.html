@@ -1,14 +1,22 @@
 <div class="tabbable tabs-left" ng-controller="Teams">
+    <ol class="breadcrumb">
+        <li class="active" ng-if="selectedTeam == null">Teams</li>
+        <li ng-if="selectedTeam != null"><a ng-click="select(null)">Teams</a></li>
+        <li ng-if="selectedTeam != null && selectedTeam.id != null" class="active">{{ selectedTeam.name}}</li>
+        <li ng-if="selectedTeam != null && selectedTeam.id == null" class="active">New Team</li>
+    </ol>
+
     <ul class="nav nav-tabs">
-        <li ng-repeat="team in teams" ng-class="{active: team == selectedTeam}">
+        <li ng-repeat="team in teams" ng-class="{active: isSelected(team)}">
             <a ng-click="select(team)">{{ team.name }}</a>
         </li>
-        <li>
+        <li ng-class="{active: isSelected()}">
             <a ng-click="newTeam()"><span class="glyphicon glyphicon-plus-sign"></span> New Team</a>
         </li>
     </ul>
-    <div class="tab-content">
-        <div class="tab-pane jumbotron" ng-class="{active: selectedTeam == null}">
+
+    <div class="tab-content" ng-controller="Team">
+        <div class="tab-pane jumbotron" ng-class="{active: isNoTeam()}">
             <h1>Teams</h1>
 
             <p>
@@ -28,9 +36,23 @@
                 <button class="btn btn-lg btn-success ng-click="newTeam()">Create new team</button>
             </p>
         </div>
-        <div class="tab-pane" ng-class="{active: selectedTeam != null}">
-            <h1>Team: <span in-place-edit="selectedTeam.name"></span></h1>
+        <div class="tab-pane" ng-class="{active: isTeamEdit()}">
+            <div class="pull-right" confirm-delete="selectedTeam.name" on-delete="deleteTeam">
+            </div>
+            <h1>Team: <span in-place-edit="selectedTeam.name" in-place-on-change="changeTeamName"></span></h1>
         {{ selectedTeam }}
+        </div>
+        <div class="tab-pane" ng-class="{active: isTeamCreate()}">
+            <h1>New Team</h1>
+            <form class="form-horizontal" role="form" ng-submit="createTeam()">
+                <div class="form-group">
+                    <label for="team-name" class="col-sm-1 control-label">Name:</label>
+                    <div class="col-sm-11">
+                        <input type="text" id="team-name" class="form-control" ng-model="team.name">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="team.name == ''">Create team</button>
+            </form>
         </div>
     </div>
 </div>

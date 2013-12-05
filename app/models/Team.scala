@@ -22,12 +22,16 @@ case class Team(id: Option[Long] = None,
     }
   }
 
-  def update = {
-    Team.database.withSession {
+  def update: Boolean = {
+    if (Team.database.withSession {
       implicit db: Session =>
-        Team.where(_.id === id).update(this)
+        Team.where(_.id === id).update(this) == 1
+    }) {
+      Global.displayUpdater ! this
+      true
+    } else {
+      false
     }
-    Global.displayUpdater ! this
   }
 
   def delete = {
@@ -69,18 +73,20 @@ object Team extends Table[Team]("TEAM") {
       query.where(p => p.id === teamId).firstOption
   }
 
-  implicit val jsonFormat = new Format[Team] {
-    override def reads(json: JsValue): JsResult[Team] =
-      JsSuccess(Team(
-        (json \ "id").asOpt[Long],
-        (json \ "name").as[String],
-        (json \ "currentSprintId").asOpt[Long]))
-
+  implicit val jsonWrites = new Writes[Team] {
     override def writes(team: Team): JsValue = JsObject(
       team.id.map("id" -> JsNumber(_)).toSeq ++
         Seq(
           "name" -> JsString(team.name)
         ) ++
         team.currentSprintId.map("currentSprintId" -> JsNumber(_)).toSeq)
+  }
+
+  def jsonReads(teamId: Option[Long]): Reads[Team] = new Reads[Team] {
+    override def reads(json: JsValue): JsResult[Team] =
+      JsSuccess(Team(
+        teamId,
+        (json \ "name").as[String],
+        (json \ "currentSprintId").asOpt[Long]))
   }
 }

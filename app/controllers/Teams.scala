@@ -1,10 +1,10 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{AnyContentAsJson, Action, Controller}
 import models.{Sprint, Team, Project}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{Json, JsArray}
+import play.api.libs.json.{JsSuccess, Json, JsArray}
 
 object Teams extends Controller {
   def index = Action {
@@ -19,12 +19,23 @@ object Teams extends Controller {
 
   def create = Action {
     implicit request =>
-      teamForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.teams.index(Team.findAll, formWithErrors)), {
-        project =>
-          project.insert
-          Ok(views.html.teams.index(Team.findAll, teamForm()))
-      })
+      request.body match {
+        case AnyContentAsJson(json) =>
+          Json.fromJson[Team](json)(Team.jsonReads(None)) match {
+            case JsSuccess(team, _) =>
+              val teamId = team.insert
+              Created.withHeaders(LOCATION -> routes.Teams.show(teamId).url)
+            case _ =>
+              BadRequest
+          }
+        case _ =>
+          teamForm().bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.teams.index(Team.findAll, formWithErrors)), {
+            project =>
+              project.insert
+              Ok(views.html.teams.index(Team.findAll, teamForm()))
+          })
+      }
   }
 
   def show(teamId: Long) = Action {
@@ -42,15 +53,25 @@ object Teams extends Controller {
 
   def update(teamId: Long) = Action {
     implicit request =>
-      Team.findById(teamId).map {
-        team =>
-          teamForm(team).bindFromRequest.fold(
-          formWithErrors => BadRequest(views.html.teams.show(team, Sprint.findAllForTeam(teamId), formWithErrors, Sprints.sprintForm(new Sprint(teamId)), Team.findAll)), {
+      request.body match {
+        case AnyContentAsJson(json) =>
+          Json.fromJson[Team](json)(Team.jsonReads(Some(teamId))) match {
+            case JsSuccess(team, _) =>
+              if (team.update) NoContent else NotFound
+            case _ =>
+              BadRequest
+          }
+        case _ =>
+          Team.findById(teamId).map {
             team =>
-              team.update
-              Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), teamForm(team), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
-          })
-      }.getOrElse(NotFound)
+              teamForm(team).bindFromRequest.fold(
+              formWithErrors => BadRequest(views.html.teams.show(team, Sprint.findAllForTeam(teamId), formWithErrors, Sprints.sprintForm(new Sprint(teamId)), Team.findAll)), {
+                team =>
+                  team.update
+                  Ok(views.html.teams.show(team, Sprint.findAllForTeam(teamId), teamForm(team), Sprints.sprintForm(new Sprint(teamId)), Team.findAll))
+              })
+          }.getOrElse(NotFound)
+      }
   }
 
   def delete(teamId: Long) = Action {
