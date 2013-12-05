@@ -89,33 +89,48 @@ define(['angular'], function (angular) {
                 $location.search('statusMonitorType', statusMonitorType != null ? statusMonitorType : null);
             };
 
-            $scope.changeStatusMonitorName = function (name) {
-                $scope.selectedStatusMonitor.name = name;
-                $scope.saveCurrentStatusMonitor();
-            };
-
-            $scope.saveCurrentStatusMonitor = function () {
-                $scope.statusMonitorChanged = false;
-                $scope.selectedStatusMonitor.$update().then(null, function () {
-                    $scope.selectedStatusMonitor.$get();
-                });
-            };
-
             $scope.isCurrentStatusMonitorType = function (statusMonitor) {
                 return statusMonitor.type == $scope.currentStatusMonitorType;
             };
 
             $scope.selectStatusMonitor = function (statusMonitor) {
-                $location.path('/project/' + $scope.project.id + '/statusMonitor/' + statusMonitor.id);
+                $location.path('/projects/' + $scope.project.id + '/statusMonitors/' + statusMonitor.id);
             };
         }]);
 
     controllers.controller('StatusMonitor', ['$scope', '$route', 'projectResource', 'statusMonitorResource',
         function ($scope, $route, projectResource, statusMonitorResource) {
-            $scope.project = projectResource.get($route.current.params);
-            $scope.statusMonitor = statusMonitorResource.get($route.current.params);
+            $scope.project = projectResource.get({projectId: $route.current.params.projectId});
+            if ( $route.current.params.statusMonitorId == null ) {
+                $scope.statusMonitor = {projectId: $route.current.params.projectId, statusMonitorType: $route.current.params.statusMonitorType};
+            } else {
+                $scope.statusMonitor = statusMonitorResource.get({projectId: $route.current.params.projectId, statusMonitorId: $route.current.params.statusMonitorId});
+            }
 
-            console.log($scope.project);
+            $scope.view = "config"
+        }
+    ]);
+
+    controllers.controller('StatusMonitorConfig', ['$scope',
+        function ($scope) {
+            $scope.statusMonitorChanged = false
+
+            $scope.saveStatusMonitor = function () {
+                $scope.statusMonitor.$update().then(function (response) {
+                    $scope.statusMonitorChanged = false
+                });
+            };
+
+        }
+    ]);
+
+    controllers.controller('StatusMonitorHistory', ['$scope', 'statusMonitorValuesResource',
+        function ($scope, statusMonitorValuesResource) {
+            $scope.refresh = function() {
+                $scope.statusValues = statusMonitorValuesResource.query({projectId: $scope.statusMonitor.projectId, statusMonitorId: $scope.statusMonitor.id});
+            }
+
+            $scope.refresh();
         }
     ]);
 

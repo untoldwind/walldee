@@ -6,14 +6,14 @@
     </ol>
 
     <ul class="nav nav-tabs">
-        <li class="active"><a>Configuration</a></li>
-        <li><a>History</a></li>
-        <li><a>Test</a></li>
+        <li ng-class="{active: view == 'config'}"><a ng-click="view = 'config'">Configuration</a></li>
+        <li ng-class="{active: view == 'history'}" ng-if="statusMonitor.id != null"><a ng-click="view = 'history'">History</a></li>
+        <li ng-class="{active: view == 'test'}" ng-if="statusMonitor.id != null"><a ng-click="view = 'test'">Test</a></li>
     </ul>
 
     <div class="tab-content">
-        <div class="tab-pane active">
-            <form class="form-horizontal" role="form" ng-submit="saveCurrentStatusMonitor()">
+        <div class="tab-pane active" ng-controller="StatusMonitorConfig" ng-if="view == 'config'">
+            <form class="form-horizontal" role="form" ng-submit="saveStatusMonitor()">
                 <div class="form-group">
                     <label for="statucMonitor-name" class="col-sm-1 control-label">Name:</label>
                     <div class="col-sm-11">
@@ -55,6 +55,19 @@
                     <button type="submit" class="btn btn-primary" ng-disabled="!statusMonitorChanged">Save changes</button>
                 </div>
             </form>
+        </div>
+        <div class="tab-pane active" ng-controller="StatusMonitorHistory" ng-if="view == 'history'">
+            <button class="btn btn-primary" ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+            <table class="table table-striped table-hover">
+                <tr>
+                    <th>Status</th>
+                    <th>Retrieved at</th>
+                </tr>
+                <tr ng-repeat="statusValue in statusValues">
+                    <td>{{ statusValue.status }}</td>
+                    <td>{{ statusValue.retrievedAt | date:'medium' }}</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

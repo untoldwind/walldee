@@ -112,7 +112,7 @@ object StatusValue extends Table[StatusValue]("STATUSVALUE") {
       statusValue.id.map("id" -> JsNumber(_)).toSeq ++
         Seq(
           "statusMonitorId" -> JsNumber(statusValue.statusMonitorId),
-          "statusNum" -> JsNumber(statusValue.statusNum),
+          "status" -> JsString(statusValue.status.toString),
           "retrievedAt" -> JsNumber(statusValue.retrievedAt.getTime),
           "values" -> statusValue.statusValues
         )
