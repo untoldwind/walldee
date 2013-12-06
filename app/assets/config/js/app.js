@@ -20,10 +20,11 @@ require([ 'angular', './controllers', './directives', './filters', './services']
 
     angular.module('walldee', ['ngRoute', 'ngResource', 'walldee.filters', 'walldee.services', 'walldee.directives', 'walldee.controllers']).
         config(['$routeProvider', function ($routeProvider) {
-            $routeProvider.when('/projects', {templateUrl: '/config/projects', reloadOnSearch:false});
-            $routeProvider.when('/teams', {templateUrl: '/config/teams', reloadOnSearch:false});
-            $routeProvider.when('/projects/:projectId/statusMonitors', {templateUrl:'/config/statusMonitor'});
-            $routeProvider.when('/projects/:projectId/statusMonitors/:statusMonitorId', {templateUrl:'/config/statusMonitor'});
+            $routeProvider.when('/projects', {templateUrl: '/config/projects', reloadOnSearch: false});
+            $routeProvider.when('/teams', {templateUrl: '/config/teams', reloadOnSearch: false});
+            $routeProvider.when('/projects/:projectId/statusMonitors', {templateUrl: '/config/statusMonitor'});
+            $routeProvider.when('/projects/:projectId/statusMonitors/:statusMonitorId', {templateUrl: '/config/statusMonitor'});
+            $routeProvider.when('/displays', {templateUrl: '/config/displays', reloadOnSearch: false});
             $routeProvider.otherwise({redirectTo: '/'});
         }]);
 

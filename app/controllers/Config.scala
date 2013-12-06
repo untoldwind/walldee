@@ -13,6 +13,7 @@ object Config extends Controller {
       case "projects" => Ok(views.html.config.projects())
       case "teams" => Ok(views.html.config.teams())
       case "statusMonitor" => Ok(views.html.config.statusMonitor())
+      case "displays" => Ok(views.html.config.displays())
     }
   }
 }

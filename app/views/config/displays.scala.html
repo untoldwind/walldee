@@ -1,0 +1,44 @@
+<div class="tabbable tabs-left" ng-controller="Displays">
+    <ol class="breadcrumb">
+        <li class="active" ng-if="selectedDisplay == null">Displays</li>
+        <li ng-if="selectedDisplay != null"><a ng-click="select(null)">Displays</a></li>
+        <li ng-if="selectedDisplay != null && selectedDisplay.id != null" class="active">{{ selectedDisplay.name}}</li>
+        <li ng-if="selectedDisplay != null && selectedDisplay.id == null" class="active">New Display</li>
+    </ol>
+
+    <ul class="nav nav-tabs">
+        <li ng-repeat="display in displays" ng-class="{active: isSelected(display)}">
+            <a ng-click="select(display)">{{ display.name }}</a>
+        </li>
+        <li ng-class="{active: isSelected()}">
+            <a ng-click="newDisplay()"><span class="glyphicon glyphicon-plus-sign"></span> New Display</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" ng-controller="Display">
+        <div class="tab-pane jumbotron" ng-class="{active: isNoDisplay()}">
+            <h1>Displays</h1>
+
+            <p>
+                Displays are the actual web-pages you want to show full screen on you wall monitor.
+            </p>
+            <p>
+                A display is not necessarily associated with a project or team, even though it will be rather
+                empty if not.
+            <p>
+                <button class="btn btn-lg btn-success" ng-click="newProject()">Create new display</button>
+            </p>
+        </div>
+        <div class="tab-pane" ng-class="{active: isDisplayEdit()}">
+            <div class="pull-right" confirm-delete="selectedDisplay.name" on-delete="deleteDisplay">
+            </div>
+            <h1>Display: <span in-place-edit="selectedDisplay.name" in-place-on-change="changeDisplayName"></span></h1>
+            <dvi>
+                {{ displayInfo }}
+                <div ng-repeat="displayItem in displayItems">
+                    {{ displayItem }}
+                </div>
+            </dvi>
+        </div>
+    </div>
+</div>

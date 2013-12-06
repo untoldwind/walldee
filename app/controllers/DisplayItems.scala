@@ -6,8 +6,17 @@ import play.api.data.Form
 import play.api.data.Forms._
 import widgets.Widget
 import models.widgetConfigs._
+import play.api.libs.json.{Json, JsArray}
 
 object DisplayItems extends Controller {
+  def index(displayId: Long) = Action {
+    implicit request =>
+      render {
+        case Accepts.Json() =>
+          Ok(JsArray(DisplayItem.findAllForDisplay(displayId).map(Json.toJson(_))))
+      }
+  }
+
   def create(displayId: Long) = Action {
     implicit request =>
       Display.findById(displayId).map {

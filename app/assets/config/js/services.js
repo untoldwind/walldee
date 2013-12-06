@@ -10,18 +10,21 @@ define(['angular'], function (angular) {
 
     services.value('version', '0.1');
 
-    services.factory('projectResource', ['$resource', function ($resource) {
-        return $resource('/projects/:projectId', {projectId: '@id'}, {
-            'create': {
-                method: 'POST',
-                transformResponse: function (data, headers) {
-                    var location = headers('Location');
+    var stdMethods = {
+        'create': {
+            method: 'POST',
+            transformResponse: function (data, headers) {
+                var location = headers('Location');
+                var idx = location.lastIndexOf('/');
 
-                    return {location: location, id: location.substring(10)};
-                }
-            },
-            'update': {method: 'PUT'}
-        });
+                return {location: location, id: location.substring(idx + 1)};
+            }
+        },
+        'update': {method: 'PUT'}
+    };
+
+    services.factory('projectResource', ['$resource', function ($resource) {
+        return $resource('/projects/:projectId', {projectId: '@id'}, stdMethods);
     }]);
 
     services.factory('statusMonitorResource', ['$resource', function ($resource) {
@@ -35,16 +38,26 @@ define(['angular'], function (angular) {
     }]);
 
     services.factory('teamResource', ['$resource', function ($resource) {
-        return $resource('/teams/:teamId', {teamId: '@id'}, {
+        return $resource('/teams/:teamId', {teamId: '@id'}, stdMethods);
+    }]);
+
+    services.factory('displayResource', ['$resource', function ($resource) {
+        return $resource('/displays/:displayId', {displayId: '@id'}, {
             'create': {
                 method: 'POST',
                 transformResponse: function (data, headers) {
                     var location = headers('Location');
 
-                    return {location: location, id: location.substring(7)};
+                    var idx = location.lastIndexOf('/');
+
+                    return {location: location, id: location.substring(idx + 1)};
                 }
             },
             'update': {method: 'PUT'}
         });
+    }]);
+
+    services.factory('displayItemResource', ['$resource', function ($resource) {
+        return $resource('/displays/:displayId/items/:displayItemId', {displayId: '@displayId', displayItemId: '@id'}, stdMethods);
     }]);
 });

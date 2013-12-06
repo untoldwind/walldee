@@ -66,6 +66,7 @@ POST          /displays/:displayId/updates                                      
 GET           /displays/:displayId/atom                                          controllers.Displays.atomFeed(displayId:Long)
 POST          /displays/:displayId                                               controllers.Displays.update(displayId:Long)
 DELETE        /displays/:displayId                                               controllers.Displays.delete(displayId:Long)
+GET           /displays/:displayId/items                                         controllers.DisplayItems.index(displayId:Long)
 POST          /displays/:displayId/items                                         controllers.DisplayItems.create(displayId:Long)
 GET           /displays/:displayId/items/:itemId                                 controllers.DisplayItems.show(displayId:Long, itemId:Long)
 GET           /displays/:displayId/items/:itemId/edit                            controllers.DisplayItems.edit(displayId:Long, itemId:Long)

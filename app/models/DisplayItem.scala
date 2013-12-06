@@ -1,6 +1,6 @@
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsNumber, JsObject, Writes}
 import widgetConfigs._
 import play.api.db._
 import play.api.Play.current
@@ -44,12 +44,15 @@ case class DisplayItem(id: Option[Long] = None,
     result
   }
 
-  def update = {
-    DisplayItem.database.withSession {
+  def update: Boolean = {
+    if (DisplayItem.database.withSession {
       implicit db: Session =>
-        DisplayItem.where(_.id === id).update(this)
-    }
-    Global.displayUpdater ! this
+        DisplayItem.where(_.id === id).update(this) == 1
+    }) {
+      Global.displayUpdater ! this
+      true
+    } else
+      false
   }
 
   def delete = {
@@ -153,5 +156,19 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
   def findById(displayItemId: Long): Option[DisplayItem] = database.withSession {
     implicit db: Session =>
       query.where(d => d.id === displayItemId).firstOption
+  }
+
+  implicit val jsonWrites = new Writes[DisplayItem] {
+    def writes(displayItem: DisplayItem) = JsObject(
+      displayItem.id.map("id" -> JsNumber(_)).toSeq ++
+        displayItem.projectId.map("projectId" -> JsNumber(_)).toSeq ++
+        displayItem.teamId.map("teamId" -> JsNumber(_)).toSeq ++
+        Seq(
+          "displayId" -> JsNumber(displayItem.displayId),
+          "posx" -> JsNumber(displayItem.posx),
+          "posy" -> JsNumber(displayItem.posy),
+          "width" -> JsNumber(displayItem.width),
+          "height" -> JsNumber(displayItem.height)
+        ))
   }
 }
