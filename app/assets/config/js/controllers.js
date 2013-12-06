@@ -277,5 +277,14 @@ define(['angular'], function (angular) {
                 return $scope.display != null && $scope.display.id == null;
             };
 
+            $scope.itemPosition = function(displayItem) {
+                return {
+                    position: 'absolute',
+                    left: (displayItem.posx * 100.0 / $scope.displayInfo.width ) + "%",
+                    top: (displayItem.posy * 100.0 / $scope.displayInfo.height ) + "%",
+                    width: (displayItem.width * 100.0 / $scope.displayInfo.width ) + "%",
+                    height: (displayItem.height * 100.0 / $scope.displayInfo.height ) + "%"
+                };
+            }
         }]);
 });

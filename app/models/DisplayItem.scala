@@ -1,12 +1,16 @@
 package models
 
-import play.api.libs.json.{JsNumber, JsObject, Writes}
+import play.api.libs.json._
 import widgetConfigs._
 import play.api.db._
 import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import scala.Some
 import globals.Global
+import play.api.libs.json.JsString
+import scala.Some
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
 
 case class DisplayItem(id: Option[Long] = None,
                        displayId: Long,
@@ -168,7 +172,11 @@ object DisplayItem extends Table[DisplayItem]("DISPLAYITEM") {
           "posx" -> JsNumber(displayItem.posx),
           "posy" -> JsNumber(displayItem.posy),
           "width" -> JsNumber(displayItem.width),
-          "height" -> JsNumber(displayItem.height)
+          "height" -> JsNumber(displayItem.height),
+          "widget" -> JsString(displayItem.widget.toString),
+          "appearsInFeed" -> JsBoolean(displayItem.appearsInFeed),
+          "hidden" -> JsBoolean(displayItem.hidden),
+          "widgetConfig" -> Json.parse(displayItem.widgetConfigJson)
         ))
   }
 }

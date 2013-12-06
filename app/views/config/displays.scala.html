@@ -33,12 +33,14 @@
             <div class="pull-right" confirm-delete="selectedDisplay.name" on-delete="deleteDisplay">
             </div>
             <h1>Display: <span in-place-edit="selectedDisplay.name" in-place-on-change="changeDisplayName"></span></h1>
-            <dvi>
-                {{ displayInfo }}
-                <div ng-repeat="displayItem in displayItems">
-                    {{ displayItem }}
+            <div class="display-frame-outer">
+                <div class="display-frame-inner" keep-aspect>
+
+                    <div class="btn btn-default" ng-repeat="displayItem in displayItems" ng-style="itemPosition(displayItem)">
+                        {{ displayItem.widget }}
+                    </div>
                 </div>
-            </dvi>
+            </div>
         </div>
     </div>
 </div>

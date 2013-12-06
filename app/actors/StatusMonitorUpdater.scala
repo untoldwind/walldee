@@ -10,6 +10,7 @@ import scala.concurrent.duration._
 import akka.pattern._
 import akka.util.Timeout
 import models.statusValues.{ResponseInfo, RequestInfo}
+import scala.language.postfixOps
 
 class StatusMonitorUpdater(requester: ActorRef) extends Actor with SLF4JLogging {
   implicit val timeout = Timeout(10 seconds)

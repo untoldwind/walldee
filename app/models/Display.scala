@@ -105,7 +105,7 @@ object Display extends Table[Display]("DISPLAY") {
   }
 
   implicit val jsonWrites = new Writes[Display] {
-    def writes(display: Display) = JsObject(
+    override def writes(display: Display) = JsObject(
       display.id.map("id" -> JsNumber(_)).toSeq ++
         display.projectId.map("projectId" -> JsNumber(_)).toSeq ++
         display.teamId.map("teamId" -> JsNumber(_)).toSeq ++
@@ -116,5 +116,19 @@ object Display extends Table[Display]("DISPLAY") {
           "useLongPolling" -> JsBoolean(display.useLongPolling),
           "relativeLayout" -> JsBoolean(display.relativeLayout)
         ))
+  }
+
+  def jsonReads(displayId: Option[Long]) = new Reads[Display] {
+    override def reads(json: JsValue) = JsSuccess(Display(
+      displayId,
+      (json \ "name").as[String],
+      (json \ "projectId").asOpt[Long],
+      (json \ "teamId").asOpt[Long],
+      DisplayStyles.withName((json \ "style").as[String]).id,
+      (json \ "refreshTime").as[Int],
+      (json \ "useLongPolling").as[Boolean],
+      (json \ "relativeLayout").as[Boolean],
+      "{}"
+    ))
   }
 }

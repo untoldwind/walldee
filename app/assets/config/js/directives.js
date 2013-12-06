@@ -108,13 +108,13 @@ define(['angular'], function (angular) {
         };
     }]);
 
-    directives.directive('popupButton',  ['$document', function ($document) {
+    directives.directive('popupButton', ['$document', function ($document) {
         return {
             restrict: 'A',
-            controller: function($scope) {
+            controller: function ($scope) {
                 $scope.opened = false;
 
-                $scope.toggle = function() {
+                $scope.toggle = function () {
                     $scope.opened = !$scope.opened;
                 }
             },
@@ -154,6 +154,33 @@ define(['angular'], function (angular) {
                         element.removeClass('in');
                         element.css('display', 'none');
                     }
+                });
+            }
+        };
+    }]);
+
+    directives.directive('keepAspect', ['$document', function ($document) {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                scope.getWidth = function() {
+                    return element.prop('offsetWidth');
+                };
+
+                scope.onResize = function() {
+                    scope.$apply();
+                }
+
+                scope.$watch(scope.getWidth, function(w) {
+                    if ( w > 0 ) {
+                        var h = w * 10.0 / 16.0;
+                        element.css('height', h + "px");
+                    }
+                });
+
+                angular.element(window).bind('resize', scope.onResize);
+                scope.$on('$destroy', function() {
+                    angular.element(window).off('resize', scope.onResize);
                 });
             }
         };
