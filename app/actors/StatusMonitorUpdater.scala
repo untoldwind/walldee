@@ -1,15 +1,19 @@
 package actors
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
 import akka.event.slf4j.SLF4JLogging
 import models.StatusMonitor
 import actors.StatusMonitorUpdater.UpdateAll
-import play.api.libs.ws.WS
-import com.ning.http.client.Realm.AuthScheme
 import play.api.libs.concurrent.Execution.Implicits._
 import actors.monitorProcessors.MonitorProcessor
+import scala.concurrent.duration._
+import akka.pattern._
+import akka.util.Timeout
+import models.statusValues.{ResponseInfo, RequestInfo}
 
-class StatusMonitorUpdater extends Actor with SLF4JLogging {
+class StatusMonitorUpdater(requester: ActorRef) extends Actor with SLF4JLogging {
+  implicit val timeout = Timeout(10 seconds)
+
   def receive = {
     case UpdateAll() =>
       StatusMonitor.findAllActive.foreach {
@@ -17,15 +21,19 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
           val processor = MonitorProcessor(statusMonitor.monitorType)
           val url = processor.apiUrl(statusMonitor.url)
 
-          val wsRequest = (
-            for (username <- statusMonitor.username; password <- statusMonitor.password)
-            yield WS.url(url).withAuth(username, password, AuthScheme.BASIC)
-          ).getOrElse(WS.url(url))
+          val request = RequestInfo(
+            url = url,
+            method = "GET",
+            username = statusMonitor.username,
+            password = statusMonitor.password,
+            headers = Seq("Accept" -> processor.accepts),
+            body = None)
 
           statusMonitor.updateLastQueried
 
-          wsRequest.withHeaders("Accept" -> processor.accepts).get().map {
-            response =>
+          val responseFuture = requester ? request
+          responseFuture.map {
+            case response: ResponseInfo =>
               processor.process(statusMonitor, response)
               statusMonitor.updateLastUpdated
           }.recover {

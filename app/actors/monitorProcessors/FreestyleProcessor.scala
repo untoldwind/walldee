@@ -2,7 +2,7 @@ package actors.monitorProcessors
 
 import models.{StatusTypes, StatusMonitor}
 import models.statusMonitors.FreestyleTypes
-import models.statusValues.FreestyleStatus
+import models.statusValues.{ResponseInfo, FreestyleStatus}
 import play.api.libs.json._
 import play.libs.XML
 import play.api.Logger.logger
@@ -19,11 +19,11 @@ import org.jsoup.Jsoup
 object FreestyleProcessor extends MonitorProcessor {
   override def accepts: String = "application/json"
 
-  override def process(statusMonitor: StatusMonitor, response: Response) {
+  override def process(statusMonitor: StatusMonitor, response: ResponseInfo) {
     val statusOpt: Option[FreestyleStatus] = statusMonitor.freestyleConfig.map(_.freestyleType).getOrElse(FreestyleTypes.Regex) match {
       case FreestyleTypes.Regex => None
       case FreestyleTypes.Json =>
-        FreestyleJsonProcessor.processJson(statusMonitor.freestyleConfig.flatMap(_.selector), response.json)
+        FreestyleJsonProcessor.processJson(statusMonitor.freestyleConfig.flatMap(_.selector), response.bodyAsJson)
       case FreestyleTypes.Xml =>
         parserXML(response.body).flatMap {
           document =>

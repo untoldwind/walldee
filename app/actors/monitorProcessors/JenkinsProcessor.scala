@@ -3,7 +3,7 @@ package actors.monitorProcessors
 import models.{StatusTypes, StatusMonitor}
 import play.api.libs.json._
 import play.api.libs.ws.Response
-import models.statusValues.BuildStatus
+import models.statusValues.{ResponseInfo, BuildStatus}
 import play.api.Logger
 import scala.util.{Success, Failure, Try}
 
@@ -49,12 +49,12 @@ object JenkinsProcessor extends MonitorProcessor {
     case url => url + "/api/json"
   }
 
-  def process(statusMonitor: StatusMonitor, response: Response) {
+  def process(statusMonitor: StatusMonitor, response: ResponseInfo) {
 
-    Try(response.json.as[JenkinsJob]) match {
+    Try(response.bodyAsJson.as[JenkinsJob]) match {
       case Failure(e) =>
         val body = response.body
-        Logger.error(s"cannot parse json from response. Status=${response.status}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
+        Logger.error(s"cannot parse json from response. Status=${response.statusCode}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
         updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
       case Success(jenkinsJob) =>
         jenkinsJob.lastCompletedBuild.map {

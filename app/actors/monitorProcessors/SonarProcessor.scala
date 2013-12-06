@@ -3,8 +3,10 @@ package actors.monitorProcessors
 import models.{StatusTypes, StatusValue, StatusMonitor}
 import play.api.libs.ws.Response
 import play.api.libs.json._
-import models.statusValues.{BuildStatus, MetricStatus, MetricSeverityTypes, MetricViolation}
+import models.statusValues._
 import play.api.libs.ws.Response
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsSuccess
 import play.api.libs.json.JsObject
 
 object SonarMetricTypes extends Enumeration {
@@ -52,8 +54,8 @@ object SonarProcessor extends MonitorProcessor {
     case url => url
   }
 
-  def process(statusMonitor: StatusMonitor, response: Response) {
-    val sonarResources = response.json.as[Seq[SonarResource]]
+  def process(statusMonitor: StatusMonitor, response: ResponseInfo) {
+    val sonarResources = response.bodyAsJson.as[Seq[SonarResource]]
 
     if (sonarResources.length == 1) {
       var coverage = 0.0

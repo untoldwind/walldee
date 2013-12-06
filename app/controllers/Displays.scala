@@ -8,7 +8,7 @@ import utils.{DisplayUpdate, DataDigest}
 import widgets.Widget
 import globals.Global
 import actors.DisplayUpdater
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 import xml.NodeSeq
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.concurrent.Execution.Implicits._
@@ -16,7 +16,13 @@ import scala.concurrent.{Promise, Future}
 
 object Displays extends Controller {
   def index = Action {
-    Ok(views.html.display.index(Display.findAll, Project.findAll, Team.findAll, displayForm()))
+    implicit request =>
+      render {
+        case Accepts.Html() =>
+          Ok(views.html.display.index(Display.findAll, Project.findAll, Team.findAll, displayForm()))
+        case Accepts.Json() =>
+          Ok(JsArray(Display.findAll.map(Json.toJson(_))))
+      }
   }
 
   def create = Action {
@@ -26,7 +32,7 @@ object Displays extends Controller {
         Team.findAll, formWithErrors)), {
         display =>
           display.insert
-          Ok(views.html.display.index(Display.findAll,  Project.findAll, Team.findAll, displayForm()))
+          Ok(views.html.display.index(Display.findAll, Project.findAll, Team.findAll, displayForm()))
       })
   }
 

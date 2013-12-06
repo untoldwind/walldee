@@ -1,6 +1,6 @@
 package globals
 
-import actors.{DisplayUpdater, Backup, StatusMonitorUpdater}
+import actors.{Requester, DisplayUpdater, Backup, StatusMonitorUpdater}
 import akka.actor.Props
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
@@ -15,7 +15,9 @@ object Global extends GlobalSettings with SLF4JLogging {
 
   lazy val backup = Akka.system.actorOf(Props(new Backup))
 
-  lazy val statusMonitorUpdater = Akka.system.actorOf(Props(new StatusMonitorUpdater))
+  lazy val requester = Akka.system.actorOf(Props(new Requester()))
+
+  lazy val statusMonitorUpdater = Akka.system.actorOf(Props(new StatusMonitorUpdater(requester)))
 
   var h2WebServer: Option[Server] = None
   var h2TcpServer: Option[Server] = None

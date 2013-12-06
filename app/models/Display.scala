@@ -5,6 +5,9 @@ import play.api.Play.current
 import slick.driver.H2Driver.simple._
 import globals.Global
 import scala.slick.session.{Database, Session}
+import play.api.libs.json._
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsNumber
 
 case class Display(id: Option[Long] = None,
                    name: String,
@@ -67,7 +70,7 @@ object Display extends Table[Display]("DISPLAY") {
     relativeLayout ~ animationConfig <>((apply _).tupled, unapply _)
 
   def forInsert = id.? ~ name ~ projectId.? ~ teamId.? ~ styleNum ~ refreshTime ~ useLongPolling ~
-    relativeLayout ~ animationConfig <> (apply _, unapply _) returning id
+    relativeLayout ~ animationConfig <>(apply _, unapply _) returning id
 
   def query = Query(this)
 
@@ -76,8 +79,8 @@ object Display extends Table[Display]("DISPLAY") {
       query.sortBy(d => d.name.asc).list
   }
 
-  def findAllOther(displayId:Long): Seq[Display] = database.withSession {
-    implicit  db:Session =>
+  def findAllOther(displayId: Long): Seq[Display] = database.withSession {
+    implicit db: Session =>
       query.where(d => d.id =!= displayId).sortBy(d => d.name.asc).list
   }
 
@@ -101,5 +104,17 @@ object Display extends Table[Display]("DISPLAY") {
       query.where(d => d.teamId === teamId).firstOption
   }
 
-
+  implicit val jsonWrites = new Writes[Display] {
+    def writes(display: Display) = JsObject(
+      display.id.map("id" -> JsNumber(_)).toSeq ++
+        display.projectId.map("projectId" -> JsNumber(_)).toSeq ++
+        display.teamId.map("teamId" -> JsNumber(_)).toSeq ++
+        Seq(
+          "name" -> JsString(display.name),
+          "style" -> JsString(display.style.toString),
+          "refreshTime" -> JsNumber(display.refreshTime),
+          "useLongPolling" -> JsBoolean(display.useLongPolling),
+          "relativeLayout" -> JsBoolean(display.relativeLayout)
+        ))
+  }
 }
