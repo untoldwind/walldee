@@ -58,7 +58,8 @@
             </form>
         </div>
         <div class="tab-pane active" ng-controller="StatusMonitorHistory" ng-if="view == 'history'">
-            <button class="btn btn-primary" ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+            <button class="btn btn-primary" ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span>
+                Refresh</button>
             <table class="table table-striped table-hover">
                 <tr>
                     <th>Status</th>
@@ -71,8 +72,19 @@
             </table>
         </div>
         <div class="tab-pane active" ng-controller="StatusMonitorTest" ng-if="view == 'test'">
-            <button class="btn btn-primary" ng-click="performTest()"><span class="glyphicon glyphicon-play"></span> Perform test</button>
-
+            <button class="btn btn-primary" ng-click="performTest()"><span class="glyphicon glyphicon-play"></span>
+                Perform test</button>
+            <div ng-if="testResult != null">
+                <h2>Request</h2>
+                <pre>{{ testResult.request | requestInfo }}</pre>
+                <div ng-if="testResult.result != null">
+                    <h2>Response</h2>
+                </div>
+                <div ng-if="testResult.failure != null">
+                    <h2>Failure</h2>
+                    <pre>{{ testResult.failure | failureInfo }}</pre>
+                </div>
+            </div>
         </div>
     </div>
 </div>

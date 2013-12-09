@@ -143,7 +143,7 @@ define(['angular'], function (angular) {
             $scope.testResult = null;
 
             $scope.performTest = function() {
-                $scope.testResult = statusMonitorTestResource.get({projectId: $scope.statusMonitor.projectId, statusMonitorId: $scope.statusMonitor.id})
+                $scope.testResult = statusMonitorTestResource.get({projectId: $scope.statusMonitor.projectId, statusMonitorId: $scope.statusMonitor.id});
             }
         }
     ]);

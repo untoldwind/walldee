@@ -53,7 +53,7 @@ object RequestFailure {
 
   implicit object RequestFailureWrites extends Writes[RequestFailure] {
     override def writes(requestFailure: RequestFailure) = JsObject(Seq(
-      "errorClass" -> JsString(requestFailure.exception.getClass.toString),
+      "errorClass" -> JsString(requestFailure.exception.getClass.getName),
       "message" -> JsString(requestFailure.exception.getMessage)
     ))
   }
