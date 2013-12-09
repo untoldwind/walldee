@@ -12,25 +12,32 @@ import play.api.libs.json.Json
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
+import models.statusValues.ResponseInfo
 
 class JenkinsProcessorSpec extends Specification with Mockito {
   "Jenkins processor" should {
     "not encode direct json url" in {
       val url = "http://localhost/jobs/bla/123/api/json"
+      val statusMonitor = mock[StatusMonitor]
 
-      JenkinsProcessor.apiUrl(url) must be_==(url)
+      statusMonitor.url returns url
+      new JenkinsProcessor(statusMonitor).apiUrl must be_==(url)
     }
 
     "add api/json to url with /" in {
       val url = "http://localhost/jobs/bla/123/"
+      val statusMonitor = mock[StatusMonitor]
 
-      JenkinsProcessor.apiUrl(url) must be_==(url + "api/json")
+      statusMonitor.url returns url
+      new JenkinsProcessor(statusMonitor).apiUrl must be_==(url + "api/json")
     }
 
     "add /api/json to url without /" in {
       val url = "http://localhost/jobs/bla/123"
+      val statusMonitor = mock[StatusMonitor]
 
-      JenkinsProcessor.apiUrl(url) must be_==(url + "/api/json")
+      statusMonitor.url returns url
+      new JenkinsProcessor(statusMonitor).apiUrl must be_==(url + "/api/json")
     }
 
     "process json correctly" in {
@@ -60,7 +67,7 @@ class JenkinsProcessorSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        JenkinsProcessor.process(statusMonitor, response)
+        new JenkinsProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -69,9 +76,7 @@ class JenkinsProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: Response = {
-    val response = mock[Response]
-
+  private def sucessfulJobResponse: ResponseInfo = {
     val body =
       """{"actions":[],"description":"","displayName":"ruboto_rubies","displayNameOrNull":null,""" +
         """"name":"ruboto_rubies","url":"http://ci.jruby.org/job/ruboto_rubies/","buildable":true,""" +
@@ -107,9 +112,11 @@ class JenkinsProcessorSpec extends Specification with Mockito {
         """{"name":"ANDROID_OS=android-15,ANDROID_TARGET=android-15,RUBOTO_PLATFORM=CURRENT,RUBY_IMPL=rbx,label=ruboto",""" +
         """"url":"http://ci.jruby.org/job/ruboto_rubies/./ANDROID_OS=android-15,ANDROID_TARGET=android-15,RUBOTO_PLATFORM=CURRENT,RUBY_IMPL=rbx,label=ruboto/","color":"blue"}]}"""
 
-    response.status returns OK
-    response.body returns body
-    response.json returns Json.parse(body)
-    response
+    ResponseInfo(
+      statusCode = OK,
+      statusText = "OK",
+      headers = Seq.empty,
+      body = body
+    )
   }
 }

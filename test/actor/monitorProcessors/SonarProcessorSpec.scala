@@ -12,19 +12,24 @@ import play.api.libs.json.Json
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
+import models.statusValues.ResponseInfo
 
 class SonarProcessorSpec extends Specification with Mockito {
   "Sonar processor" should {
     "should encode http url" in {
       val url = "http://nemo.sonarsource.org/dashboard/index/427172?did=1"
+      val statusMonitor = mock[StatusMonitor]
 
-      SonarProcessor.apiUrl(url) must be_==("http://nemo.sonarsource.org/api/resources?resource=427172&metrics=coverage,violations,blocker_violations,critical_violations,major_violations,minor_violations,info_violations&format=json")
+      statusMonitor.url returns url
+      new SonarProcessor(statusMonitor).apiUrl must be_==("http://nemo.sonarsource.org/api/resources?resource=427172&metrics=coverage,violations,blocker_violations,critical_violations,major_violations,minor_violations,info_violations&format=json")
     }
 
     "should encode https url" in {
       var url = "https://sonar.somewhere.de/sonar/dashboard/index/50647"
+      val statusMonitor = mock[StatusMonitor]
 
-      SonarProcessor.apiUrl(url) must be_==("https://sonar.somewhere.de/sonar/api/resources?resource=50647&metrics=coverage,violations,blocker_violations,critical_violations,major_violations,minor_violations,info_violations&format=json")
+      statusMonitor.url returns url
+      new SonarProcessor(statusMonitor).apiUrl must be_==("https://sonar.somewhere.de/sonar/api/resources?resource=50647&metrics=coverage,violations,blocker_violations,critical_violations,major_violations,minor_violations,info_violations&format=json")
     }
 
     "process json correctly" in {
@@ -54,7 +59,7 @@ class SonarProcessorSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        SonarProcessor.process(statusMonitor, response)
+        new SonarProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -63,7 +68,7 @@ class SonarProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: Response = {
+  private def sucessfulJobResponse: ResponseInfo = {
     val response = mock[Response]
 
     val body = """[{"id":427172,"key":"org.codehaus.sonar-plugins.java:java",""" +
@@ -77,9 +82,11 @@ class SonarProcessorSpec extends Specification with Mockito {
       """{"key":"minor_violations","val":16.0,"frmt_val":"16"},""" +
       """{"key":"info_violations","val":62.0,"frmt_val":"62"}]}]"""
 
-    response.status returns OK
-    response.body returns body
-    response.json returns Json.parse(body)
-    response
+    ResponseInfo(
+      statusCode = OK,
+      statusText = "OK",
+      headers = Seq.empty,
+      body = body
+    )
   }
 }

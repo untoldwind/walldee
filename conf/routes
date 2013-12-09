@@ -50,6 +50,7 @@ POST          /projects/:projectId/statusMonitors                               
 GET           /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.show(projectId:Long, statusMonitorId:Long)
 GET           /projects/:projectId/statusMonitors/:statusMonitorId/edit          controllers.StatusMonitors.edit(projectId:Long, statusMonitorId:Long)
 GET           /projects/:projectId/statusMonitors/:statusMonitorId/values        controllers.StatusMonitors.values(projectId:Long, statusMonitorId:Long)
+GET           /projects/:projectId/statusMonitors/:statusMonitorId/test          controllers.StatusMonitors.test(projectId:Long, statusMonitorId:Long)
 POST          /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
 PUT           /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.update(projectId:Long, statusMonitorId:Long)
 DELETE        /projects/:projectId/statusMonitors/:statusMonitorId               controllers.StatusMonitors.delete(projectId:Long, statusMonitorId:Long)

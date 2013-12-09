@@ -19,11 +19,10 @@ class StatusMonitorUpdater(requester: ActorRef) extends Actor with SLF4JLogging 
     case UpdateAll() =>
       StatusMonitor.findAllActive.foreach {
         statusMonitor =>
-          val processor = MonitorProcessor(statusMonitor.monitorType)
-          val url = processor.apiUrl(statusMonitor.url)
+          val processor = MonitorProcessor(statusMonitor)
 
           val request = RequestInfo(
-            url = url,
+            url = processor.apiUrl,
             method = "GET",
             username = statusMonitor.username,
             password = statusMonitor.password,
@@ -35,7 +34,7 @@ class StatusMonitorUpdater(requester: ActorRef) extends Actor with SLF4JLogging 
           val responseFuture = requester ? request
           responseFuture.map {
             case response: ResponseInfo =>
-              processor.process(statusMonitor, response)
+              processor.process(response)
               statusMonitor.updateLastUpdated
           }.recover {
             case e =>

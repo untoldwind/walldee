@@ -7,9 +7,9 @@
     </ol>
 
     <ul class="nav nav-tabs">
-        <li ng-class="{active: view == 'config'}"><a ng-click="view = 'config'">Configuration</a></li>
-        <li ng-class="{active: view == 'history'}" ng-if="statusMonitor.id != null"><a ng-click="view = 'history'">History</a></li>
-        <li ng-class="{active: view == 'test'}" ng-if="statusMonitor.id != null"><a ng-click="view = 'test'">Test</a></li>
+        <li ng-class="{active: view == 'config'}"><a ng-click="setView('config')">Configuration</a></li>
+        <li ng-class="{active: view == 'history'}" ng-if="statusMonitor.id != null"><a ng-click="setView('history')">History</a></li>
+        <li ng-class="{active: view == 'test'}" ng-if="statusMonitor.id != null"><a ng-click="setView('test')">Test</a></li>
     </ul>
 
     <div class="tab-content">
@@ -69,6 +69,9 @@
                     <td>{{ statusValue.retrievedAt | date:'medium' }}</td>
                 </tr>
             </table>
+        </div>
+        <div class="tab-pane active" ng-controller="StatusMonitorTest" ng-if="view == 'test'">
+
         </div>
     </div>
 </div>

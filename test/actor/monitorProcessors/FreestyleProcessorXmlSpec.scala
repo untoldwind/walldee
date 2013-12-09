@@ -12,15 +12,17 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
-import models.statusValues.FreestyleStatus
+import models.statusValues.{ResponseInfo, FreestyleStatus}
 
 
 class FreestyleProcessorXmlSpec extends Specification with Mockito {
   "FreestyleProcessor XML" should {
     "leave urls unchanged" in {
       val url = "some nonsense"
+      val statusMonitor = mock[StatusMonitor]
 
-      FreestyleProcessor.apiUrl(url) must be_==(url)
+      statusMonitor.url returns url
+      new FreestyleProcessor(statusMonitor).apiUrl must be_==(url)
     }
 
     "process xml correctly" in {
@@ -51,7 +53,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        FreestyleProcessor.process(statusMonitor, response)
+        new FreestyleProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -181,7 +183,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        FreestyleProcessor.process(statusMonitor, response)
+        new FreestyleProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -221,7 +223,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        FreestyleProcessor.process(statusMonitor, response)
+        new FreestyleProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -257,7 +259,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
 
         val response = sucessfulInvalidResponse
 
-        FreestyleProcessor.process(statusMonitor, response)
+        new FreestyleProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -266,9 +268,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: Response = {
-    val response = mock[Response]
-
+  private def sucessfulJobResponse: ResponseInfo = {
     val body = """<?xml version="1.0"?>
                  |<?xml-stylesheet type="text/css" href="nutrition.css"?>
                  |<nutrition>
@@ -329,17 +329,22 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
                  |</nutrition>
                  | """.stripMargin
 
-    response.status returns OK
-    response.body returns body
-    response.xml returns XML.loadString(body)
-    response
+    ResponseInfo(
+      statusCode = OK,
+      statusText = "OK",
+      headers = Seq.empty,
+      body = body
+    )
   }
 
-  private def sucessfulInvalidResponse: Response = {
-    val response = mock[Response]
-
+  private def sucessfulInvalidResponse: ResponseInfo = {
     val body = """Something>not even remotely<XML"""
-    response.status returns OK
-    response.body returns body
+
+    ResponseInfo(
+      statusCode = OK,
+      statusText = "OK",
+      headers = Seq.empty,
+      body = body
+    )
   }
 }

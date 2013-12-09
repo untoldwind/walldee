@@ -15,15 +15,23 @@ import play.api.libs.ws.Response
 import play.api.libs.json.JsString
 import play.api.libs.json.JsNumber
 import org.jsoup.Jsoup
+import com.fasterxml.jackson.core.JsonParseException
+import akka.event.slf4j.SLF4JLogging
 
-object FreestyleProcessor extends MonitorProcessor {
+class FreestyleProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor with SLF4JLogging {
   override def accepts: String = "application/json"
 
-  override def process(statusMonitor: StatusMonitor, response: ResponseInfo) {
+  override def process(response: ResponseInfo) {
     val statusOpt: Option[FreestyleStatus] = statusMonitor.freestyleConfig.map(_.freestyleType).getOrElse(FreestyleTypes.Regex) match {
       case FreestyleTypes.Regex => None
       case FreestyleTypes.Json =>
-        FreestyleJsonProcessor.processJson(statusMonitor.freestyleConfig.flatMap(_.selector), response.bodyAsJson)
+        try {
+          FreestyleJsonProcessor.processJson(statusMonitor.freestyleConfig.flatMap(_.selector), response.bodyAsJson)
+        } catch {
+          case e: JsonParseException =>
+            log.error("Exception", e)
+            None
+        }
       case FreestyleTypes.Xml =>
         parserXML(response.body).flatMap {
           document =>
@@ -37,9 +45,9 @@ object FreestyleProcessor extends MonitorProcessor {
     }
     statusOpt.map {
       status =>
-        updateStatus(statusMonitor, StatusTypes.Ok, Json.toJson(status))
+        updateStatus(StatusTypes.Ok, Json.toJson(status))
     }.getOrElse {
-      updateStatus(statusMonitor, StatusTypes.Failure, JsObject(Seq.empty))
+      updateStatus(StatusTypes.Failure, JsObject(Seq.empty))
     }
   }
 
@@ -53,7 +61,7 @@ object FreestyleProcessor extends MonitorProcessor {
     }
   }
 
-  private def parseHtml(html:String):Option[org.jsoup.nodes.Document] = {
+  private def parseHtml(html: String): Option[org.jsoup.nodes.Document] = {
     try {
       Some(Jsoup.parse(html))
     } catch {

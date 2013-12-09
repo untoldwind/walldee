@@ -6,7 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import models.statusMonitors.{FreestyleTypes, FreestyleConfig, IcingaExpected, IcingaConfig}
 import scala.util.matching.Regex
-import play.api.libs.json.{JsSuccess, JsArray, Json}
+import play.api.libs.json.{JsObject, JsSuccess, JsArray, Json}
 
 object StatusMonitors extends Controller {
   def index(projectId: Long) = Action {
@@ -57,6 +57,19 @@ object StatusMonitors extends Controller {
             statusMonitor <- StatusMonitor.findById(statusMonitorId)
           } yield {
             Ok(JsArray(StatusValue.findAllForStatusMonitor(statusMonitorId).map(Json.toJson(_))))
+          }).getOrElse(NotFound)
+      }
+  }
+
+  def test(projectId: Long, statusMonitorId: Long) = Action {
+    implicit request =>
+      render {
+        case Accepts.Json() =>
+          (for {
+            project <- Project.findById(projectId)
+            statusMonitor <- StatusMonitor.findById(statusMonitorId)
+          } yield {
+            NotFound
           }).getOrElse(NotFound)
       }
   }

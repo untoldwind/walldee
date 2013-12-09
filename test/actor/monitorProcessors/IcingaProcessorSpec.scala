@@ -17,14 +17,18 @@ class IcingaProcessorSpec extends Specification with Mockito {
   "Icinga processor" should {
     "should not encode direct json url" in {
       val url = "https://icinga/cgi-bin/icinga/status.cgi?hostgroup=hosts&style=overview&nostatusheader&jsonoutput"
+      val statusMonitor = mock[StatusMonitor]
 
-      IcingaProcessor.apiUrl(url) must be_==(url)
+      statusMonitor.url returns url
+      new IcingaProcessor(statusMonitor).apiUrl must be_==(url)
     }
 
     "should add jsonOutput to url" in {
       val url = "https://icinga/cgi-bin/icinga/status.cgi?hostgroup=hosts&style=overview&nostatusheader"
+      val statusMonitor = mock[StatusMonitor]
 
-      IcingaProcessor.apiUrl(url) must be_==(url + "&jsonoutput")
+      statusMonitor.url returns url
+      new IcingaProcessor(statusMonitor).apiUrl must be_==(url + "&jsonoutput")
     }
 
     "process json correctly" in {
@@ -54,7 +58,7 @@ class IcingaProcessorSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        IcingaProcessor.process(statusMonitor, response)
+        new IcingaProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -96,7 +100,7 @@ class IcingaProcessorSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        IcingaProcessor.process(statusMonitor, response)
+        new IcingaProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -109,9 +113,7 @@ class IcingaProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: Response = {
-    val response = mock[Response]
-
+  private def sucessfulJobResponse: ResponseInfo = {
     val body = """{ "cgi_json_version": "1.7.1",
                  |"status": {
                  |"hostgroup_overview": [
@@ -131,9 +133,11 @@ class IcingaProcessorSpec extends Specification with Mockito {
                  |}
                  |}""".stripMargin
 
-    response.status returns OK
-    response.body returns body
-    response.json returns Json.parse(body)
-    response
+    ResponseInfo(
+      statusCode = OK,
+      statusText = "OK",
+      headers = Seq.empty,
+      body = body
+    )
   }
 }

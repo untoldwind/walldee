@@ -37,6 +37,10 @@ define(['angular'], function (angular) {
         return $resource('/projects/:projectId/statusMonitors/:statusMonitorId/values', {projectId: '@projectId', statusMonitorId: '@id'});
     }]);
 
+    services.factory('statusMonitorTestResource', ['$resource', function ($resource) {
+        return $resource('/projects/:projectId/statusMonitor/:statusMonitorId/test', {projectId: '@projectId', statusMonitorId: '@id'});
+    }]);
+
     services.factory('teamResource', ['$resource', function ($resource) {
         return $resource('/teams/:teamId', {teamId: '@id'}, stdMethods);
     }]);

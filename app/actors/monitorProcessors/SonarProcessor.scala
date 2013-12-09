@@ -44,17 +44,17 @@ object SonarResource {
 
 }
 
-object SonarProcessor extends MonitorProcessor {
+class SonarProcessor(var statusMonitor:StatusMonitor) extends MonitorProcessor {
 
   val UrlPattern = """(http|https)://([a-zA-Z0-9\.:/]+)/dashboard/index/([0-9]+).*""".r
 
-  override def apiUrl(url: String) = url match {
+  override def apiUrl = statusMonitor.url match {
     case UrlPattern(proto, base, id) =>
       proto + "://" + base + "/api/resources?resource=" + id + "&metrics=" + SonarMetricTypes.values.mkString(",") + "&format=json"
     case url => url
   }
 
-  def process(statusMonitor: StatusMonitor, response: ResponseInfo) {
+  def process(response: ResponseInfo) {
     val sonarResources = response.bodyAsJson.as[Seq[SonarResource]]
 
     if (sonarResources.length == 1) {
@@ -82,9 +82,9 @@ object SonarProcessor extends MonitorProcessor {
       }
 
       val sonarStatus = MetricStatus(sonarResources(0).name, coverage, violationsCount, violations.result())
-      updateStatus(statusMonitor, StatusTypes.Ok, Json.toJson(sonarStatus))
+      updateStatus(StatusTypes.Ok, Json.toJson(sonarStatus))
     } else {
-      updateStatus(statusMonitor, StatusTypes.Failure, JsObject(Seq.empty))
+      updateStatus(StatusTypes.Failure, JsObject(Seq.empty))
     }
   }
 }

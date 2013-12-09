@@ -6,13 +6,15 @@ import play.api.libs.json.{Json, JsValue}
 import models.statusValues.ResponseInfo
 
 trait MonitorProcessor {
-  def apiUrl(url: String) = url
+  def statusMonitor: StatusMonitor
 
-  def process(statusMonitor: StatusMonitor, response: ResponseInfo)
+  def apiUrl = statusMonitor.url
+
+  def process(response: ResponseInfo)
 
   def accepts: String = "application/json"
 
-  def updateStatus(statusMonitor: StatusMonitor, status: StatusTypes.Type, json: JsValue) {
+  def updateStatus(status: StatusTypes.Type, json: JsValue) {
     val lastStatusValue = StatusValue.findLastForStatusMonitor(statusMonitor.id.get)
 
     if (lastStatusValue.isEmpty || lastStatusValue.get.status != status || lastStatusValue.get.statusValues != json) {
@@ -33,12 +35,12 @@ trait MonitorProcessor {
 }
 
 object MonitorProcessor {
-  def apply(statusMonitorType: StatusMonitorTypes.Type): MonitorProcessor = statusMonitorType match {
-    case StatusMonitorTypes.Jenkins => JenkinsProcessor
-    case StatusMonitorTypes.Teamcity => TeamcityProcessor
-    case StatusMonitorTypes.Sonar => SonarProcessor
-    case StatusMonitorTypes.Icinga => IcingaProcessor
-    case StatusMonitorTypes.Freestyle => FreestyleProcessor
+  def apply(statusMonitor: StatusMonitor): MonitorProcessor = statusMonitor.monitorType match {
+    case StatusMonitorTypes.Jenkins => new JenkinsProcessor(statusMonitor)
+    case StatusMonitorTypes.Teamcity => new TeamcityProcessor(statusMonitor)
+    case StatusMonitorTypes.Sonar => new SonarProcessor(statusMonitor)
+    case StatusMonitorTypes.Icinga => new IcingaProcessor(statusMonitor)
+    case StatusMonitorTypes.Freestyle => new FreestyleProcessor(statusMonitor)
   }
 
 }

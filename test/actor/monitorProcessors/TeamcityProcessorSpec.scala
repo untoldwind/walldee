@@ -8,13 +8,16 @@ import play.api.libs.json.Json
 import play.api.test._
 import play.api.test.Helpers._
 import models._
+import models.statusValues.ResponseInfo
 
 class TeamcityProcessorSpec extends Specification with Mockito {
   "Teamcity processer" should {
     "convert url" in {
       val url = "http://teamcity.somewhere.de/viewType.html?buildTypeId=bt40&tab=buildTypeStatusDiv"
+      val statusMonitor = mock[StatusMonitor]
 
-      TeamcityProcessor.apiUrl(url) must be_==("http://teamcity.somewhere.de/httpAuth/app/rest/builds/buildType:bt40,running:any")
+      statusMonitor.url returns url
+      new TeamcityProcessor(statusMonitor).apiUrl must be_==("http://teamcity.somewhere.de/httpAuth/app/rest/builds/buildType:bt40,running:any")
     }
 
     "process json correctly" in {
@@ -44,7 +47,7 @@ class TeamcityProcessorSpec extends Specification with Mockito {
 
         val response = sucessfulJobResponse
 
-        TeamcityProcessor.process(statusMonitor, response)
+        new TeamcityProcessor(statusMonitor).process(response)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -53,7 +56,7 @@ class TeamcityProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: Response = {
+  private def sucessfulJobResponse: ResponseInfo = {
     val response = mock[Response]
 
     val body =
@@ -73,9 +76,11 @@ class TeamcityProcessorSpec extends Specification with Mockito {
         """"triggered":{"type":"vcs","details":"svn","date":"20121119T135610+0100"},""" +
         """"changes":{"count":1,"href":"/httpAuth/app/rest/changes?build=id:4756"}}"""
 
-    response.status returns OK
-    response.body returns body
-    response.json returns Json.parse(body)
-    response
+    ResponseInfo(
+      statusCode = OK,
+      statusText = "OK",
+      headers = Seq.empty,
+      body = body
+    )
   }
 }

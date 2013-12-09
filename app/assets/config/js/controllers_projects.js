@@ -107,7 +107,11 @@ define(['angular'], function (angular) {
                 $scope.statusMonitor = statusMonitorResource.get({projectId: $route.current.params.projectId, statusMonitorId: $route.current.params.statusMonitorId});
             }
 
-            $scope.view = "config"
+            $scope.setView = function (view) {
+                $scope.view = view;
+            }
+
+            $scope.setView('config')
         }
     ]);
 
@@ -128,9 +132,15 @@ define(['angular'], function (angular) {
         function ($scope, statusMonitorValuesResource) {
             $scope.refresh = function () {
                 $scope.statusValues = statusMonitorValuesResource.query({projectId: $scope.statusMonitor.projectId, statusMonitorId: $scope.statusMonitor.id});
-            }
+            };
 
             $scope.refresh();
+        }
+    ]);
+
+    controllers.controller('StatusMonitorTest', ['$scope', 'statusMonitorTestResource',
+        function ($scope, statusMonitorTestResource) {
+
         }
     ]);
 });
