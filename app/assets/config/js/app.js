@@ -14,11 +14,11 @@ requirejs.config({
     }
 });
 
-require([ 'angular', './controllers', './directives', './filters', './services'], function (angular) {
+require([ 'angular', './controllers_projects', './controllers_teams', './controllers_displays', './directives', './filters', './services'], function (angular) {
 
 // Declare app level module which depends on filters, and services
 
-    angular.module('walldee', ['ngRoute', 'ngResource', 'walldee.filters', 'walldee.services', 'walldee.directives', 'walldee.controllers']).
+    angular.module('walldee', ['ngRoute', 'ngResource', 'walldee.filters', 'walldee.services', 'walldee.directives', 'walldee.controllers.projects', 'walldee.controllers.teams', 'walldee.controllers.displays']).
         config(['$routeProvider', function ($routeProvider) {
             $routeProvider.when('/projects', {templateUrl: '/config/projects', reloadOnSearch: false});
             $routeProvider.when('/teams', {templateUrl: '/config/teams', reloadOnSearch: false});
