@@ -39,7 +39,7 @@ object TeamcityBuild {
 
 }
 
-class TeamcityProcessor(var statusMonitor:StatusMonitor) extends MonitorProcessor {
+class TeamcityProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor {
   val UrlPattern = """(http|https)://([a-zA-Z0-9\.:/]+)/viewType\.html\?buildTypeId=(bt[0-9]+).*""".r
 
   override def apiUrl = statusMonitor.url match {
@@ -48,19 +48,19 @@ class TeamcityProcessor(var statusMonitor:StatusMonitor) extends MonitorProcesso
     case url => url
   }
 
-  def process(response: ResponseInfo) {
+  def process(response: ResponseInfo) = {
     Try(response.bodyAsJson.as[TeamcityBuild]) match {
       case Failure(e) =>
         val body = response.body
         Logger.error(s"cannot parse json from response. Status=${response.statusCode}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
-        updateStatus(StatusTypes.Unknown, JsObject(Seq.empty))
+        (StatusTypes.Unknown, JsObject(Seq.empty))
       case Success(teamcityBuild) =>
         val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running, teamcityBuild.buildType.name))
         teamcityBuild.status match {
           case "SUCCESS" =>
-            updateStatus(StatusTypes.Ok, json)
+            (StatusTypes.Ok, json)
           case _ =>
-            updateStatus(StatusTypes.Failure, json)
+            (StatusTypes.Failure, json)
         }
     }
 

@@ -66,8 +66,9 @@ class JenkinsProcessorSpec extends Specification with Mockito {
         statusMonitor.insert
 
         val response = sucessfulJobResponse
-
-        new JenkinsProcessor(statusMonitor).process(response)
+        val processor = new JenkinsProcessor(statusMonitor)
+        val (status, json) = processor.process(response)
+        processor.updateStatus(status, json)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)

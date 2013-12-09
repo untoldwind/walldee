@@ -6,9 +6,20 @@ import play.api.data._
 import play.api.data.Forms._
 import models.statusMonitors.{FreestyleTypes, FreestyleConfig, IcingaExpected, IcingaConfig}
 import scala.util.matching.Regex
-import play.api.libs.json.{JsObject, JsSuccess, JsArray, Json}
+import play.api.libs.json.{JsSuccess, JsArray, Json}
+import scala.concurrent.Future
+import globals.Global
+import akka.pattern._
+import actors.StatusMonitorUpdater
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import models.statusValues.StatusMonitorTestInfo
+import play.api.libs.concurrent.Execution.Implicits._
 
 object StatusMonitors extends Controller {
+  implicit val timeout = Timeout(15 seconds)
+
   def index(projectId: Long) = Action {
     implicit request =>
       render {
@@ -61,16 +72,22 @@ object StatusMonitors extends Controller {
       }
   }
 
-  def test(projectId: Long, statusMonitorId: Long) = Action {
+  def test(projectId: Long, statusMonitorId: Long) = Action.async {
     implicit request =>
-      render {
+      render.async {
         case Accepts.Json() =>
           (for {
             project <- Project.findById(projectId)
             statusMonitor <- StatusMonitor.findById(statusMonitorId)
           } yield {
-            NotFound
-          }).getOrElse(NotFound)
+            (Global.statusMonitorUpdater ? StatusMonitorUpdater.Test(statusMonitor)).map {
+              case testInfo: StatusMonitorTestInfo =>
+                Ok(Json.toJson(testInfo))
+            }.recover {
+              case e =>
+                InternalServerError(e.getMessage)
+            }
+          }).getOrElse(Future.successful(NotFound))
       }
   }
 

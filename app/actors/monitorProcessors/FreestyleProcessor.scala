@@ -21,7 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 class FreestyleProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor with SLF4JLogging {
   override def accepts: String = "application/json"
 
-  override def process(response: ResponseInfo) {
+  override def process(response: ResponseInfo) = {
     val statusOpt: Option[FreestyleStatus] = statusMonitor.freestyleConfig.map(_.freestyleType).getOrElse(FreestyleTypes.Regex) match {
       case FreestyleTypes.Regex => None
       case FreestyleTypes.Json =>
@@ -45,9 +45,9 @@ class FreestyleProcessor(var statusMonitor: StatusMonitor) extends MonitorProces
     }
     statusOpt.map {
       status =>
-        updateStatus(StatusTypes.Ok, Json.toJson(status))
+        (StatusTypes.Ok, Json.toJson(status))
     }.getOrElse {
-      updateStatus(StatusTypes.Failure, JsObject(Seq.empty))
+      (StatusTypes.Failure, JsObject(Seq.empty))
     }
   }
 

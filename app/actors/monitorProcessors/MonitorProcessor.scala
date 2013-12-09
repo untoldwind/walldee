@@ -10,7 +10,7 @@ trait MonitorProcessor {
 
   def apiUrl = statusMonitor.url
 
-  def process(response: ResponseInfo)
+  def process(response: ResponseInfo): (StatusTypes.Type, JsValue)
 
   def accepts: String = "application/json"
 

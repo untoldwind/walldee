@@ -51,8 +51,9 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
         statusMonitor.insert
 
         val response = sucessfulJobResponse
-
-        new FreestyleProcessor(statusMonitor).process(response)
+        val processor = new FreestyleProcessor(statusMonitor)
+        val (status, json) = processor.process(response)
+        processor.updateStatus(status, json)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
@@ -182,8 +183,9 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
       statusMonitor.insert
 
       val response = sucessfulJobResponse
-
-      new FreestyleProcessor(statusMonitor).process(response)
+      val processor = new FreestyleProcessor(statusMonitor)
+      val (status, json) = processor.process(response)
+      processor.updateStatus(status, json)
 
       val statusValues = StatusValue.findAllForStatusMonitor(1)
       statusValues must have size (1)
@@ -222,8 +224,9 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
       statusMonitor.insert
 
       val response = sucessfulJobResponse
-
-      new FreestyleProcessor(statusMonitor).process(response)
+      val processor = new FreestyleProcessor(statusMonitor)
+      val (status, json) = processor.process(response)
+      processor.updateStatus(status, json)
 
       val statusValues = StatusValue.findAllForStatusMonitor(1)
       statusValues must have size (1)
@@ -257,8 +260,9 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
         statusMonitor.insert
 
         val response = sucessfulInvalidResponse
-
-        new FreestyleProcessor(statusMonitor).process(response)
+        val processor = new FreestyleProcessor(statusMonitor)
+        val (status, json) = processor.process(response)
+        processor.updateStatus(status, json)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)

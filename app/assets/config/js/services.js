@@ -38,7 +38,7 @@ define(['angular'], function (angular) {
     }]);
 
     services.factory('statusMonitorTestResource', ['$resource', function ($resource) {
-        return $resource('/projects/:projectId/statusMonitor/:statusMonitorId/test', {projectId: '@projectId', statusMonitorId: '@id'});
+        return $resource('/projects/:projectId/statusMonitors/:statusMonitorId/test', {projectId: '@projectId', statusMonitorId: '@id'});
     }]);
 
     services.factory('teamResource', ['$resource', function ($resource) {

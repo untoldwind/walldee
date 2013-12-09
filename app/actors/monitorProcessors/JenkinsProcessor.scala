@@ -42,20 +42,20 @@ object JenkinsJob {
 
 }
 
-class JenkinsProcessor(var statusMonitor:StatusMonitor) extends MonitorProcessor {
+class JenkinsProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor {
   override def apiUrl: String = statusMonitor.url match {
     case url if url.endsWith("/api/json") => url
     case url if url.endsWith("/") => url + "api/json"
     case url => url + "/api/json"
   }
 
-  def process(response: ResponseInfo) {
+  def process(response: ResponseInfo) = {
 
     Try(response.bodyAsJson.as[JenkinsJob]) match {
       case Failure(e) =>
         val body = response.body
         Logger.error(s"cannot parse json from response. Status=${response.statusCode}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
-        updateStatus(StatusTypes.Unknown, JsObject(Seq.empty))
+        (StatusTypes.Unknown, JsObject(Seq.empty))
       case Success(jenkinsJob) =>
         jenkinsJob.lastCompletedBuild.map {
           lastCompletedBuild =>
@@ -63,14 +63,14 @@ class JenkinsProcessor(var statusMonitor:StatusMonitor) extends MonitorProcessor
             val json = Json.toJson(BuildStatus(lastCompletedBuild.number, running, jenkinsJob.name))
             jenkinsJob.lastStableBuild.map {
               case lastStableBuild if lastCompletedBuild.number == lastStableBuild.number =>
-                updateStatus(StatusTypes.Ok, json)
+                (StatusTypes.Ok, json)
               case _ =>
-                updateStatus(StatusTypes.Failure, json)
+                (StatusTypes.Failure, json)
             }.getOrElse {
-              updateStatus(StatusTypes.Failure, json)
+              (StatusTypes.Failure, json)
             }
         }.getOrElse {
-          updateStatus(StatusTypes.Unknown, JsObject(Seq.empty))
+          (StatusTypes.Unknown, JsObject(Seq.empty))
         }
     }
   }

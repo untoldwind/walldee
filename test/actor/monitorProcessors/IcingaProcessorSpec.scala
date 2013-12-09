@@ -57,18 +57,19 @@ class IcingaProcessorSpec extends Specification with Mockito {
         statusMonitor.insert
 
         val response = sucessfulJobResponse
-
-        new IcingaProcessor(statusMonitor).process(response)
+        val processor = new IcingaProcessor(statusMonitor)
+        val (status, json) = processor.process(response)
+        processor.updateStatus(status, json)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
         statusValues(0).status must be_==(StatusTypes.Failure)
         statusValues(0).hostsStatus must be_==(Some(
-          HostsStatus(Seq(HostsGroup(Seq(HostStatus("host1",HostStatusTypes.Up,HostServiceStatusTypes.Critical),
-            HostStatus("host2",HostStatusTypes.Up,HostServiceStatusTypes.Ok),
-            HostStatus("host3",HostStatusTypes.Up,HostServiceStatusTypes.Critical),
-            HostStatus("host4",HostStatusTypes.Up,HostServiceStatusTypes.Ok),
-            HostStatus("host5",HostStatusTypes.Up,HostServiceStatusTypes.Ok)))))))
+          HostsStatus(Seq(HostsGroup(Seq(HostStatus("host1", HostStatusTypes.Up, HostServiceStatusTypes.Critical),
+            HostStatus("host2", HostStatusTypes.Up, HostServiceStatusTypes.Ok),
+            HostStatus("host3", HostStatusTypes.Up, HostServiceStatusTypes.Critical),
+            HostStatus("host4", HostStatusTypes.Up, HostServiceStatusTypes.Ok),
+            HostStatus("host5", HostStatusTypes.Up, HostServiceStatusTypes.Ok)))))))
       }
     }
 
@@ -78,7 +79,7 @@ class IcingaProcessorSpec extends Specification with Mockito {
 
         project.insert
 
-        val icingaConfig = IcingaConfig(hostNameFilter = Some("""host[45]""".r))
+        val icingaConfig = IcingaConfig(hostNameFilter = Some( """host[45]""".r))
         val statusMonitor =
           StatusMonitor(
             id = Some(1),
@@ -99,16 +100,17 @@ class IcingaProcessorSpec extends Specification with Mockito {
         statusMonitor.insert
 
         val response = sucessfulJobResponse
-
-        new IcingaProcessor(statusMonitor).process(response)
+        val processor = new IcingaProcessor(statusMonitor)
+        val (status, json) = processor.process(response)
+        processor.updateStatus(status, json)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)
         statusValues(0).status must be_==(StatusTypes.Ok)
         statusValues(0).hostsStatus must be_==(Some(
           HostsStatus(Seq(HostsGroup(Seq(
-            HostStatus("host4",HostStatusTypes.Up,HostServiceStatusTypes.Ok),
-            HostStatus("host5",HostStatusTypes.Up,HostServiceStatusTypes.Ok)))))))
+            HostStatus("host4", HostStatusTypes.Up, HostServiceStatusTypes.Ok),
+            HostStatus("host5", HostStatusTypes.Up, HostServiceStatusTypes.Ok)))))))
       }
     }
   }

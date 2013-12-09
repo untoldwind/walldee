@@ -58,8 +58,9 @@ class SonarProcessorSpec extends Specification with Mockito {
         statusMonitor.insert
 
         val response = sucessfulJobResponse
-
-        new SonarProcessor(statusMonitor).process(response)
+        val processor = new SonarProcessor(statusMonitor)
+        val (status, json) = processor.process(response)
+        processor.updateStatus(status, json)
 
         val statusValues = StatusValue.findAllForStatusMonitor(1)
         statusValues must have size (1)

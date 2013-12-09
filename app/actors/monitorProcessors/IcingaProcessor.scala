@@ -72,13 +72,13 @@ object IcingaOverview {
 
 }
 
-class IcingaProcessor(var statusMonitor:StatusMonitor) extends MonitorProcessor {
+class IcingaProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor {
   override def apiUrl: String = statusMonitor.url match {
     case url if url.endsWith("&jsonoutput") => url
     case url => url + "&jsonoutput"
   }
 
-  def process(response: ResponseInfo) {
+  def process(response: ResponseInfo) = {
     val icingaOverview = response.bodyAsJson.as[IcingaOverview]
 
     val hostFilter = statusMonitor.icingaConfig.flatMap(_.hostNameFilter).map {
@@ -109,7 +109,7 @@ class IcingaProcessor(var statusMonitor:StatusMonitor) extends MonitorProcessor 
         })
     })
 
-    updateStatus(status, Json.toJson(icingaStatus))
+    (status, Json.toJson(icingaStatus))
   }
 
 }

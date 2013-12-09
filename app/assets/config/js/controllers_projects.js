@@ -140,7 +140,11 @@ define(['angular'], function (angular) {
 
     controllers.controller('StatusMonitorTest', ['$scope', 'statusMonitorTestResource',
         function ($scope, statusMonitorTestResource) {
+            $scope.testResult = null;
 
+            $scope.performTest = function() {
+                $scope.testResult = statusMonitorTestResource.get({projectId: $scope.statusMonitor.projectId, statusMonitorId: $scope.statusMonitor.id})
+            }
         }
     ]);
 });
