@@ -2,7 +2,7 @@ package actors.monitorProcessors
 
 import models.{StatusTypes, StatusMonitor}
 import models.statusMonitors.FreestyleTypes
-import models.statusValues.{ResponseInfo, FreestyleStatus}
+import models.statusValues.{RequestSuccess, FreestyleStatus}
 import play.api.libs.json._
 import play.libs.XML
 import play.api.Logger.logger
@@ -21,7 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 class FreestyleProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor with SLF4JLogging {
   override def accepts: String = "application/json"
 
-  override def process(response: ResponseInfo) = {
+  override def process(response: RequestSuccess) = {
     val statusOpt: Option[FreestyleStatus] = statusMonitor.freestyleConfig.map(_.freestyleType).getOrElse(FreestyleTypes.Regex) match {
       case FreestyleTypes.Regex => None
       case FreestyleTypes.Json =>

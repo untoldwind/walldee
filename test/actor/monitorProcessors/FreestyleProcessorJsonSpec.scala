@@ -12,7 +12,7 @@ import models._
 import models.statusMonitors.{FreestyleTypes, FreestyleConfig}
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
-import models.statusValues.{ResponseInfo, FreestyleStatus}
+import models.statusValues.{RequestSuccess, FreestyleStatus}
 
 class FreestyleProcessorJsonSpec extends Specification with Mockito {
   "FreestyleProcessor JSON" should {
@@ -271,7 +271,7 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: ResponseInfo = {
+  private def sucessfulJobResponse: RequestSuccess = {
     val body = """{
                  |    "nutrition": {
                  |        "daily-values": {
@@ -363,7 +363,7 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
                  |    }
                  |}""".stripMargin
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,
@@ -371,11 +371,11 @@ class FreestyleProcessorJsonSpec extends Specification with Mockito {
     )
   }
 
-  private def sucessfulInvalidResponse: ResponseInfo = {
+  private def sucessfulInvalidResponse: RequestSuccess = {
 
     val body = """Something>not even remotely<JSON{}{}"""
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,

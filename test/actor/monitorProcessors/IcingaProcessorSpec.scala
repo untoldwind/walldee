@@ -115,7 +115,7 @@ class IcingaProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: ResponseInfo = {
+  private def sucessfulJobResponse: RequestSuccess = {
     val body = """{ "cgi_json_version": "1.7.1",
                  |"status": {
                  |"hostgroup_overview": [
@@ -135,7 +135,7 @@ class IcingaProcessorSpec extends Specification with Mockito {
                  |}
                  |}""".stripMargin
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,

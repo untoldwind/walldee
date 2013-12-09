@@ -54,7 +54,7 @@ class SonarProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor 
     case url => url
   }
 
-  def process(response: ResponseInfo) = {
+  def process(response: RequestSuccess) = {
     val sonarResources = response.bodyAsJson.as[Seq[SonarResource]]
 
     if (sonarResources.length == 1) {

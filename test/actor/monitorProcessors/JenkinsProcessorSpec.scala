@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
-import models.statusValues.ResponseInfo
+import models.statusValues.RequestSuccess
 
 class JenkinsProcessorSpec extends Specification with Mockito {
   "Jenkins processor" should {
@@ -77,7 +77,7 @@ class JenkinsProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: ResponseInfo = {
+  private def sucessfulJobResponse: RequestSuccess = {
     val body =
       """{"actions":[],"description":"","displayName":"ruboto_rubies","displayNameOrNull":null,""" +
         """"name":"ruboto_rubies","url":"http://ci.jruby.org/job/ruboto_rubies/","buildable":true,""" +
@@ -113,7 +113,7 @@ class JenkinsProcessorSpec extends Specification with Mockito {
         """{"name":"ANDROID_OS=android-15,ANDROID_TARGET=android-15,RUBOTO_PLATFORM=CURRENT,RUBY_IMPL=rbx,label=ruboto",""" +
         """"url":"http://ci.jruby.org/job/ruboto_rubies/./ANDROID_OS=android-15,ANDROID_TARGET=android-15,RUBOTO_PLATFORM=CURRENT,RUBY_IMPL=rbx,label=ruboto/","color":"blue"}]}"""
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,

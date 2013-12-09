@@ -34,10 +34,12 @@ class StatusMonitorUpdater(requester: ActorRef) extends Actor with SLF4JLogging 
 
           val responseFuture = requester ? request
           responseFuture.map {
-            case response: ResponseInfo =>
+            case response: RequestSuccess =>
               val (status, json) = processor.process(response)
               processor.updateStatus(status, json)
               statusMonitor.updateLastUpdated
+            case failure: RequestFailure =>
+              log.error("Request failure", failure.exception)
           }.recover {
             case e =>
               log.error("Exception", e)
@@ -57,12 +59,14 @@ class StatusMonitorUpdater(requester: ActorRef) extends Actor with SLF4JLogging 
 
       val responseFuture = requester ? request
       responseFuture.map {
-        case response: ResponseInfo =>
-          val (status, json) = processor.process(response)
-          origin ! StatusMonitorTestInfo(request, Left(TestResult(response, status, json)))
+        case success: RequestSuccess =>
+          val (status, json) = processor.process(success)
+          origin ! StatusMonitorTestInfo(request, success, Some(status), Some(json))
+        case failure: RequestFailure =>
+          origin ! StatusMonitorTestInfo(request, failure, None, None)
       }.recover {
         case e =>
-          origin ! StatusMonitorTestInfo(request, Right(TestFailure(e.getMessage)))
+          origin ! StatusMonitorTestInfo(request, RequestFailure(e), None, None)
       }
 
     case message =>

@@ -3,14 +3,14 @@ package actors.monitorProcessors
 import models.{StatusMonitorTypes, StatusValue, StatusTypes, StatusMonitor}
 import play.api.libs.ws.Response
 import play.api.libs.json.{Json, JsValue}
-import models.statusValues.ResponseInfo
+import models.statusValues.RequestSuccess
 
 trait MonitorProcessor {
   def statusMonitor: StatusMonitor
 
   def apiUrl = statusMonitor.url
 
-  def process(response: ResponseInfo): (StatusTypes.Type, JsValue)
+  def process(response: RequestSuccess): (StatusTypes.Type, JsValue)
 
   def accepts: String = "application/json"
 

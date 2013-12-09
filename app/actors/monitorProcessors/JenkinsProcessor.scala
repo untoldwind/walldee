@@ -3,7 +3,7 @@ package actors.monitorProcessors
 import models.{StatusTypes, StatusMonitor}
 import play.api.libs.json._
 import play.api.libs.ws.Response
-import models.statusValues.{ResponseInfo, BuildStatus}
+import models.statusValues.{RequestSuccess, BuildStatus}
 import play.api.Logger
 import scala.util.{Success, Failure, Try}
 
@@ -49,7 +49,7 @@ class JenkinsProcessor(var statusMonitor: StatusMonitor) extends MonitorProcesso
     case url => url + "/api/json"
   }
 
-  def process(response: ResponseInfo) = {
+  def process(response: RequestSuccess) = {
 
     Try(response.bodyAsJson.as[JenkinsJob]) match {
       case Failure(e) =>

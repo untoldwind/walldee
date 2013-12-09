@@ -8,7 +8,7 @@ import play.api.libs.json.Json
 import play.api.test._
 import play.api.test.Helpers._
 import models._
-import models.statusValues.ResponseInfo
+import models.statusValues.RequestSuccess
 
 class TeamcityProcessorSpec extends Specification with Mockito {
   "Teamcity processer" should {
@@ -57,7 +57,7 @@ class TeamcityProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: ResponseInfo = {
+  private def sucessfulJobResponse: RequestSuccess = {
     val response = mock[Response]
 
     val body =
@@ -77,7 +77,7 @@ class TeamcityProcessorSpec extends Specification with Mockito {
         """"triggered":{"type":"vcs","details":"svn","date":"20121119T135610+0100"},""" +
         """"changes":{"count":1,"href":"/httpAuth/app/rest/changes?build=id:4756"}}"""
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,

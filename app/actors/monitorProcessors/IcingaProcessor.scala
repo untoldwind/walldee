@@ -78,7 +78,7 @@ class IcingaProcessor(var statusMonitor: StatusMonitor) extends MonitorProcessor
     case url => url + "&jsonoutput"
   }
 
-  def process(response: ResponseInfo) = {
+  def process(response: RequestSuccess) = {
     val icingaOverview = response.bodyAsJson.as[IcingaOverview]
 
     val hostFilter = statusMonitor.icingaConfig.flatMap(_.hostNameFilter).map {

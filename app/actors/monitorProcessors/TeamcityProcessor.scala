@@ -2,7 +2,7 @@ package actors.monitorProcessors
 
 import models.{StatusTypes, StatusMonitor}
 import play.api.libs.json._
-import models.statusValues.{ResponseInfo, BuildStatus}
+import models.statusValues.{RequestSuccess, BuildStatus}
 import play.api.libs.ws.Response
 import scala.util.{Success, Failure, Try}
 import play.api.Logger
@@ -48,7 +48,7 @@ class TeamcityProcessor(var statusMonitor: StatusMonitor) extends MonitorProcess
     case url => url
   }
 
-  def process(response: ResponseInfo) = {
+  def process(response: RequestSuccess) = {
     Try(response.bodyAsJson.as[TeamcityBuild]) match {
       case Failure(e) =>
         val body = response.body

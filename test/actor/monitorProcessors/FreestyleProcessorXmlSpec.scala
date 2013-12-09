@@ -12,7 +12,7 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
-import models.statusValues.{ResponseInfo, FreestyleStatus}
+import models.statusValues.{RequestSuccess, FreestyleStatus}
 
 
 class FreestyleProcessorXmlSpec extends Specification with Mockito {
@@ -272,7 +272,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: ResponseInfo = {
+  private def sucessfulJobResponse: RequestSuccess = {
     val body = """<?xml version="1.0"?>
                  |<?xml-stylesheet type="text/css" href="nutrition.css"?>
                  |<nutrition>
@@ -333,7 +333,7 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
                  |</nutrition>
                  | """.stripMargin
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,
@@ -341,10 +341,10 @@ class FreestyleProcessorXmlSpec extends Specification with Mockito {
     )
   }
 
-  private def sucessfulInvalidResponse: ResponseInfo = {
+  private def sucessfulInvalidResponse: RequestSuccess = {
     val body = """Something>not even remotely<XML"""
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,

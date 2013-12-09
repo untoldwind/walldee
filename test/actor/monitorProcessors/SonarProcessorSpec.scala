@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.libs.ws.Response
 import play.api.test.FakeApplication
 import scala.Some
-import models.statusValues.ResponseInfo
+import models.statusValues.RequestSuccess
 
 class SonarProcessorSpec extends Specification with Mockito {
   "Sonar processor" should {
@@ -69,7 +69,7 @@ class SonarProcessorSpec extends Specification with Mockito {
     }
   }
 
-  private def sucessfulJobResponse: ResponseInfo = {
+  private def sucessfulJobResponse: RequestSuccess = {
     val response = mock[Response]
 
     val body = """[{"id":427172,"key":"org.codehaus.sonar-plugins.java:java",""" +
@@ -83,7 +83,7 @@ class SonarProcessorSpec extends Specification with Mockito {
       """{"key":"minor_violations","val":16.0,"frmt_val":"16"},""" +
       """{"key":"info_violations","val":62.0,"frmt_val":"62"}]}]"""
 
-    ResponseInfo(
+    RequestSuccess(
       statusCode = OK,
       statusText = "OK",
       headers = Seq.empty,
