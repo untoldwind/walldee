@@ -52,7 +52,8 @@ object TeamcityProcessor extends MonitorProcessor {
     Try(response.json.as[TeamcityBuild]) match {
       case Failure(e) =>
         val body = response.body
-        Logger.error(s"cannot parse json from response. Status=${response.status}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
+        val url = s"http://localhost:9000/projects/${statusMonitor.projectId}" + (statusMonitor.id map { id => s"/statusMonitors/$id"} getOrElse "")
+        Logger.error(s"[$url] cannot parse json from response. Status=${response.status}. Body: " + body.substring(0, Math.min(body.length, 400)), e)
         updateStatus(statusMonitor, StatusTypes.Unknown, JsObject(Seq.empty))
       case Success(teamcityBuild) =>
         val json = Json.toJson(BuildStatus(teamcityBuild.number.toInt, teamcityBuild.running, teamcityBuild.buildType.name))
