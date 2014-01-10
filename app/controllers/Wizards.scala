@@ -68,77 +68,80 @@ object Wizards extends Controller {
     val projectURL = new URL(wizard.url)
     val baseURL = new URI(projectURL.getProtocol, null, projectURL.getHost, projectURL.getPort, null, null, null).toString
 
-    wsRequest.get().map { response =>
-      val document = Jsoup.parse(response.body, wizard.url)
-      val steps = document.select(".buildTypeName").iterator().toList
-      val projectSteps = for {
-        step <- steps
-        stepName = step.text()
-        relativeURI = step.attr("href")
-        stepURL = baseURL + relativeURI
-      } yield stepName -> stepURL
+    wsRequest.get().map {
+      case response if response.status != 200 => throw new Exception(s"cannot parse response [status=${response.status}, url=${wizard.url}] from TeamCity: ${response.body}")
+      case response => {
+        val document = Jsoup.parse(response.body, wizard.url)
+        val steps = document.select(".buildTypeName").iterator().toList
+        val projectSteps = for {
+          step <- steps
+          stepName = step.text()
+          relativeURI = step.attr("href")
+          stepURL = baseURL + relativeURI
+        } yield stepName -> stepURL
 
-      // no DB transaction. parsed data can always be used
-      val projectId = findOrCreateProject(wizard.projectName)
-      StatusMonitor.finaAllForProject(projectId).foreach(_.delete)
+        // no DB transaction. parsed data can always be used
+        val projectId = findOrCreateProject(wizard.projectName)
+        StatusMonitor.finaAllForProject(projectId).foreach(_.delete)
 
-      for (projectStep <- projectSteps) {
-        val statusMonitor = StatusMonitor(
-          projectId = projectId,
-          name = projectStep._1,
-          typeNum = StatusMonitorTypes.Teamcity.id,
-          url = projectStep._2,
-          username = wizard.username,
-          password = wizard.password,
-          active = true,
-          keepHistory = 10,
-          updatePeriod = 60
-        )
-        statusMonitor.insert
+        for (projectStep <- projectSteps) {
+          val statusMonitor = StatusMonitor(
+            projectId = projectId,
+            name = projectStep._1,
+            typeNum = StatusMonitorTypes.Teamcity.id,
+            url = projectStep._2,
+            username = wizard.username,
+            password = wizard.password,
+            active = true,
+            keepHistory = 10,
+            updatePeriod = 60
+          )
+          statusMonitor.insert
+        }
+
+        val teamId = findOrCreateTeam(wizard.displayName)
+        val displayId = findOrCreateDisplay(projectId, teamId, wizard.displayName)
+
+        val existingDisplayItems = DisplayItem.findAllForDisplay(displayId)
+        val displayAlreadyExistForProject = existingDisplayItems.exists(_.projectId.exists(_ == projectId))
+
+        if (!displayAlreadyExistForProject) {
+          // add display for project
+          val maxX = existingDisplayItems.foldLeft(0){ case (max, d) => Math.max(d.posx + d.width, max) }
+
+          val title = DisplayItem(
+            displayId = displayId,
+            posx = maxX + 20,
+            posy = 0,
+            width = 400,
+            height = 25,
+            widgetNum = DisplayWidgets.Heading.id,
+            projectId = Some(projectId),
+            teamId = Some(teamId),
+            appearsInFeed = true,
+            hidden = false,
+            widgetConfigJson = s"""{"title": "${wizard.projectName}"}"""
+          )
+          title.insert
+
+          val displayItem = DisplayItem(
+            displayId = displayId,
+            posx = maxX + 20,
+            posy = 30,
+            width = 400,
+            height = 30 + projectSteps.length * 25,
+            widgetNum = DisplayWidgets.BuildStatus.id,
+            projectId = Some(projectId),
+            teamId = Some(teamId),
+            appearsInFeed = true,
+            hidden = false,
+            widgetConfigJson = "{}"
+          )
+          displayItem.insert
+
+        }
+        displayId
       }
-
-      val teamId = findOrCreateTeam(wizard.displayName)
-      val displayId = findOrCreateDisplay(projectId, teamId, wizard.displayName)
-
-      val existingDisplayItems = DisplayItem.findAllForDisplay(displayId)
-      val displayAlreadyExistForProject = existingDisplayItems.exists(_.projectId.exists(_ == projectId))
-
-      if (!displayAlreadyExistForProject) {
-        // add display for project
-        val maxX = existingDisplayItems.foldLeft(0){ case (max, d) => Math.max(d.posx + d.width, max) }
-
-        val title = DisplayItem(
-          displayId = displayId,
-          posx = maxX + 20,
-          posy = 0,
-          width = 400,
-          height = 25,
-          widgetNum = DisplayWidgets.Heading.id,
-          projectId = Some(projectId),
-          teamId = Some(teamId),
-          appearsInFeed = true,
-          hidden = false,
-          widgetConfigJson = s"""{"title": "${wizard.projectName}"}"""
-        )
-        title.insert
-
-        val displayItem = DisplayItem(
-          displayId = displayId,
-          posx = maxX + 20,
-          posy = 30,
-          width = 400,
-          height = 30 + projectSteps.length * 25,
-          widgetNum = DisplayWidgets.BuildStatus.id,
-          projectId = Some(projectId),
-          teamId = Some(teamId),
-          appearsInFeed = true,
-          hidden = false,
-          widgetConfigJson = "{}"
-        )
-        displayItem.insert
-
-      }
-      displayId
     }
   }
 
