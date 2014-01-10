@@ -40,7 +40,7 @@ object TeamcityBuild {
 }
 
 object TeamcityProcessor extends MonitorProcessor {
-  val UrlPattern = """(http|https)://([a-zA-Z0-9\.:/]+)/viewType\.html\?buildTypeId=(bt[0-9]+).*""".r
+  val UrlPattern = """(http|https)://([a-zA-Z0-9\.:/]+)/viewType\.html\?buildTypeId=(\w+)&?.*""".r
 
   override def apiUrl(url: String) = url match {
     case UrlPattern(proto, base, id) =>
