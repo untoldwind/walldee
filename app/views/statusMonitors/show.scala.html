@@ -7,7 +7,7 @@
                     Breadcrumb(project.name, routes.Projects.show(project.id.get), false) ::
                             Breadcrumb(statusMonitor.name, routes.StatusMonitors.show(project.id.get, statusMonitor.id.get), true) :: Nil) {
 
-    <h1>@statusMonitor.name</h1>
+    <h1>@statusMonitor.name&nbsp;<a href="@routes.StatusMonitors.edit(statusMonitor.projectId, statusMonitor.id.get)" class="edit" tooltip="edit"> Edit </a></h1>
 
     @{
         statusMonitor.monitorType match {
