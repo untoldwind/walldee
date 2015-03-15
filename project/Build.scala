@@ -1,6 +1,11 @@
 import sbt._
 import sbt.Keys._
-import play.Project._
+import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
+import com.typesafe.sbt.less.Import._
+import com.typesafe.sbt.uglify.Import._
+import com.typesafe.sbt.web.Import._
+import play.Play.autoImport._
+import PlayKeys._
 
 object ApplicationBuild extends Build {
 
@@ -10,6 +15,7 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     jdbc,
     cache,
+    ws,
     "com.h2database" % "h2" % "1.3.170",
 
     "org.jfree" % "jfreechart" % "1.0.14",
@@ -18,9 +24,17 @@ object ApplicationBuild extends Build {
     "org.mockito" % "mockito-all" % "1.9.0" % "test"
   )
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
-    // Add your own project settings here
-    scalacOptions += "-feature"
+  val main = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
+    version := appVersion,
+    libraryDependencies ++= appDependencies,
+    scalacOptions += "-feature",
+
+    JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
+    LessKeys.compress := true, // for minified *.min.css files
+    includeFilter in (Assets, LessKeys.less) := "*.less",
+    excludeFilter in (Assets, LessKeys.less) := "_*.less",
+
+    pipelineStages in Assets := Seq(uglify)
   )
 
 }

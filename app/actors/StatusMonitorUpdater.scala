@@ -5,7 +5,8 @@ import akka.event.slf4j.SLF4JLogging
 import models.StatusMonitor
 import actors.StatusMonitorUpdater.UpdateAll
 import play.api.libs.ws.WS
-import com.ning.http.client.Realm.AuthScheme
+import play.api.libs.ws.WSAuthScheme.BASIC
+import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 import actors.monitorProcessors.MonitorProcessor
 
@@ -19,7 +20,7 @@ class StatusMonitorUpdater extends Actor with SLF4JLogging {
 
           val wsRequest = (
             for (username <- statusMonitor.username; password <- statusMonitor.password)
-            yield WS.url(url).withAuth(username, password, AuthScheme.BASIC)
+            yield WS.url(url).withAuth(username, password, BASIC)
           ).getOrElse(WS.url(url))
 
           statusMonitor.updateLastQueried
