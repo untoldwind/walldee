@@ -2,7 +2,8 @@ package views
 
 import java.util.Date
 import util.matching.Regex
-import play.api.templates.Html
+import play.twirl.api.Html
+import play.twirl.api.HtmlFormat
 
 package object utils {
   val dateFormatter = org.joda.time.format.DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")
@@ -22,21 +23,21 @@ package object utils {
   }
 
   def mkTable[A](columns: Int, values: Seq[A])(tmpl: A => Html) = {
-    val html = Html("<tbody>")
+    var html = Vector(Html("<tbody>"))
     Range(0, values.length, columns).foreach {
       idx =>
-        html += Html("<tr>")
+        html = Html("<tr>") +: html
         values.slice(idx, idx + columns).foreach {
           value =>
-            html += tmpl(value)
+            html = tmpl(value) +: html
         }
     }
-    html += Html("</tbody>")
-    html
+    html = Html("</tbody>") +: html
+    HtmlFormat.fill(html)
   }
 
   def mkGrid[A](values: Seq[A], columns: Int = 1, styles: Seq[String] = Seq.empty[String])(tmpl: A => Html) = {
-    val html = Html( """<div class="wall-grid %s">""".format(styles.mkString(" ")))
+    var html = Vector(Html( """<div class="wall-grid %s">""".format(styles.mkString(" "))))
     val rows = if (values.isEmpty) 0 else (values.length - 1) / columns + 1
     Range(0, rows).foreach {
       row =>
@@ -47,15 +48,15 @@ package object utils {
             val left = 100 * column / columns
             val bottom = 100 * (row + 1) / rows
             val right = 100 * (column + 1) / columns
-            html += Html( """<div class="wall-cell" style="left: %d%%;top: %d%%;width: %d%%;height: %d%%;">""".
-              format(left, top, right - left, bottom - top))
+            html = Html( """<div class="wall-cell" style="left: %d%%;top: %d%%;width: %d%%;height: %d%%;">""".
+              format(left, top, right - left, bottom - top)) +: html
             if (idx < values.length) {
-              html += tmpl(values(idx))
+              html = tmpl(values(idx)) +: html
             }
-            html += Html("</div>")
+            html = Html("</div>") +: html
         }
     }
-    html += Html("</div>")
-    html
+    html = Html("</div>") +: html
+    HtmlFormat.fill(html)
   }
 }

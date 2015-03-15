@@ -1,0 +1,5 @@
+-J-Xmx4G
+-J-XX:+UseConcMarkSweepGC
+-J-XX:+CMSClassUnloadingEnabled
+-J-XX:PermSize=512M
+-J-XX:MaxPermSize=1G

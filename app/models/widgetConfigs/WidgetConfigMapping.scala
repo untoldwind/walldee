@@ -1,6 +1,7 @@
 package models.widgetConfigs
 
-import play.api.data.Mapping
+import models.DisplayWidgets.Type
+import play.api.data.{FormError, Mapping}
 import models.DisplayWidgets
 import play.api.data.validation.Constraint
 import play.api.data.Forms._
@@ -33,6 +34,14 @@ case class WidgetConfigMapping(key: String = "",
   def unbind(value: (DisplayWidgets.Type, WidgetConfig)) = {
     val widgetData = widgetMapping.unbind(value._1)
     val widgetConfigData = value._1.configMappger.formMapping.withPrefix(key + "." + value._1.toString).unbind(value._2)
+
+    widgetData ++ widgetConfigData
+  }
+
+
+  def unbindAndValidate(value: (Type, WidgetConfig)): (Map[String, String], Seq[FormError]) = {
+    val widgetData = widgetMapping.unbindAndValidate(value._1)
+    val widgetConfigData = value._1.configMappger.formMapping.withPrefix(key + "." + value._1.toString).unbindAndValidate(value._2)
 
     (widgetData._1 ++ widgetConfigData._1, widgetData._2 ++ widgetConfigData._2)
   }

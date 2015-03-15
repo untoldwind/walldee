@@ -6,6 +6,8 @@ import play.api.data.Forms._
 import models._
 import play.api.data.validation.{ValidationError, Invalid, Valid, Constraint}
 import play.api.libs.ws.WS
+import play.api.libs.ws.WSAuthScheme.BASIC
+import play.api.Play.current
 import com.ning.http.client.Realm.AuthScheme
 import scala.concurrent.Future
 import org.jsoup.Jsoup
@@ -62,7 +64,7 @@ object Wizards extends Controller {
 
     val wsRequest = (
       for (username <- wizard.username; password <- wizard.password)
-        yield WS.url(wizard.url).withAuth(username, password, AuthScheme.BASIC)
+        yield WS.url(wizard.url).withAuth(username, password, BASIC)
       ).getOrElse(WS.url(wizard.url))
 
     val projectURL = new URL(wizard.url)
