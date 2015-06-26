@@ -22,6 +22,12 @@ class TeamcityProcessorSpec extends Specification with Mockito {
 
       TeamcityProcessor.apiUrl(url) must be_==("http://teamcity.somewhere.de/httpAuth/app/rest/builds/buildType:EPostSafeUi_45LivingDocumentationApiUploadToConfluence,running:any")
     }
+    
+    "convert a url with dashes in the host name" in {
+      val url = "http://teamcity.some-where.de/viewType.html?buildTypeId=EPostSafeUi_45LivingDocumentationApiUploadToConfluence&tab=buildTypeStatusDiv"
+
+      TeamcityProcessor.apiUrl(url) must be_==("http://teamcity.some-where.de/httpAuth/app/rest/builds/buildType:EPostSafeUi_45LivingDocumentationApiUploadToConfluence,running:any")
+    }
 
     "process json correctly" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
